@@ -1,8 +1,24 @@
 {
-  "name": "nexushealth-hms",
-  "private": true,
-  "version": "0.0.0",
+  "name": "arya-hospital-hms",
+  "version": "1.0.0",
+  "description": "A comprehensive, AI-powered Hospital Management System featuring OPD triage, clinical decision support, and resource management.",
   "type": "module",
+  "private": false,
+  "author": "Mhassaniuk Coder",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mhassaniuk-coder/Arya-Hospital.git"
+  },
+  "keywords": [
+    "hms",
+    "hospital-management",
+    "react",
+    "typescript",
+    "ai",
+    "clinical-support",
+    "gemini-api"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
