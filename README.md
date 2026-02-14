@@ -12,7 +12,7 @@ A next-generation, AI-powered Hospital Management System designed to streamline 
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmhassaniuk-coder%2FArya-Hospital)
 
-**[View Live Deployment](https://arya-hospital.vercel.app)**
+**[View Live Deployment](https://arya-hospital-7676-1oq1oqjxk-mhassaniuk-coders-projects.vercel.app)**
 *(Note: If the live demo is not yet active, click the "Deploy with Vercel" button above to deploy your own instance instantly)*
 
 *(Note: If the link above is not active, please check the repository description or releases for the latest deployment URL.)*
