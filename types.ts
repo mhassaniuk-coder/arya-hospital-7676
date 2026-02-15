@@ -120,9 +120,95 @@ export interface Ambulance {
   id: string;
   vehicleNumber: string;
   driverName: string;
-  status: 'Available' | 'On Route' | 'Maintenance';
+  driverId?: string;
+  status: 'Available' | 'On Route' | 'Maintenance' | 'Out of Service';
   location: string;
-  type: 'ALS' | 'BLS';
+  type: 'ALS' | 'BLS' | 'Neonatal' | 'Patient Transport';
+  registrationDate?: string;
+  lastServiceDate?: string;
+  nextServiceDate?: string;
+  fuelLevel?: number;
+  odometerReading?: number;
+  equipmentCheck?: string;
+  insuranceExpiry?: string;
+  capacity?: number;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AmbulanceDriver {
+  id: string;
+  name: string;
+  contact: string;
+  licenseNo: string;
+  licenseExpiry: string;
+  status: 'Available' | 'On Trip' | 'Off Duty' | 'On Leave';
+  assignedVehicle?: string;
+  shift: 'Day' | 'Night' | 'Rotational';
+  certifications: string[];
+  totalTrips: number;
+  rating?: number;
+  address: string;
+  emergencyContact: string;
+  joiningDate: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AmbulanceTrip {
+  id: string;
+  ambulanceId: string;
+  vehicleNumber: string;
+  driverId: string;
+  driverName: string;
+  tripType: 'Emergency' | 'Transfer' | 'Discharge' | 'Scheduled';
+  status: 'Dispatched' | 'En Route' | 'At Scene' | 'Transporting' | 'Completed' | 'Cancelled';
+  pickupLocation: string;
+  dropLocation: string;
+  patientName?: string;
+  patientId?: string;
+  emergencyType?: string;
+  severity?: 'Critical' | 'Serious' | 'Moderate' | 'Minor';
+  dispatchTime: string;
+  arrivalTime?: string;
+  departureTime?: string;
+  completionTime?: string;
+  distance?: number;
+  fuelConsumed?: number;
+  notes?: string;
+  feedback?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AmbulanceMaintenance {
+  id: string;
+  ambulanceId: string;
+  vehicleNumber: string;
+  type: 'Routine' | 'Repair' | 'Inspection' | 'Emergency';
+  description: string;
+  cost?: number;
+  startDate: string;
+  endDate?: string;
+  status: 'Scheduled' | 'In Progress' | 'Completed';
+  vendor?: string;
+  odometerReading?: number;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface AmbulanceStats {
+  totalVehicles: number;
+  availableVehicles: number;
+  onTripVehicles: number;
+  maintenanceVehicles: number;
+  totalDrivers: number;
+  availableDrivers: number;
+  activeTrips: number;
+  completedTripsToday: number;
+  averageResponseTime: number;
+  totalDistanceToday: number;
 }
 
 export interface BloodUnit {
@@ -270,6 +356,46 @@ export interface Vaccine {
     stock: number;
     batchNo: string;
     expiry: string;
+    manufacturer?: string;
+    storageTemp?: string;
+    dosesPerVial?: number;
+    status?: 'Available' | 'Low Stock' | 'Out of Stock' | 'Expired';
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface VaccinationAppointment {
+    id: string;
+    patientId: string;
+    patientName: string;
+    vaccineId: string;
+    vaccineName: string;
+    scheduledDate: string;
+    scheduledTime: string;
+    doseNumber: number;
+    status: 'Scheduled' | 'Completed' | 'Cancelled' | 'No Show';
+    administeredBy?: string;
+    notes?: string;
+    createdAt: string;
+}
+
+export interface VaccinationRecord {
+    id: string;
+    patientId: string;
+    patientName: string;
+    vaccineId: string;
+    vaccineName: string;
+    batchNo: string;
+    administeredDate: string;
+    administeredTime: string;
+    doseNumber: number;
+    site: 'Left Arm' | 'Right Arm' | 'Left Thigh' | 'Right Thigh';
+    route: 'IM' | 'SC' | 'ID';
+    administeredBy: string;
+    adverseReaction?: string;
+    notes?: string;
+    nextDoseDate?: string;
+    createdAt: string;
 }
 
 export interface Feedback {
@@ -345,9 +471,50 @@ export interface MortuaryRecord {
     id: string;
     deceasedName: string;
     dateOfDeath: string;
+    timeOfDeath: string;
+    causeOfDeath: string;
+    deathCertificateNo?: string;
+    age: number;
+    gender: string;
+    patientId?: string;
     freezerNo: string;
-    status: 'Occupied' | 'Released';
+    status: 'Admitted' | 'Post-Mortem' | 'Released' | 'Transferred';
+    admittedDate: string;
+    releasedDate?: string;
+    releasedTo?: string;
+    releaseType?: 'Family' | 'Funeral Home' | 'Transfer';
     relativeName: string;
+    relativeContact: string;
+    relativeRelation: string;
+    relativeAddress?: string;
+    belongings?: MortuaryBelonging[];
+    postMortemRequired: boolean;
+    postMortemStatus?: 'Pending' | 'Completed' | 'Not Required';
+    postMortemReport?: string;
+    doctorName: string;
+    notes?: string;
+    createdAt: string;
+    updatedAt?: string;
+}
+
+export interface MortuaryBelonging {
+    id: string;
+    item: string;
+    description?: string;
+    value?: number;
+    handedOverTo?: string;
+    handedOverDate?: string;
+    status: 'With Body' | 'Handed Over' | 'Stored';
+}
+
+export interface MortuaryFreezer {
+    id: string;
+    number: string;
+    capacity: number;
+    temperature: number;
+    status: 'Available' | 'Occupied' | 'Maintenance' | 'Cleaning';
+    currentOccupant?: string;
+    lastMaintenance?: string;
 }
 
 export interface HospitalEvent {
