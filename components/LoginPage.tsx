@@ -92,8 +92,8 @@ const LoginPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
-      <div className="max-w-4xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px]">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4 font-sans transition-colors duration-300">
+      <div className="max-w-4xl w-full bg-white dark:bg-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px] transition-colors duration-300">
         
         {renderBrand()}
 
@@ -104,26 +104,26 @@ const LoginPage: React.FC = () => {
           <div className="mb-8">
             {view === 'login' && (
               <>
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome Back</h2>
-                <p className="text-slate-500">Please sign in to access your dashboard.</p>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h2>
+                <p className="text-slate-500 dark:text-slate-400">Please sign in to access your dashboard.</p>
               </>
             )}
             {view === 'register' && (
               <>
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">Create Account</h2>
-                <p className="text-slate-500">Join the medical staff network.</p>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Create Account</h2>
+                <p className="text-slate-500 dark:text-slate-400">Join the medical staff network.</p>
               </>
             )}
             {view === 'forgot-password' && (
               <>
                 <button 
                   onClick={() => { setView('login'); setResetSent(false); }}
-                  className="flex items-center text-sm text-slate-500 hover:text-teal-600 mb-4 transition-colors"
+                  className="flex items-center text-sm text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 mb-4 transition-colors"
                 >
                   <ArrowLeft size={16} className="mr-1" /> Back to Login
                 </button>
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">Reset Password</h2>
-                <p className="text-slate-500">Enter your email to receive recovery instructions.</p>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Reset Password</h2>
+                <p className="text-slate-500 dark:text-slate-400">Enter your email to receive recovery instructions.</p>
               </>
             )}
           </div>
@@ -133,12 +133,12 @@ const LoginPage: React.FC = () => {
             <div className="animate-fade-in">
                 <button 
                   onClick={() => setIsVerificationStep(false)}
-                  className="flex items-center text-sm text-slate-500 hover:text-teal-600 mb-6 transition-colors"
+                  className="flex items-center text-sm text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 mb-6 transition-colors"
                 >
                   <ArrowLeft size={16} className="mr-1" /> Back
                 </button>
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">Verification Required</h2>
-                <p className="text-slate-500 mb-8">Please enter the 6-digit code sent to your email/device to continue.</p>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Verification Required</h2>
+                <p className="text-slate-500 dark:text-slate-400 mb-8">Please enter the 6-digit code sent to your email/device to continue.</p>
                 
                 <form onSubmit={handleVerification}>
                     <div className="flex justify-between gap-2 mb-8">
@@ -147,7 +147,7 @@ const LoginPage: React.FC = () => {
                                 key={index}
                                 type="text"
                                 maxLength={1}
-                                className="w-12 h-14 border border-slate-300 rounded-xl text-center text-2xl font-bold text-slate-700 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-all"
+                                className="w-12 h-14 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-xl text-center text-2xl font-bold text-slate-700 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-all"
                                 value={digit}
                                 onChange={(e) => {
                                     const newCode = [...verificationCode];
@@ -173,21 +173,21 @@ const LoginPage: React.FC = () => {
                     >
                         Verify & Login
                     </button>
-                    <p className="text-center mt-4 text-sm text-slate-500">
-                        Didn't receive code? <button type="button" onClick={handleSendCode} className="text-teal-600 font-bold hover:underline">Resend</button>
+                    <p className="text-center mt-4 text-sm text-slate-500 dark:text-slate-400">
+                        Didn't receive code? <button type="button" onClick={handleSendCode} className="text-teal-600 dark:text-teal-400 font-bold hover:underline">Resend</button>
                     </p>
                 </form>
             </div>
           ) : view === 'forgot-password' && resetSent ? (
-            <div className="bg-green-50 border border-green-100 rounded-xl p-6 text-center animate-fade-in">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mail size={24} className="text-green-600" />
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-xl p-6 text-center animate-fade-in">
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail size={24} className="text-green-600 dark:text-green-400" />
               </div>
-              <h3 className="text-green-800 font-bold mb-2">Check your email</h3>
-              <p className="text-green-600 text-sm mb-6">We've sent password reset instructions to {email}</p>
+              <h3 className="text-green-800 dark:text-green-200 font-bold mb-2">Check your email</h3>
+              <p className="text-green-600 dark:text-green-300 text-sm mb-6">We've sent password reset instructions to {email}</p>
               <button 
                 onClick={() => setView('login')}
-                className="text-teal-600 font-semibold text-sm hover:underline"
+                className="text-teal-600 dark:text-teal-400 font-semibold text-sm hover:underline"
               >
                 Return to Login
               </button>
@@ -199,14 +199,14 @@ const LoginPage: React.FC = () => {
               {(view === 'login' || view === 'register') && (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Full Name</label>
                     <div className="relative">
-                      <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                      <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
                       <input 
                         type="text" 
                         required
                         placeholder="e.g. Dr. Sarah Chen"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+                        className="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                       />
@@ -218,14 +218,14 @@ const LoginPage: React.FC = () => {
               {/* Email Field (All Views) */}
               {(view === 'register' || view === 'forgot-password') && (
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
                     <input 
                       type="email" 
                       required
                       placeholder="name@hospital.com"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+                      className="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -237,24 +237,24 @@ const LoginPage: React.FC = () => {
               {(view === 'login' || view === 'register') && (
                 <div>
                   <div className="flex justify-between mb-2">
-                    <label className="block text-sm font-semibold text-slate-700">Password</label>
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
                     {view === 'login' && (
                       <button 
                         type="button"
                         onClick={() => setView('forgot-password')}
-                        className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+                        className="text-sm text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium"
                       >
                         Forgot Password?
                       </button>
                     )}
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
                     <input 
                       type="password" 
                       required={view === 'register'} // Optional for demo login, required for register
                       placeholder="••••••••"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+                      className="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
@@ -265,11 +265,11 @@ const LoginPage: React.FC = () => {
               {/* Role Selection */}
               {(view === 'login' || view === 'register') && (
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Select Role</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Select Role</label>
                   <div className="relative">
-                    <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                    <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
                     <select 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-teal-500 transition-all appearance-none cursor-pointer"
+                      className="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white transition-all appearance-none cursor-pointer"
                       value={role}
                       onChange={(e) => setRole(e.target.value as UserRole)}
                     >
@@ -299,16 +299,16 @@ const LoginPage: React.FC = () => {
           {!resetSent && (
             <div className="mt-8 text-center">
               {view === 'login' ? (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Don't have an account?{' '}
-                  <button onClick={() => setView('register')} className="text-teal-600 font-bold hover:underline">
+                  <button onClick={() => setView('register')} className="text-teal-600 dark:text-teal-400 font-bold hover:underline">
                     Sign Up
                   </button>
                 </p>
               ) : view === 'register' ? (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Already have an account?{' '}
-                  <button onClick={() => setView('login')} className="text-teal-600 font-bold hover:underline">
+                  <button onClick={() => setView('login')} className="text-teal-600 dark:text-teal-400 font-bold hover:underline">
                     Sign In
                   </button>
                 </p>

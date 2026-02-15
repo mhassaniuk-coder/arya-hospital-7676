@@ -67,6 +67,8 @@ import Revenue from './components/Revenue';
 
 import { Menu, Search, Bell, Plus, Calculator, Siren, LogOut } from 'lucide-react';
 import { useAuth } from './src/contexts/AuthContext';
+import { ThemeProvider } from './src/contexts/ThemeContext';
+import { AnimatePresence, motion } from 'framer-motion';
 
 function App() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -78,7 +80,11 @@ function App() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   if (!isAuthenticated) {
-    return <LoginPage />;
+    return (
+      <ThemeProvider>
+        <LoginPage />
+      </ThemeProvider>
+    );
   }
 
   const renderContent = () => {
@@ -148,7 +154,8 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
+    <ThemeProvider>
+      <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans transition-colors duration-300">
       {/* Emergency Overlay */}
       {isEmergencyActive && (
         <div className="fixed inset-0 z-[60] bg-red-600/90 animate-pulse flex items-center justify-center pointer-events-auto">
@@ -179,10 +186,13 @@ function App() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full w-full relative">
         
-        {/* Desktop & Mobile Header */}
-        <header className="bg-white border-b border-slate-100 py-3 px-4 md:px-8 flex items-center justify-between z-10 sticky top-0 shadow-sm">
-          <div className="flex items-center gap-4">
-             <button className="md:hidden bg-slate-100 p-2 rounded-lg text-slate-600" onClick={() => setIsSidebarOpen(true)}>
+        {/* Header */}
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 h-16 flex items-center justify-between px-4 md:px-6 z-30 transition-colors duration-300">
+          <div className="flex items-center gap-3">
+            <button 
+              className="md:hidden p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+              onClick={() => setIsSidebarOpen(true)}
+            >
                 <Menu size={20} />
              </button>
              {/* Global Search */}
@@ -254,7 +264,18 @@ function App() {
 
         {/* Scrollable Content */}
         <main className="flex-1 overflow-auto p-4 md:p-8 w-full max-w-[1600px] mx-auto relative custom-scrollbar">
-          {renderContent()}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="h-full"
+            >
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         {/* Mobile FAB */}
@@ -273,6 +294,7 @@ function App() {
         {isLogoutModalOpen && <LogoutModal isOpen={isLogoutModalOpen} onClose={() => setIsLogoutModalOpen(false)} />}
       </div>
     </div>
+    </ThemeProvider>
   );
 }
 

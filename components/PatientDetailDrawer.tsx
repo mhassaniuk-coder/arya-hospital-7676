@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
-import { X, Activity, Pill, FileText, FlaskConical, Stethoscope, File, Utensils, Clock, Download } from 'lucide-react';
+import { 
+    X, Activity, Pill, FileText, FlaskConical, Stethoscope, File, 
+    Utensils, Clock, Download, Brain, Sparkles, Loader2, AlertTriangle,
+    Mic, MicOff, TrendingUp, TrendingDown, AlertCircle, CheckCircle,
+    Zap, Gauge, CalendarClock, HeartPulse, AlertOctagon, Heart, Upload
+} from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Patient, LabResult } from '../types';
+import { Patient, LabResult, VitalSign, ReadmissionRiskResult, LengthOfStayResult, MortalityRiskResult, ECGAnalysisResult } from '../types';
+import { useMedicalScribe, useVitalSignsMonitor, useCDSS } from '../hooks/useAI';
+import { predictReadmissionRisk, predictLengthOfStay, assessMortalityRisk, analyzeECG } from '../services/aiService';
+import { useTheme } from '../src/contexts/ThemeContext';
 
 interface PatientDetailDrawerProps {
   patient: Patient | null;
@@ -10,7 +18,29 @@ interface PatientDetailDrawerProps {
 }
 
 const PatientDetailDrawer: React.FC<PatientDetailDrawerProps> = ({ patient, isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'labs' | 'docs' | 'diet' | 'history'>('overview');
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const [activeTab, setActiveTab] = useState<'overview' | 'labs' | 'docs' | 'diet' | 'history' | 'ai'>('overview');
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcription, setTranscription] = useState('');
+  
+  // AI Hooks
+  const { data: scribeResult, loading: scribeLoading, execute: generateNotes } = useMedicalScribe();
+  const { data: vitalsAnalysis, loading: vitalsLoading, execute: analyzeVitals } = useVitalSignsMonitor();
+  const { data: cdssResult, loading: cdssLoading, execute: getCDSS } = useCDSS();
+  
+  // Predictive Analytics State
+  const [readmissionResult, setReadmissionResult] = useState<ReadmissionRiskResult | null>(null);
+  const [losResult, setLosResult] = useState<LengthOfStayResult | null>(null);
+  const [mortalityResult, setMortalityResult] = useState<MortalityRiskResult | null>(null);
+  const [readmissionLoading, setReadmissionLoading] = useState(false);
+  const [losLoading, setLosLoading] = useState(false);
+  const [mortalityLoading, setMortalityLoading] = useState(false);
+  
+  // ECG Analysis State
+  const [ecgImage, setEcgImage] = useState<string | null>(null);
+  const [ecgResult, setEcgResult] = useState<ECGAnalysisResult | null>(null);
+  const [ecgLoading, setEcgLoading] = useState(false);
 
   if (!patient) return null;
 
@@ -18,17 +48,20 @@ const PatientDetailDrawer: React.FC<PatientDetailDrawerProps> = ({ patient, isOp
     { time: '08:00', heartRate: 72, temp: 36.6, bloodPressure: '120/80' },
     { time: '10:00', heartRate: 75, temp: 36.7, bloodPressure: '122/81' },
     { time: '12:00', heartRate: 78, temp: 36.8, bloodPressure: '121/82' },
+    { time: '14:00', heartRate: 76, temp: 36.7, bloodPressure: '119/80' },
+    { time: '16:00', heartRate: 82, temp: 36.9, bloodPressure: '125/83' },
   ];
 
   const medications = patient.medications || [
     { name: 'Amoxicillin', dosage: '500mg', frequency: '3x Daily' },
+    { name: 'Ibuprofen', dosage: '400mg', frequency: 'As needed' },
   ];
 
   const labResults: LabResult[] = patient.labResults || [
     { id: '1', testName: 'Complete Blood Count', date: '2023-10-24', result: 'Normal', status: 'Normal' },
+    { id: '2', testName: 'Metabolic Panel', date: '2023-10-24', result: 'Slightly Elevated Glucose', status: 'Abnormal' },
   ];
 
-  // Mock Data for new tabs
   const docs = [
       { id: '1', name: 'MRI Scan - Head', type: 'DICOM', date: 'Oct 24, 2023', size: '45 MB' },
       { id: '2', name: 'Blood Test Report', type: 'PDF', date: 'Oct 23, 2023', size: '1.2 MB' },
@@ -45,70 +78,349 @@ const PatientDetailDrawer: React.FC<PatientDetailDrawerProps> = ({ patient, isOp
       { date: 'Oct 25, 09:00 AM', title: 'Consultation', description: 'Dr. Chen reviewed results', type: 'Medication' },
   ];
 
+  // AI Functions
+  const handleAnalyzeVitals = async () => {
+    await analyzeVitals({
+      vitalSigns: vitalsData,
+      patientAge: patient.age,
+      patientCondition: patient.condition
+    });
+  };
+
+  const handleGenerateNotes = async () => {
+    if (!transcription) return;
+    await generateNotes({
+      transcription,
+      encounterType: 'consultation',
+      patientInfo: {
+        name: patient.name,
+        age: patient.age,
+        gender: patient.gender
+      }
+    });
+  };
+
+  const handleGetCDSS = async () => {
+    await getCDSS({
+      patientId: patient.id,
+      diagnosis: patient.condition,
+      currentMedications: medications,
+      labResults: labResults,
+      vitalSigns: vitalsData,
+      age: patient.age,
+      gender: patient.gender
+    });
+  };
+
+  // Predictive Analytics Functions
+  const handleReadmissionRisk = async () => {
+    setReadmissionLoading(true);
+    try {
+      const response = await predictReadmissionRisk({
+        patientId: patient.id,
+        patientInfo: {
+          age: patient.age,
+          gender: patient.gender,
+          admissionDate: patient.admissionDate
+        },
+        diagnosis: {
+          primary: patient.condition
+        },
+        medicalHistory: {
+          conditions: patient.history ? [patient.history] : [],
+          previousAdmissions: 2,
+          previousAdmissionsLast30Days: 0,
+          previousAdmissionsLast90Days: 1,
+          chronicConditions: patient.condition.includes('Chronic') ? [patient.condition] : []
+        },
+        currentVisit: {
+          department: 'General Medicine',
+          admissionType: 'emergency'
+        }
+      });
+      if (response.success && response.data) {
+        setReadmissionResult(response.data);
+      }
+    } catch (error) {
+      console.error('Readmission risk error:', error);
+    } finally {
+      setReadmissionLoading(false);
+    }
+  };
+
+  const handleLengthOfStay = async () => {
+    setLosLoading(true);
+    try {
+      const response = await predictLengthOfStay({
+        patientId: patient.id,
+        patientInfo: {
+          age: patient.age,
+          gender: patient.gender
+        },
+        admission: {
+          date: patient.admissionDate,
+          type: 'emergency',
+          department: 'General Medicine',
+          source: 'home'
+        },
+        diagnosis: {
+          primary: patient.condition,
+          severity: patient.urgency === 'Critical' ? 'critical' : 
+                    patient.urgency === 'High' ? 'severe' : 'moderate'
+        }
+      });
+      if (response.success && response.data) {
+        setLosResult(response.data);
+      }
+    } catch (error) {
+      console.error('LOS prediction error:', error);
+    } finally {
+      setLosLoading(false);
+    }
+  };
+
+  const handleMortalityRisk = async () => {
+    setMortalityLoading(true);
+    try {
+      const response = await assessMortalityRisk({
+        patientId: patient.id,
+        patientInfo: {
+          age: patient.age,
+          gender: patient.gender
+        },
+        admission: {
+          date: patient.admissionDate,
+          type: 'emergency',
+          department: 'General Medicine',
+          icuAdmission: patient.urgency === 'Critical'
+        },
+        diagnosis: {
+          primary: patient.condition
+        },
+        vitals: vitalsData.slice(0, 3).map(v => ({
+          date: v.time,
+          systolicBP: parseInt(v.bloodPressure?.split('/')[0] || '120'),
+          diastolicBP: parseInt(v.bloodPressure?.split('/')[1] || '80'),
+          heartRate: v.heartRate,
+          temperature: v.temp,
+          respiratoryRate: 16,
+          oxygenSaturation: 98
+        })),
+        labResults: labResults.map(l => ({
+          date: l.date,
+          testName: l.testName,
+          value: l.result,
+          isAbnormal: l.status === 'Abnormal'
+        })),
+        medicalHistory: {
+          conditions: patient.history ? [patient.history] : [],
+          surgeries: [],
+          allergies: []
+        },
+        currentStatus: {
+          consciousness: 'alert',
+          ventilation: false,
+          vasopressors: false,
+          dialysis: false,
+          cpr: false
+        }
+      });
+      if (response.success && response.data) {
+        setMortalityResult(response.data);
+      }
+    } catch (error) {
+      console.error('Mortality risk error:', error);
+    } finally {
+      setMortalityLoading(false);
+    }
+  };
+
+  const toggleRecording = () => {
+    setIsRecording(!isRecording);
+    if (!isRecording) {
+      // Simulate recording
+      setTimeout(() => {
+        setTranscription("Patient presents with persistent headache for 3 days. Describes pain as throbbing, primarily frontal. No nausea or photophobia. Vitals stable. Neurological examination unremarkable. Patient reports similar episodes in the past, usually lasting 2-3 days. No known triggers identified.");
+        setIsRecording(false);
+      }, 3000);
+    }
+  };
+  
+  // ECG Analysis Functions
+  const handleECGImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEcgImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  const handleAnalyzeECG = async () => {
+    if (!ecgImage) return;
+    setEcgLoading(true);
+    try {
+      const response = await analyzeECG({
+        ecgData: ecgImage,
+        leadConfiguration: '12-lead',
+        patientInfo: {
+          age: patient.age,
+          gender: patient.gender,
+          symptoms: [patient.condition]
+        }
+      });
+      if (response.success && response.data) {
+        setEcgResult(response.data);
+      }
+    } catch (error) {
+      console.error('ECG analysis error:', error);
+    } finally {
+      setEcgLoading(false);
+    }
+  };
+  
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'critical': return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800';
+      case 'high': return 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800';
+      case 'moderate': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
+      case 'low': return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800';
+      default: return 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600';
+    }
+  };
+
+  const getRiskLevelColor = (level: string) => {
+    switch(level) {
+      case 'Critical': return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800';
+      case 'High': return 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800';
+      case 'Medium': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
+      default: return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800';
+    }
+  };
+
   return (
     <>
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 transition-opacity"
+          className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 transition-opacity"
           onClick={onClose}
         />
       )}
 
       <div className={`
-        fixed inset-y-0 right-0 z-50 w-full md:w-[600px] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out
+        fixed inset-y-0 right-0 z-50 w-full md:w-[700px] bg-white dark:bg-slate-800 shadow-2xl transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}
         flex flex-col
       `}>
-        <div className="p-6 border-b border-slate-100 bg-slate-50">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h2 className="text-2xl font-bold text-slate-800">{patient.name}</h2>
-              <p className="text-sm text-slate-500">ID: {patient.id} • Room: {patient.roomNumber}</p>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{patient.name}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">ID: {patient.id} • Room: {patient.roomNumber} • {patient.age} yrs, {patient.gender}</p>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-500">
-              <X size={24} />
-            </button>
+            <div className="flex items-center gap-2">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                patient.urgency === 'Critical' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
+                patient.urgency === 'High' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' :
+                'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+              }`}>
+                {patient.urgency || 'Normal'}
+              </span>
+              <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors text-slate-500 dark:text-slate-400">
+                <X size={24} />
+              </button>
+            </div>
           </div>
           
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-             {['overview', 'labs', 'docs', 'diet', 'history'].map((tab) => (
+             {['overview', 'labs', 'docs', 'diet', 'history', 'ai'].map((tab) => (
                 <button 
                     key={tab}
                     onClick={() => setActiveTab(tab as any)}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap capitalize ${activeTab === tab ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500 hover:bg-slate-200/50'}`}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap capitalize flex items-center gap-1 ${activeTab === tab ? 'bg-white dark:bg-slate-700 shadow-sm text-teal-700 dark:text-teal-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-700/50'}`}
                 >
-                    {tab === 'history' ? 'Timeline' : tab === 'docs' ? 'Documents' : tab}
+                    {tab === 'history' ? 'Timeline' : tab === 'docs' ? 'Documents' : tab === 'ai' ? (
+                        <>
+                            AI Tools
+                            <Sparkles size={12} className="text-purple-500" />
+                        </>
+                    ) : tab}
                 </button>
              ))}
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-white">
+        <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-white dark:bg-slate-800">
           
           {activeTab === 'overview' && (
             <>
-                <div className="flex items-center gap-4 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-                    <div className="bg-blue-100 p-2 rounded-lg">
-                        <FileText className="text-blue-600" size={24} />
+                <div className="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl">
+                    <div className="bg-blue-100 dark:bg-blue-800 p-2 rounded-lg">
+                        <FileText className="text-blue-600 dark:text-blue-400" size={24} />
                     </div>
                     <div>
-                        <p className="text-xs text-blue-500 font-bold uppercase">Condition</p>
-                        <p className="font-semibold text-slate-800">{patient.condition}</p>
+                        <p className="text-xs text-blue-500 dark:text-blue-400 font-bold uppercase">Condition</p>
+                        <p className="font-semibold text-slate-800 dark:text-white">{patient.condition}</p>
                     </div>
+                </div>
+
+                {/* AI Vitals Analysis */}
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-100 dark:border-purple-800 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                            <Brain className="text-purple-600 dark:text-purple-400" size={18} />
+                            <span className="font-semibold text-purple-900 dark:text-purple-300">AI Vitals Analysis</span>
+                            <span className="px-2 py-0.5 bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-300 text-xs font-bold rounded-full flex items-center gap-1">
+                                <Sparkles size={8} /> AI
+                            </span>
+                        </div>
+                        <button 
+                            onClick={handleAnalyzeVitals}
+                            disabled={vitalsLoading}
+                            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg disabled:opacity-50 flex items-center gap-1"
+                        >
+                            {vitalsLoading ? <Loader2 className="animate-spin" size={12} /> : <Activity size={12} />}
+                            Analyze
+                        </button>
+                    </div>
+                    
+                    {vitalsAnalysis ? (
+                        <div className="bg-white dark:bg-slate-800 rounded-lg p-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-slate-600 dark:text-slate-400">Early Warning Score</span>
+                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${getRiskLevelColor(vitalsAnalysis.earlyWarningScore.riskLevel)}`}>
+                                    {vitalsAnalysis.earlyWarningScore.score} - {vitalsAnalysis.earlyWarningScore.riskLevel}
+                                </span>
+                            </div>
+                            {vitalsAnalysis.alerts.length > 0 && (
+                                <div className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                                    <AlertTriangle size={12} />
+                                    {vitalsAnalysis.alerts[0].message}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <p className="text-sm text-purple-700 dark:text-purple-400">Click "Analyze" to get AI-powered early warning scores</p>
+                    )}
                 </div>
 
                 <div>
                     <div className="flex items-center gap-2 mb-4">
                     <Activity className="text-red-500" size={20} />
-                    <h3 className="font-bold text-slate-800">Vitals Monitor</h3>
+                    <h3 className="font-bold text-slate-800 dark:text-white">Vitals Monitor</h3>
                     </div>
-                    <div className="h-[200px] w-full bg-white border border-slate-100 rounded-xl p-2 shadow-sm">
+                    <div className="h-[200px] w-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-2 shadow-sm">
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={vitalsData}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                <XAxis dataKey="time" tick={{fontSize: 10}} axisLine={false} tickLine={false} />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#334155' : '#f1f5f9'} />
+                                <XAxis dataKey="time" tick={{fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b'}} axisLine={false} tickLine={false} />
                                 <YAxis domain={['dataMin - 10', 'dataMax + 10']} hide />
-                                <Tooltip />
+                                <Tooltip 
+                                  contentStyle={{ backgroundColor: isDark ? '#1e293b' : '#fff', borderRadius: '8px', border: isDark ? '1px solid #334155' : '1px solid #e2e8f0' }}
+                                  itemStyle={{ color: isDark ? '#fff' : '#0f172a' }}
+                                />
                                 <Line type="monotone" dataKey="heartRate" stroke="#ef4444" strokeWidth={2} dot={{r: 4, fill: '#ef4444'}} activeDot={{r: 6}} />
                             </LineChart>
                         </ResponsiveContainer>
@@ -118,16 +430,16 @@ const PatientDetailDrawer: React.FC<PatientDetailDrawerProps> = ({ patient, isOp
                 <div>
                     <div className="flex items-center gap-2 mb-4">
                     <Pill className="text-teal-500" size={20} />
-                    <h3 className="font-bold text-slate-800">Medications</h3>
+                    <h3 className="font-bold text-slate-800 dark:text-white">Medications</h3>
                     </div>
                     <div className="space-y-3">
                     {medications.map((med, idx) => (
-                        <div key={idx} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                        <div key={idx} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
                             <div>
-                                <p className="font-medium text-slate-800">{med.name}</p>
-                                <p className="text-xs text-slate-500">{med.dosage}</p>
+                                <p className="font-medium text-slate-800 dark:text-white">{med.name}</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{med.dosage}</p>
                             </div>
-                            <span className="text-xs font-semibold bg-white px-2 py-1 rounded border border-slate-200 text-slate-600">
+                            <span className="text-xs font-semibold bg-white dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300">
                                 {med.frequency}
                             </span>
                         </div>
@@ -140,18 +452,18 @@ const PatientDetailDrawer: React.FC<PatientDetailDrawerProps> = ({ patient, isOp
           {activeTab === 'labs' && (
             <div className="space-y-4">
                {labResults.map((lab) => (
-                   <div key={lab.id} className="p-4 border border-slate-100 rounded-xl hover:bg-slate-50">
+                   <div key={lab.id} className="p-4 border border-slate-100 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50">
                        <div className="flex justify-between items-start mb-2">
                            <div className="flex items-center gap-3">
-                               <div className="bg-purple-100 p-2 rounded-lg text-purple-600"><FlaskConical size={20} /></div>
+                               <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg text-purple-600 dark:text-purple-400"><FlaskConical size={20} /></div>
                                <div>
-                                   <p className="font-semibold text-slate-900">{lab.testName}</p>
-                                   <p className="text-xs text-slate-500">{lab.date}</p>
+                                   <p className="font-semibold text-slate-900 dark:text-white">{lab.testName}</p>
+                                   <p className="text-xs text-slate-500 dark:text-slate-400">{lab.date}</p>
                                </div>
                            </div>
-                           <span className={`px-2 py-1 rounded-full text-xs font-bold ${lab.status === 'Normal' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{lab.status}</span>
+                           <span className={`px-2 py-1 rounded-full text-xs font-bold ${lab.status === 'Normal' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'}`}>{lab.status}</span>
                        </div>
-                       <p className="text-sm ml-12">Result: <span className="font-medium">{lab.result}</span></p>
+                       <p className="text-sm ml-12 dark:text-slate-300">Result: <span className="font-medium dark:text-white">{lab.result}</span></p>
                    </div>
                ))}
             </div>
@@ -160,19 +472,19 @@ const PatientDetailDrawer: React.FC<PatientDetailDrawerProps> = ({ patient, isOp
           {activeTab === 'docs' && (
               <div className="grid grid-cols-2 gap-4">
                   {docs.map(doc => (
-                      <div key={doc.id} className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-shadow cursor-pointer bg-slate-50/50">
+                      <div key={doc.id} className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl hover:shadow-md transition-shadow cursor-pointer bg-slate-50/50 dark:bg-slate-700/30">
                           <div className="flex justify-between items-start mb-8">
-                              <File size={32} className="text-slate-400" />
-                              <span className="text-[10px] font-bold bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-500">{doc.type}</span>
+                              <File size={32} className="text-slate-400 dark:text-slate-500" />
+                              <span className="text-[10px] font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400">{doc.type}</span>
                           </div>
-                          <p className="font-medium text-sm text-slate-800 truncate">{doc.name}</p>
+                          <p className="font-medium text-sm text-slate-800 dark:text-white truncate">{doc.name}</p>
                           <div className="flex justify-between items-center mt-2">
-                              <span className="text-xs text-slate-400">{doc.size}</span>
-                              <Download size={16} className="text-slate-400 hover:text-teal-600" />
+                              <span className="text-xs text-slate-400 dark:text-slate-500">{doc.size}</span>
+                              <Download size={16} className="text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400" />
                           </div>
                       </div>
                   ))}
-                  <button className="border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:border-teal-300 hover:text-teal-600 p-4 transition-colors">
+                  <button className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400 p-4 transition-colors">
                       <File size={24} className="mb-2" />
                       <span className="text-xs font-medium">Upload File</span>
                   </button>
@@ -182,17 +494,17 @@ const PatientDetailDrawer: React.FC<PatientDetailDrawerProps> = ({ patient, isOp
           {activeTab === 'diet' && (
               <div className="space-y-4">
                   {diet.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-4 p-4 border border-slate-100 rounded-xl">
-                          <div className={`p-3 rounded-full ${item.status === 'Consumed' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
+                      <div key={idx} className="flex items-center gap-4 p-4 border border-slate-100 dark:border-slate-700 rounded-xl">
+                          <div className={`p-3 rounded-full ${item.status === 'Consumed' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'}`}>
                               <Utensils size={20} />
                           </div>
                           <div className="flex-1">
-                              <p className="font-bold text-slate-800">{item.meal}</p>
-                              <p className="text-sm text-slate-600">{item.description}</p>
+                              <p className="font-bold text-slate-800 dark:text-white">{item.meal}</p>
+                              <p className="text-sm text-slate-600 dark:text-slate-400">{item.description}</p>
                           </div>
                           <div className="text-right">
-                              <p className="font-mono font-bold text-slate-700">{item.calories} kcal</p>
-                              <span className="text-xs text-slate-400">{item.status}</span>
+                              <p className="font-mono font-bold text-slate-700 dark:text-slate-300">{item.calories} kcal</p>
+                              <span className="text-xs text-slate-400 dark:text-slate-500">{item.status}</span>
                           </div>
                       </div>
                   ))}
@@ -200,15 +512,483 @@ const PatientDetailDrawer: React.FC<PatientDetailDrawerProps> = ({ patient, isOp
           )}
 
           {activeTab === 'history' && (
-              <div className="relative border-l-2 border-slate-100 ml-4 space-y-8 py-2">
+              <div className="relative border-l-2 border-slate-100 dark:border-slate-700 ml-4 space-y-8 py-2">
                   {timeline.map((event, idx) => (
                       <div key={idx} className="relative pl-6">
-                          <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-white border-2 border-teal-500"></div>
-                          <p className="text-xs text-slate-400 mb-1 font-mono">{event.date}</p>
-                          <h4 className="font-bold text-slate-800 text-sm">{event.title}</h4>
-                          <p className="text-sm text-slate-600 mt-1">{event.description}</p>
+                          <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-white dark:bg-slate-800 border-2 border-teal-500"></div>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 mb-1 font-mono">{event.date}</p>
+                          <h4 className="font-bold text-slate-800 dark:text-white text-sm">{event.title}</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{event.description}</p>
                       </div>
                   ))}
+              </div>
+          )}
+
+          {/* AI Tools Tab */}
+          {activeTab === 'ai' && (
+              <div className="space-y-6">
+                  {/* AI Medical Scribe */}
+                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                          <Mic className="text-blue-600 dark:text-blue-400" size={18} />
+                          <span className="font-semibold text-blue-900 dark:text-blue-300">AI Medical Scribe</span>
+                          <span className="px-2 py-0.5 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-300 text-xs font-bold rounded-full flex items-center gap-1">
+                              <Sparkles size={8} /> AI
+                          </span>
+                      </div>
+                      
+                      <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                              <button 
+                                  onClick={toggleRecording}
+                                  className={`p-3 rounded-full ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-700'}`}
+                              >
+                                  {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+                              </button>
+                              <div className="flex-1">
+                                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                                      {isRecording ? 'Recording... Click to stop' : 'Click to start voice recording'}
+                                  </p>
+                              </div>
+                          </div>
+                          
+                          <textarea 
+                              className="w-full px-3 py-2 border border-blue-200 dark:border-blue-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none h-24 resize-none bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400"
+                              value={transcription}
+                              onChange={e => setTranscription(e.target.value)}
+                              placeholder="Transcription will appear here, or type/paste clinical notes..."
+                          />
+                          
+                          <button 
+                              onClick={handleGenerateNotes}
+                              disabled={!transcription || scribeLoading}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                          >
+                              {scribeLoading ? (
+                                  <>
+                                      <Loader2 className="animate-spin" size={16} />
+                                      Generating...
+                                  </>
+                              ) : (
+                                  <>
+                                      <Brain size={16} />
+                                      Generate SOAP Note
+                                  </>
+                              )}
+                          </button>
+                      </div>
+                      
+                      {scribeResult && (
+                          <div className="mt-4 bg-white dark:bg-slate-800 rounded-lg p-4 space-y-3">
+                              <div className="flex items-center justify-between">
+                                  <span className="font-semibold text-slate-800 dark:text-white">Generated SOAP Note</span>
+                                  <span className="text-xs text-slate-500 dark:text-slate-400">Quality: {scribeResult.qualityScore}%</span>
+                              </div>
+                              
+                              <div className="space-y-2 text-sm">
+                                  <div className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded">
+                                      <span className="font-semibold text-slate-600 dark:text-slate-300">Subjective:</span>
+                                      <p className="text-slate-700 dark:text-slate-200">{scribeResult.soapNote.subjective}</p>
+                                  </div>
+                                  <div className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded">
+                                      <span className="font-semibold text-slate-600 dark:text-slate-300">Objective:</span>
+                                      <p className="text-slate-700 dark:text-slate-200">{scribeResult.soapNote.objective}</p>
+                                  </div>
+                                  <div className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded">
+                                      <span className="font-semibold text-slate-600 dark:text-slate-300">Assessment:</span>
+                                      <p className="text-slate-700 dark:text-slate-200">{scribeResult.soapNote.assessment}</p>
+                                  </div>
+                                  <div className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded">
+                                      <span className="font-semibold text-slate-600 dark:text-slate-300">Plan:</span>
+                                      <p className="text-slate-700 dark:text-slate-200">{scribeResult.soapNote.plan}</p>
+                                  </div>
+                              </div>
+                              
+                              {scribeResult.icdCodes.length > 0 && (
+                                  <div className="flex flex-wrap gap-2">
+                                      {scribeResult.icdCodes.map((code, i) => (
+                                          <span key={i} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs font-mono rounded">
+                                              {code.code}: {code.description}
+                                          </span>
+                                      ))}
+                                  </div>
+                              )}
+                          </div>
+                      )}
+                  </div>
+
+                  {/* Clinical Decision Support */}
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-100 dark:border-green-800 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                              <Stethoscope className="text-green-600 dark:text-green-400" size={18} />
+                              <span className="font-semibold text-green-900 dark:text-green-300">Clinical Decision Support</span>
+                              <span className="px-2 py-0.5 bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-300 text-xs font-bold rounded-full flex items-center gap-1">
+                                  <Sparkles size={8} /> AI
+                              </span>
+                          </div>
+                          <button 
+                              onClick={handleGetCDSS}
+                              disabled={cdssLoading}
+                              className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg disabled:opacity-50 flex items-center gap-1"
+                          >
+                              {cdssLoading ? <Loader2 className="animate-spin" size={12} /> : <Zap size={12} />}
+                              Analyze
+                          </button>
+                      </div>
+                      
+                      {cdssResult ? (
+                          <div className="bg-white dark:bg-slate-800 rounded-lg p-4 space-y-3">
+                              {cdssResult.alerts.length > 0 && (
+                                  <div className="space-y-2">
+                                      <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Clinical Alerts</span>
+                                      {cdssResult.alerts.map((alert, i) => (
+                                          <div key={i} className={`p-2 rounded-lg flex items-start gap-2 ${
+                                              alert.type === 'critical' ? 'bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800' :
+                                              alert.type === 'warning' ? 'bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800' :
+                                              'bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800'
+                                          }`}>
+                                              {alert.type === 'critical' ? (
+                                                  <AlertCircle className="text-red-500 dark:text-red-400 flex-shrink-0" size={16} />
+                                              ) : alert.type === 'warning' ? (
+                                                  <AlertTriangle className="text-amber-500 dark:text-amber-400 flex-shrink-0" size={16} />
+                                              ) : (
+                                                  <CheckCircle className="text-blue-500 dark:text-blue-400 flex-shrink-0" size={16} />
+                                              )}
+                                              <div>
+                                                  <p className="text-sm font-medium text-slate-800 dark:text-white">{alert.title}</p>
+                                                  <p className="text-xs text-slate-600 dark:text-slate-400">{alert.description}</p>
+                                              </div>
+                                          </div>
+                                      ))}
+                                  </div>
+                              )}
+                              
+                              {cdssResult.recommendations.length > 0 && (
+                                  <div>
+                                      <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Recommendations</span>
+                                      <ul className="mt-1 space-y-1">
+                                          {cdssResult.recommendations.map((rec, i) => (
+                                              <li key={i} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                                                  <CheckCircle size={14} className="text-green-500 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                                                  {rec}
+                                              </li>
+                                          ))}
+                                      </ul>
+                                  </div>
+                              )}
+                          </div>
+                      ) : (
+                          <p className="text-sm text-green-700 dark:text-green-400">Click "Analyze" to get clinical decision support recommendations</p>
+                      )}
+                  </div>
+
+                  {/* Vitals Analysis Detail */}
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-800 rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                          <Activity className="text-purple-600 dark:text-purple-400" size={18} />
+                          <span className="font-semibold text-purple-900 dark:text-purple-300">Vital Signs Analysis</span>
+                          <span className="px-2 py-0.5 bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-300 text-xs font-bold rounded-full flex items-center gap-1">
+                              <Sparkles size={8} /> AI
+                          </span>
+                      </div>
+                      
+                      {vitalsAnalysis ? (
+                          <div className="bg-white dark:bg-slate-800 rounded-lg p-4 space-y-3">
+                              <div className="grid grid-cols-2 gap-4">
+                                  <div className="text-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                                      <p className="text-3xl font-bold text-slate-800 dark:text-white">{vitalsAnalysis.earlyWarningScore.score}</p>
+                                      <p className="text-xs text-slate-500 dark:text-slate-400">Early Warning Score</p>
+                                  </div>
+                                  <div className="text-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                                      <p className="text-3xl font-bold text-slate-800 dark:text-white">{Math.round(vitalsAnalysis.deteriorationRisk.probability * 100)}%</p>
+                                      <p className="text-xs text-slate-500 dark:text-slate-400">Deterioration Risk</p>
+                                  </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                  {vitalsAnalysis.earlyWarningScore.parameters.map((param, i) => (
+                                      <div key={i} className="flex items-center justify-between text-sm">
+                                          <span className="text-slate-600 dark:text-slate-400">{param.parameter}</span>
+                                          <div className="flex items-center gap-2">
+                                              <span className="font-medium dark:text-white">{param.value}</span>
+                                              <span className={`px-1.5 py-0.5 rounded text-xs ${
+                                                  param.score >= 3 ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
+                                                  param.score >= 1 ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400' :
+                                                  'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                              }`}>
+                                                  Score: {param.score}
+                                              </span>
+                                          </div>
+                                      </div>
+                                  ))}
+                              </div>
+                              
+                              {vitalsAnalysis.recommendedInterventions.length > 0 && (
+                                  <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-800 rounded-lg p-3">
+                                      <p className="text-xs font-semibold text-teal-700 dark:text-teal-400 mb-1">Recommended Interventions</p>
+                                      <ul className="text-xs text-teal-600 dark:text-teal-400 space-y-1">
+                                          {vitalsAnalysis.recommendedInterventions.map((int, i) => (
+                                              <li key={i}>• {int}</li>
+                                          ))}
+                                      </ul>
+                                  </div>
+                              )}
+                          </div>
+                      ) : (
+                          <p className="text-sm text-purple-700 dark:text-purple-400">Click "Analyze" in the Overview tab to get detailed vitals analysis</p>
+                      )}
+                  </div>
+
+                  {/* Predictive Analytics Section */}
+                  <div className="space-y-4">
+                      <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                          <Gauge size={18} className="text-indigo-500" />
+                          Predictive Analytics
+                          <span className="text-xs bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2 py-0.5 rounded-full">AI-Powered</span>
+                      </h3>
+
+                      {/* Readmission Risk */}
+                      <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border border-orange-100 dark:border-orange-800 rounded-xl p-4">
+                          <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                  <AlertOctagon className="text-orange-600 dark:text-orange-400" size={18} />
+                                  <span className="font-semibold text-orange-900 dark:text-orange-300">Readmission Risk</span>
+                              </div>
+                              <button 
+                                  onClick={handleReadmissionRisk}
+                                  disabled={readmissionLoading}
+                                  className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg disabled:opacity-50 flex items-center gap-1"
+                              >
+                                  {readmissionLoading ? <Loader2 className="animate-spin" size={12} /> : <Sparkles size={12} />}
+                                  Predict
+                              </button>
+                          </div>
+                          
+                          {readmissionResult ? (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3 space-y-2">
+                                  <div className="flex items-center justify-between">
+                                      <span className="text-sm text-slate-600 dark:text-slate-400">Risk Score</span>
+                                      <div className="flex items-center gap-2">
+                                          <span className={`text-2xl font-bold ${
+                                              readmissionResult.riskScore > 70 ? 'text-red-500' :
+                                              readmissionResult.riskScore > 40 ? 'text-orange-500' :
+                                              'text-green-500'
+                                          }`}>{readmissionResult.riskScore}</span>
+                                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                              readmissionResult.riskLevel === 'high' || readmissionResult.riskLevel === 'very_high' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                              readmissionResult.riskLevel === 'moderate' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                                              'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                          }`}>{readmissionResult.riskLevel.replace('_', ' ')}</span>
+                                      </div>
+                                  </div>
+                                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                                      30-day readmission probability: {(readmissionResult.predictedReadmissionProbability * 100).toFixed(0)}%
+                                  </div>
+                                  {readmissionResult.topRiskFactors.length > 0 && (
+                                      <div className="mt-2">
+                                          <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">Top Risk Factors:</p>
+                                          <ul className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                                              {readmissionResult.topRiskFactors.slice(0, 3).map((factor, i) => (
+                                                  <li key={i}>• {factor}</li>
+                                              ))}
+                                          </ul>
+                                      </div>
+                                  )}
+                              </div>
+                          ) : (
+                              <p className="text-sm text-orange-700 dark:text-orange-400">Click "Predict" to assess 30-day readmission risk</p>
+                          )}
+                      </div>
+
+                      {/* Length of Stay Prediction */}
+                      <div className="bg-gradient-to-r from-cyan-50 to-sky-50 dark:from-cyan-900/20 dark:to-sky-900/20 border border-cyan-100 dark:border-cyan-800 rounded-xl p-4">
+                          <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                  <CalendarClock className="text-cyan-600 dark:text-cyan-400" size={18} />
+                                  <span className="font-semibold text-cyan-900 dark:text-cyan-300">Length of Stay</span>
+                              </div>
+                              <button 
+                                  onClick={handleLengthOfStay}
+                                  disabled={losLoading}
+                                  className="px-3 py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-medium rounded-lg disabled:opacity-50 flex items-center gap-1"
+                              >
+                                  {losLoading ? <Loader2 className="animate-spin" size={12} /> : <Sparkles size={12} />}
+                                  Predict
+                              </button>
+                          </div>
+                          
+                          {losResult ? (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3 space-y-2">
+                                  <div className="flex items-center justify-between">
+                                      <span className="text-sm text-slate-600 dark:text-slate-400">Predicted LOS</span>
+                                      <span className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{losResult.predictedLOS} days</span>
+                                  </div>
+                                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                                      Expected discharge: {losResult.predictedDischargeDate}
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-2">
+                                      <span className="text-xs text-slate-600 dark:text-slate-400">Risk Level:</span>
+                                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                          losResult.riskLevel === 'significantly_prolonged' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                          losResult.riskLevel === 'prolonged' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                                          'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                      }`}>{losResult.riskLevel.replace('_', ' ')}</span>
+                                  </div>
+                              </div>
+                          ) : (
+                              <p className="text-sm text-cyan-700 dark:text-cyan-400">Click "Predict" to estimate length of stay</p>
+                          )}
+                      </div>
+
+                      {/* Mortality Risk Assessment */}
+                      <div className="bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 border border-rose-100 dark:border-rose-800 rounded-xl p-4">
+                          <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                  <HeartPulse className="text-rose-600 dark:text-rose-400" size={18} />
+                                  <span className="font-semibold text-rose-900 dark:text-rose-300">Mortality Risk</span>
+                              </div>
+                              <button 
+                                  onClick={handleMortalityRisk}
+                                  disabled={mortalityLoading}
+                                  className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium rounded-lg disabled:opacity-50 flex items-center gap-1"
+                              >
+                                  {mortalityLoading ? <Loader2 className="animate-spin" size={12} /> : <Sparkles size={12} />}
+                                  Assess
+                              </button>
+                          </div>
+                          
+                          {mortalityResult ? (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3 space-y-2">
+                                  <div className="flex items-center justify-between">
+                                      <span className="text-sm text-slate-600 dark:text-slate-400">Risk Score</span>
+                                      <div className="flex items-center gap-2">
+                                          <span className={`text-2xl font-bold ${
+                                              mortalityResult.riskScore > 70 ? 'text-red-500' :
+                                              mortalityResult.riskScore > 40 ? 'text-orange-500' :
+                                              'text-green-500'
+                                          }`}>{mortalityResult.riskScore}</span>
+                                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                              mortalityResult.riskLevel === 'high' || mortalityResult.riskLevel === 'very_high' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                              mortalityResult.riskLevel === 'moderate' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                                              'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                          }`}>{mortalityResult.riskLevel.replace('_', ' ')}</span>
+                                      </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-2 text-xs">
+                                      <div className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded">
+                                          <span className="text-slate-500 dark:text-slate-400">In-Hospital:</span>
+                                          <span className="ml-1 font-medium text-slate-800 dark:text-white">{(mortalityResult.mortalityProbability.inHospital * 100).toFixed(0)}%</span>
+                                      </div>
+                                      <div className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded">
+                                          <span className="text-slate-500 dark:text-slate-400">30-Day:</span>
+                                          <span className="ml-1 font-medium text-slate-800 dark:text-white">{(mortalityResult.mortalityProbability.thirtyDay * 100).toFixed(0)}%</span>
+                                      </div>
+                                  </div>
+                                  {mortalityResult.icuRecommendation && (
+                                      <div className={`text-xs p-2 rounded ${
+                                          mortalityResult.icuRecommendation.recommended ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' :
+                                          'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                                      }`}>
+                                          ICU: {mortalityResult.icuRecommendation.reasoning}
+                                      </div>
+                                  )}
+                              </div>
+                          ) : (
+                              <p className="text-sm text-rose-700 dark:text-rose-400">Click "Assess" to evaluate mortality risk</p>
+                          )}
+                      </div>
+                      
+                      {/* ECG Analysis */}
+                      <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-100 dark:border-red-800 rounded-xl p-4">
+                          <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                  <Heart className="text-red-600 dark:text-red-400" size={18} />
+                                  <span className="font-semibold text-red-900 dark:text-red-300">ECG Analysis</span>
+                                  <span className="px-2 py-0.5 bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-300 text-xs font-bold rounded-full flex items-center gap-1">
+                                      <Sparkles size={8} /> AI
+                                  </span>
+                              </div>
+                          </div>
+                          
+                          <div className="space-y-3">
+                              {/* ECG Upload */}
+                              <div className="border-2 border-dashed border-red-200 dark:border-red-800 rounded-lg p-3 text-center">
+                                  {ecgImage ? (
+                                      <div className="space-y-2">
+                                          <img src={ecgImage} alt="ECG" className="max-h-32 mx-auto rounded" />
+                                          <button 
+                                              onClick={() => { setEcgImage(null); setEcgResult(null); }}
+                                              className="text-xs text-red-600 dark:text-red-400 hover:underline"
+                                          >
+                                              Remove
+                                          </button>
+                                      </div>
+                                  ) : (
+                                      <label className="cursor-pointer">
+                                          <Upload className="mx-auto text-red-400 dark:text-red-500 mb-2" size={24} />
+                                          <p className="text-xs text-red-600 dark:text-red-400">Upload ECG image</p>
+                                          <input 
+                                              type="file" 
+                                              accept="image/*" 
+                                              onChange={handleECGImageUpload}
+                                              className="hidden" 
+                                          />
+                                      </label>
+                                  )}
+                              </div>
+                              
+                              {ecgImage && !ecgResult && (
+                                  <button 
+                                      onClick={handleAnalyzeECG}
+                                      disabled={ecgLoading}
+                                      className="w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg disabled:opacity-50 flex items-center justify-center gap-1"
+                                  >
+                                      {ecgLoading ? <Loader2 className="animate-spin" size={12} /> : <Brain size={12} />}
+                                      Analyze ECG
+                                  </button>
+                              )}
+                              
+                              {ecgResult && (
+                                  <div className="bg-white dark:bg-slate-800 rounded-lg p-3 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                          <span className="text-sm text-slate-600 dark:text-slate-400">Rhythm</span>
+                                          <span className="font-medium text-slate-800 dark:text-white">{ecgResult.rhythmAnalysis.rhythmType}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                          <span className="text-sm text-slate-600 dark:text-slate-400">Heart Rate</span>
+                                          <span className="font-medium text-slate-800 dark:text-white">{ecgResult.rhythmAnalysis.heartRate} bpm</span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                          <span className="text-sm text-slate-600 dark:text-slate-400">Severity</span>
+                                          <span className={`text-xs px-2 py-0.5 rounded-full border ${getSeverityColor(ecgResult.overallAssessment.severity)}`}>
+                                              {ecgResult.overallAssessment.severity.toUpperCase()}
+                                          </span>
+                                      </div>
+                                      {ecgResult.findings.length > 0 && (
+                                          <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                                              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Findings:</p>
+                                              <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+                                                  {ecgResult.findings.slice(0, 3).map((finding, i) => (
+                                                      <li key={i} className="flex items-center gap-1">
+                                                          <AlertCircle size={10} className={finding.severity === 'critical' ? 'text-red-500' : 'text-yellow-500'} />
+                                                          {finding.finding}
+                                                      </li>
+                                                  ))}
+                                              </ul>
+                                          </div>
+                                      )}
+                                      {ecgResult.overallAssessment.requiresImmediateAttention && (
+                                          <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs p-2 rounded flex items-center gap-1">
+                                              <AlertTriangle size={12} />
+                                              Requires immediate clinical attention
+                                          </div>
+                                      )}
+                                  </div>
+                              )}
+                          </div>
+                      </div>
+                  </div>
               </div>
           )}
         </div>

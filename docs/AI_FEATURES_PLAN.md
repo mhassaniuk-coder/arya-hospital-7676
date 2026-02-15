@@ -1,8 +1,8 @@
-# NexusHealth HMS - Advanced AI Features Implementation Plan
+# Arya Hospital System (HMS) - Advanced AI Features Implementation Plan
 
 ## Executive Summary
 
-This document outlines a comprehensive plan for implementing 50 advanced AI features across the NexusHealth Hospital Management System. Building upon the existing AI infrastructure (AIConsult.tsx and geminiService.ts), these features will transform the platform into an intelligent, predictive healthcare management system.
+This document outlines a comprehensive plan for implementing 50 advanced AI features across the Arya Hospital System (HMS). Building upon the existing AI infrastructure (AIConsult.tsx and geminiService.ts), these features will transform the platform into an intelligent, predictive healthcare management system.
 
 ### Current AI Capabilities
 - **Symptom-based differential diagnosis** (AIConsult.tsx)
@@ -1088,7 +1088,7 @@ interface AIResponse {
 
 ## Conclusion
 
-This comprehensive AI feature plan transforms NexusHealth HMS into an intelligent healthcare platform. The phased implementation approach ensures that high-priority clinical and operational features are delivered first, providing immediate value while building toward a fully AI-integrated hospital management system.
+This comprehensive AI feature plan transforms Arya Hospital System (HMS) into an intelligent healthcare platform. The phased implementation approach ensures that high-priority clinical and operational features are delivered first, providing immediate value while building toward a fully AI-integrated hospital management system.
 
 The existing infrastructure in [`AIConsult.tsx`](components/AIConsult.tsx) and [`geminiService.ts`](services/geminiService.ts) provides a solid foundation for expansion. The modular architecture allows for incremental implementation without disrupting existing functionality.
 
