@@ -1,9 +1,10 @@
+/// <reference types="vite/client" />
 /**
  * NexusHealth HMS API Client
  * Centralized HTTP client for communicating with the FastAPI backend.
  */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // ── Token Management ──
 let accessToken: string | null = localStorage.getItem('nexus_token');
