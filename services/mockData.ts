@@ -1,32 +1,30 @@
 import {
     Patient, Appointment, Invoice, InventoryItem, Ambulance, Doctor, Task, Bed, Notice,
     LabTestRequest, RadiologyRequest, Referral, MedicalCertificate, ResearchTrial, MaternityPatient,
-    QueueItem, BloodUnit, BloodBag, BloodDonor, BloodRequest, User, UserRole
+    QueueItem, BloodUnit, BloodBag, BloodDonor, BloodRequest, User, UserRole, UrgencyLevel
 } from '../types';
 
 export const MOCK_USERS: User[] = [
     {
         id: "admin-001",
         name: "Admin User",
-        email: "admin@nexushealth.com",
-        role: "Admin",
+        role: UserRole.ADMIN,
         avatar: "https://ui-avatars.com/api/?name=Admin&background=0D9488&color=fff"
     },
     {
         id: "doc-001",
         name: "Dr. Sarah Chen",
-        email: "sarah.chen@nexushealth.com",
-        role: "Doctor",
+        role: UserRole.DOCTOR,
         avatar: "https://ui-avatars.com/api/?name=Sarah+Chen&background=0D9488&color=fff"
     }
 ];
 
 export const MOCK_PATIENTS: Patient[] = [
-    { id: "P-101", name: "Sarah Johnson", age: 34, gender: "Female", admissionDate: "2023-10-24", condition: "Migraine", roomNumber: "304-A", urgency: "Medium", history: "Chronic migraines since 2018.", contact: "555-0101", insuranceProvider: "BlueCross", lastVisit: "2023-09-15" },
-    { id: "P-102", name: "Michael Chen", age: 58, gender: "Male", admissionDate: "2023-10-22", condition: "Cardiac Arrest", roomNumber: "ICU-02", urgency: "Critical", history: "Hypertension, High Cholesterol.", contact: "555-0102", insuranceProvider: "Aetna", lastVisit: "2023-10-20" },
-    { id: "P-103", name: "Emily Davis", age: 24, gender: "Female", admissionDate: "2023-10-25", condition: "Fractured Tibia", roomNumber: "201-B", urgency: "Low", history: "No major history.", contact: "555-0103", insuranceProvider: "UnitedHealth", lastVisit: "2023-01-10" },
-    { id: "P-104", name: "James Wilson", age: 45, gender: "Male", admissionDate: "2023-10-23", condition: "Pneumonia", roomNumber: "305-C", urgency: "High", history: "Smoker for 20 years.", contact: "555-0104", insuranceProvider: "Cigna", lastVisit: "2022-11-05" },
-    { id: "P-105", name: "Anita Patel", age: 62, gender: "Female", admissionDate: "2023-10-21", condition: "Diabetes T2", roomNumber: "104-A", urgency: "Medium", history: "Insulin dependent.", contact: "555-0105", insuranceProvider: "Medicare", lastVisit: "2023-08-12" },
+    { id: "P-101", name: "Sarah Johnson", age: 34, gender: "Female", admissionDate: "2023-10-24", condition: "Migraine", roomNumber: "304-A", urgency: UrgencyLevel.MEDIUM, history: "Chronic migraines since 2018." },
+    { id: "P-102", name: "Michael Chen", age: 58, gender: "Male", admissionDate: "2023-10-22", condition: "Cardiac Arrest", roomNumber: "ICU-02", urgency: UrgencyLevel.CRITICAL, history: "Hypertension, High Cholesterol." },
+    { id: "P-103", name: "Emily Davis", age: 24, gender: "Female", admissionDate: "2023-10-25", condition: "Fractured Tibia", roomNumber: "201-B", urgency: UrgencyLevel.LOW, history: "No major history." },
+    { id: "P-104", name: "James Wilson", age: 45, gender: "Male", admissionDate: "2023-10-23", condition: "Pneumonia", roomNumber: "305-C", urgency: UrgencyLevel.HIGH, history: "Smoker for 20 years." },
+    { id: "P-105", name: "Anita Patel", age: 62, gender: "Female", admissionDate: "2023-10-21", condition: "Diabetes T2", roomNumber: "104-A", urgency: UrgencyLevel.MEDIUM, history: "Insulin dependent." },
 ];
 
 export const MOCK_APPOINTMENTS: Appointment[] = [
@@ -57,19 +55,19 @@ export const MOCK_AMBULANCES: Ambulance[] = [
 ];
 
 export const MOCK_STAFF: Doctor[] = [
-    { id: "1", name: "Dr. Sarah Chen", specialty: "Cardiology", status: "Online", patients: 12, image: "https://picsum.photos/seed/doc1/200", email: "sarah.chen@nexus.com", phone: "555-DOC1", role: "Doctor", department: "Cardiology", joinDate: "2020-01-01" },
-    { id: "2", name: "Dr. Michael Ross", specialty: "Neurology", status: "In Surgery", patients: 8, image: "https://picsum.photos/seed/doc2/200", email: "m.ross@nexus.com", phone: "555-DOC2", role: "Doctor", department: "Neurology", joinDate: "2019-05-15" },
-    { id: "3", name: "Dr. James Wilson", specialty: "Oncology", status: "Offline", patients: 0, image: "https://picsum.photos/seed/doc3/200", email: "j.wilson@nexus.com", phone: "555-DOC3", role: "Doctor", department: "Oncology", joinDate: "2021-08-20" },
-    { id: "4", name: "Dr. Emily House", specialty: "General Surgery", status: "On Break", patients: 5, image: "https://picsum.photos/seed/doc4/200", email: "e.house@nexus.com", phone: "555-DOC4", role: "Doctor", department: "Surgery", joinDate: "2018-11-10" },
-    { id: "5", name: "Dr. Lisa Cuddy", specialty: "Administration", status: "Online", patients: 2, image: "https://picsum.photos/seed/doc5/200", email: "l.cuddy@nexus.com", phone: "555-DOC5", role: "Admin", department: "Administration", joinDate: "2015-03-01" },
-    { id: "6", name: "Dr. Eric Foreman", specialty: "Neurology", status: "Online", patients: 15, image: "https://picsum.photos/seed/doc6/200", email: "e.foreman@nexus.com", phone: "555-DOC6", role: "Doctor", department: "Neurology", joinDate: "2022-02-14" },
+    { id: "1", name: "Dr. Sarah Chen", specialty: "Cardiology", status: "Online", patients: 12, image: "https://picsum.photos/seed/doc1/200" },
+    { id: "2", name: "Dr. Michael Ross", specialty: "Neurology", status: "In Surgery", patients: 8, image: "https://picsum.photos/seed/doc2/200" },
+    { id: "3", name: "Dr. James Wilson", specialty: "Oncology", status: "Offline", patients: 0, image: "https://picsum.photos/seed/doc3/200" },
+    { id: "4", name: "Dr. Emily House", specialty: "General Surgery", status: "On Break", patients: 5, image: "https://picsum.photos/seed/doc4/200" },
+    { id: "5", name: "Dr. Lisa Cuddy", specialty: "Administration", status: "Online", patients: 2, image: "https://picsum.photos/seed/doc5/200" },
+    { id: "6", name: "Dr. Eric Foreman", specialty: "Neurology", status: "Online", patients: 15, image: "https://picsum.photos/seed/doc6/200" },
 ];
 
 export const MOCK_TASKS: Task[] = [
-    { id: "1", title: "Review MRI Results for Bed 3", assignee: "Dr. Chen", priority: "High", status: "Todo", dueDate: "2023-10-27", description: "Check for anomalies in T2 sequence." },
-    { id: "2", title: "Restock Insulin", assignee: "Pharmacy", priority: "Medium", status: "Todo", dueDate: "2023-10-26", description: "Order batch #4521 from central supply." },
-    { id: "3", title: "Prepare Discharge Summary P-101", assignee: "Nurse Joy", priority: "Low", status: "In Progress", dueDate: "2023-10-28", description: "Patient stable, ready for discharge." },
-    { id: "4", title: "Sanitize OT-2", assignee: "Staff A", priority: "High", status: "Done", dueDate: "2023-10-25", description: "Post-surgery cleanup required." },
+    { id: "1", title: "Review MRI Results for Bed 3", assignee: "Dr. Chen", priority: "High", status: "Todo" },
+    { id: "2", title: "Restock Insulin", assignee: "Pharmacy", priority: "Medium", status: "Todo" },
+    { id: "3", title: "Prepare Discharge Summary P-101", assignee: "Nurse Joy", priority: "Low", status: "In Progress" },
+    { id: "4", title: "Sanitize OT-2", assignee: "Staff A", priority: "High", status: "Done" },
 ];
 
 export const MOCK_BEDS: Bed[] = Array.from({ length: 12 }).map((_, i) => ({
@@ -82,47 +80,51 @@ export const MOCK_BEDS: Bed[] = Array.from({ length: 12 }).map((_, i) => ({
 }));
 
 export const MOCK_NOTICES: Notice[] = [
-    { id: "1", title: "System Maintenance", content: "The server will be down for maintenance on Sunday 2 AM to 4 AM.", date: "Oct 26", priority: "Urgent", type: "System", author: "IT Dept" },
-    { id: "2", title: "New COVID Protocols", content: "Please review the updated safety guidelines for the ICU.", date: "Oct 25", priority: "Normal", type: "Policy", author: "Administration" },
-    { id: "3", title: "Staff Meeting", content: "General staff meeting on Friday at 3 PM in the Conference Hall.", date: "Oct 24", priority: "Normal", type: "Event", author: "HR" },
+    { id: "1", title: "System Maintenance", content: "The server will be down for maintenance on Sunday 2 AM to 4 AM.", date: "Oct 26", priority: "Urgent" },
+    { id: "2", title: "New COVID Protocols", content: "Please review the updated safety guidelines for the ICU.", date: "Oct 25", priority: "Normal" },
+    { id: "3", title: "Staff Meeting", content: "General staff meeting on Friday at 3 PM in the Conference Hall.", date: "Oct 24", priority: "Normal" },
 ];
 
+// ... (other mocks can stay simplified or omitted if not critical for first pass, or I can add them back if needed. 
+// For now, I'll keep the ones I've fixed and add back the others in a clean state if they were used.
+// The list was long, I should include them to avoid missing data errors.)
+
 export const MOCK_LAB_REQUESTS: LabTestRequest[] = [
-    { id: "LAB-001", patientName: "Sarah Johnson", testName: "Complete Blood Count (CBC)", priority: "Routine", status: "Completed", date: "2023-10-26", doctorName: "Dr. Chen" },
-    { id: "LAB-002", patientName: "Michael Chen", testName: "Liver Function Test", priority: "Urgent", status: "Processing", date: "2023-10-26", doctorName: "Dr. Ross" },
-    { id: "LAB-003", patientName: "John Doe", testName: "Lipid Profile", priority: "Routine", status: "Sample Collected", date: "2023-10-25", doctorName: "Dr. House" },
+    { id: "LAB-001", patientName: "Sarah Johnson", testName: "Complete Blood Count (CBC)", priority: "Routine", status: "Completed", date: "2023-10-26" },
+    { id: "LAB-002", patientName: "Michael Chen", testName: "Liver Function Test", priority: "Urgent", status: "Processing", date: "2023-10-26" },
+    { id: "LAB-003", patientName: "John Doe", testName: "Lipid Profile", priority: "Routine", status: "Sample Collected", date: "2023-10-25" },
 ];
 
 export const MOCK_RADIOLOGY: RadiologyRequest[] = [
-    { id: "RAD-001", patientName: "Anita Patel", modality: "MRI", bodyPart: "Brain", status: "Report Ready", date: "2023-10-26", priority: "Urgent", doctorName: "Dr. Chen" },
-    { id: "RAD-002", patientName: "Emily Davis", modality: "X-Ray", bodyPart: "Left Tibia", status: "Imaging", date: "2023-10-26", priority: "High", doctorName: "Dr. House" },
-    { id: "RAD-003", patientName: "James Wilson", modality: "CT Scan", bodyPart: "Chest", status: "Scheduled", date: "2023-10-27", priority: "Routine", doctorName: "Dr. Ross" },
+    { id: "RAD-001", patientName: "Anita Patel", modality: "MRI", bodyPart: "Brain", status: "Report Ready", date: "2023-10-26" },
+    { id: "RAD-002", patientName: "Emily Davis", modality: "X-Ray", bodyPart: "Left Tibia", status: "Imaging", date: "2023-10-26" },
+    { id: "RAD-003", patientName: "James Wilson", modality: "CT Scan", bodyPart: "Chest", status: "Scheduled", date: "2023-10-27" },
 ];
 
 export const MOCK_REFERRALS: Referral[] = [
-    { id: "REF-001", patientName: "Jane Doe", direction: "Outbound", hospital: "City General", reason: "Advanced Neurology", status: "Accepted", date: "2023-10-26", doctorName: "Dr. Chen", department: "Neurology" },
-    { id: "REF-002", patientName: "Mark Smith", direction: "Inbound", hospital: "Rural Clinic A", reason: "ICU Requirement", status: "Pending", date: "2023-10-25", doctorName: "Dr. House", department: "Emergency" },
+    { id: "REF-001", patientName: "Jane Doe", direction: "Outbound", hospital: "City General", reason: "Advanced Neurology", status: "Accepted", date: "2023-10-26" },
+    { id: "REF-002", patientName: "Mark Smith", direction: "Inbound", hospital: "Rural Clinic A", reason: "ICU Requirement", status: "Pending", date: "2023-10-25" },
 ];
 
 export const MOCK_CERTIFICATES: MedicalCertificate[] = [
-    { id: "MC-101", patientName: "Sarah Johnson", type: "Sick Leave", issueDate: "2023-10-26", doctor: "Dr. Chen", status: "Issued", description: "Viral fever, 3 days rest." },
-    { id: "MC-102", patientName: "Michael Chen", type: "Fitness", issueDate: "2023-10-25", doctor: "Dr. Ross", status: "Draft", description: "Fit to resume work." },
+    { id: "MC-101", patientName: "Sarah Johnson", type: "Sick Leave", issueDate: "2023-10-26", doctor: "Dr. Chen", status: "Issued" },
+    { id: "MC-102", patientName: "Michael Chen", type: "Fitness", issueDate: "2023-10-25", doctor: "Dr. Ross", status: "Draft" },
 ];
 
 export const MOCK_RESEARCH: ResearchTrial[] = [
-    { id: "1", title: "Cardio-X Drug Trial", phase: "Phase III", participants: 120, status: "Active", leadResearcher: "Dr. S. Chen", startDate: "2023-01-01", endDate: "2023-12-31" },
-    { id: "2", title: "Diabetes Management Study", phase: "Phase I", participants: 15, status: "Recruiting", leadResearcher: "Dr. J. Doe", startDate: "2023-09-01", endDate: "2024-03-31" },
+    { id: "1", title: "Cardio-X Drug Trial", phase: "Phase III", participants: 120, status: "Active", leadResearcher: "Dr. S. Chen" },
+    { id: "2", title: "Diabetes Management Study", phase: "Phase I", participants: 15, status: "Recruiting", leadResearcher: "Dr. J. Doe" },
 ];
 
 export const MOCK_MATERNITY: MaternityPatient[] = [
-    { id: "1", name: "Maria Garcia", weeksPregnant: 39, doctor: "Dr. Cuddy", status: "Labor", room: "LDR-01", admissionDate: "2023-10-26" },
-    { id: "2", name: "Sarah Lee", weeksPregnant: 34, doctor: "Dr. Cuddy", status: "Ante-natal", room: "302", admissionDate: "2023-10-24" },
+    { id: "1", name: "Maria Garcia", weeksPregnant: 39, doctor: "Dr. Cuddy", status: "Labor", room: "LDR-01" },
+    { id: "2", name: "Sarah Lee", weeksPregnant: 34, doctor: "Dr. Cuddy", status: "Ante-natal", room: "302" },
 ];
 
 export const MOCK_QUEUE: QueueItem[] = [
-    { id: "1", tokenNumber: 101, patientName: "John Doe", doctorName: "Dr. Sarah Chen", department: "Cardiology", status: "In Consultation", waitTime: "0m", checkInTime: "09:00 AM" },
-    { id: "2", tokenNumber: 102, patientName: "Alice Smith", doctorName: "Dr. Sarah Chen", department: "Cardiology", status: "Waiting", waitTime: "15m", checkInTime: "09:15 AM" },
-    { id: "3", tokenNumber: 103, patientName: "Bob Brown", doctorName: "Dr. Sarah Chen", department: "Cardiology", status: "Waiting", waitTime: "30m", checkInTime: "09:30 AM" },
+    { id: "1", tokenNumber: 101, patientName: "John Doe", doctorName: "Dr. Sarah Chen", department: "Cardiology", status: "In Consultation", waitTime: "0m" },
+    { id: "2", tokenNumber: 102, patientName: "Alice Smith", doctorName: "Dr. Sarah Chen", department: "Cardiology", status: "Waiting", waitTime: "15m" },
+    { id: "3", tokenNumber: 103, patientName: "Bob Brown", doctorName: "Dr. Sarah Chen", department: "Cardiology", status: "Waiting", waitTime: "30m" },
 ];
 
 export const MOCK_BLOOD_UNITS: BloodUnit[] = [
@@ -139,11 +141,11 @@ export const MOCK_BLOOD_BAGS: BloodBag[] = [
 ];
 
 export const MOCK_BLOOD_DONORS: BloodDonor[] = [
-    { id: "D-001", name: "John Smith", age: 32, gender: "Male", bloodGroup: "A+", contact: "555-0101", email: "john.smith@email.com", address: "123 Main St, City", lastDonationDate: "2024-01-15", totalDonations: 5, status: "Active" },
-    { id: "D-002", name: "Mary Johnson", age: 28, gender: "Female", bloodGroup: "A+", contact: "555-0102", email: "mary.j@email.com", address: "456 Oak Ave, Town", lastDonationDate: "2024-01-16", totalDonations: 3, status: "Active" },
+    { id: "D-001", name: "John Smith", age: 32, gender: "Male", bloodGroup: "A+", contact: "555-0101", address: "123 Main St, City", totalDonations: 5, status: "Active", createdAt: "2023-01-01" },
+    { id: "D-002", name: "Mary Johnson", age: 28, gender: "Female", bloodGroup: "A+", contact: "555-0102", address: "456 Oak Ave, Town", totalDonations: 3, status: "Active", createdAt: "2023-01-01" },
 ];
 
 export const MOCK_BLOOD_REQUESTS: BloodRequest[] = [
-    { id: "BR-001", patientId: "P-102", patientName: "Michael Chen", bloodGroup: "B-", unitsRequired: 2, urgency: "Emergency", department: "ICU", doctor: "Dr. Sarah Chen", status: "Pending", requestDate: "2024-01-20", requiredDate: "2024-01-20", crossMatchStatus: "Pending" },
-    { id: "BR-002", patientId: "P-108", patientName: "Lisa Anderson", bloodGroup: "A+", unitsRequired: 1, urgency: "Routine", department: "Surgery", doctor: "Dr. Michael Ross", status: "Approved", requestDate: "2024-01-19", requiredDate: "2024-01-22", crossMatchStatus: "Compatible" },
+    { id: "BR-001", patientId: "P-102", patientName: "Michael Chen", bloodGroup: "B-", unitsRequired: 2, urgency: "Emergency", department: "ICU", doctor: "Dr. Sarah Chen", status: "Pending", requestDate: "2024-01-20", requiredDate: "2024-01-20" },
+    { id: "BR-002", patientId: "P-108", patientName: "Lisa Anderson", bloodGroup: "A+", unitsRequired: 1, urgency: "Routine", department: "Surgery", doctor: "Dr. Michael Ross", status: "Approved", requestDate: "2024-01-19", requiredDate: "2024-01-22" },
 ];
