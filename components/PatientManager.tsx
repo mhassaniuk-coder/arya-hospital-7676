@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { 
   Search, Plus, Filter, FileText, Edit2, Trash2, Archive, 
   RotateCcw, Download, ChevronLeft, ChevronRight, ChevronUp, 
@@ -10,6 +10,7 @@ import PatientDetailDrawer from './PatientDetailDrawer';
 import AddPatientModal from './AddPatientModal';
 import { useData } from '../src/contexts/DataContext';
 import { useTheme } from '../src/contexts/ThemeContext';
+import { useSearch } from '../src/contexts/SearchContext';
 
 type ViewMode = 'table' | 'cards';
 type SortField = 'name' | 'admissionDate' | 'urgency' | 'age';
@@ -52,9 +53,17 @@ const PatientManager: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const { patients, addPatient, updatePatient, deletePatient, archivePatient, restorePatient, addToQueue, staff } = useData();
-  
-  // State
+  const { globalSearchQuery, setGlobalSearchQuery } = useSearch();
+
+  // State (sync from global header search when navigating here with a query)
   const [searchTerm, setSearchTerm] = useState('');
+  useEffect(() => {
+    if (globalSearchQuery.trim()) {
+      setSearchTerm(globalSearchQuery);
+      setGlobalSearchQuery('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only apply header query on mount when navigating from search
+  }, []);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

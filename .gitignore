@@ -25,3 +25,12 @@ dist-ssr
 
 # Vercel
 .vercel
+
+# Python
+venv
+server/venv
+__pycache__
+*.pyc
+.env
+.pytest_cache
+*.egg-info

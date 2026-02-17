@@ -16,7 +16,7 @@ const ClinicalResearch: React.FC = () => {
         priorTreatments: ''
     });
     const [aiMatchResult, setAiMatchResult] = useState<any>(null);
-    
+
     // AI Clinical Decision Support for Trial Matching
     const { data: cdssResult, loading: cdssLoading, execute: runCDSS } = useCDSS();
     const [formData, setFormData] = useState({
@@ -41,11 +41,11 @@ const ClinicalResearch: React.FC = () => {
         setIsModalOpen(false);
         setFormData({ title: '', phase: 'Phase I', participants: 0, status: 'Recruiting', leadResearcher: 'Dr. Chen' });
     };
-    
+
     // AI Trial Matching Handler
     const handleAITrialMatch = async () => {
         if (!patientMatchInput.diagnosis) return;
-        
+
         const input: CDSSInput = {
             patientId: 'PT-001',
             diagnosis: patientMatchInput.diagnosis,
@@ -54,11 +54,11 @@ const ClinicalResearch: React.FC = () => {
             gender: patientMatchInput.gender,
             allergies: []
         };
-        
+
         await runCDSS(input);
         setShowAIPanel(true);
     };
-    
+
     // Update AI result when data changes
     React.useEffect(() => {
         if (cdssResult) {
@@ -84,19 +84,19 @@ const ClinicalResearch: React.FC = () => {
 
     return (
         <div className="space-y-6 animate-fade-in">
-             <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center">
                 <div>
-                  <h1 className="text-2xl font-bold text-slate-900">Clinical Research</h1>
-                  <p className="text-slate-500">Manage trials and study participants.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Clinical Research</h1>
+                    <p className="text-slate-500 dark:text-slate-400">Manage trials and study participants.</p>
                 </div>
                 <div className="flex gap-2">
-                    <button 
+                    <button
                         onClick={() => setShowAIPanel(!showAIPanel)}
                         className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2"
                     >
                         <Brain size={16} /> AI Trial Matching
                     </button>
-                    <button 
+                    <button
                         onClick={() => setIsModalOpen(true)}
                         className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2"
                     >
@@ -107,40 +107,40 @@ const ClinicalResearch: React.FC = () => {
 
             {/* AI Trial Matching Panel */}
             {showAIPanel && (
-                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-200">
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-purple-200 dark:border-purple-800">
                     <div className="flex items-center gap-2 mb-4">
-                        <Brain className="text-purple-600" size={24} />
-                        <h3 className="text-lg font-bold text-purple-900">AI Clinical Trial Matching</h3>
-                        <span className="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full font-medium">AI-Powered</span>
+                        <Brain className="text-purple-600 dark:text-purple-400" size={24} />
+                        <h3 className="text-lg font-bold text-purple-900 dark:text-purple-200">AI Clinical Trial Matching</h3>
+                        <span className="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs px-2 py-1 rounded-full font-medium">AI-Powered</span>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Diagnosis</label>
-                            <input 
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Diagnosis</label>
+                            <input
                                 type="text"
-                                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
+                                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
                                 placeholder="e.g., Type 2 Diabetes"
                                 value={patientMatchInput.diagnosis}
-                                onChange={e => setPatientMatchInput({...patientMatchInput, diagnosis: e.target.value})}
+                                onChange={e => setPatientMatchInput({ ...patientMatchInput, diagnosis: e.target.value })}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Age</label>
-                            <input 
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Age</label>
+                            <input
                                 type="number"
-                                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
+                                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
                                 placeholder="e.g., 45"
                                 value={patientMatchInput.age}
-                                onChange={e => setPatientMatchInput({...patientMatchInput, age: e.target.value})}
+                                onChange={e => setPatientMatchInput({ ...patientMatchInput, age: e.target.value })}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Gender</label>
-                            <select 
-                                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Gender</label>
+                            <select
+                                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
                                 value={patientMatchInput.gender}
-                                onChange={e => setPatientMatchInput({...patientMatchInput, gender: e.target.value})}
+                                onChange={e => setPatientMatchInput({ ...patientMatchInput, gender: e.target.value })}
                             >
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
@@ -148,17 +148,17 @@ const ClinicalResearch: React.FC = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Conditions</label>
-                            <input 
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Conditions</label>
+                            <input
                                 type="text"
-                                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
+                                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
                                 placeholder="Comma separated"
                                 value={patientMatchInput.conditions}
-                                onChange={e => setPatientMatchInput({...patientMatchInput, conditions: e.target.value})}
+                                onChange={e => setPatientMatchInput({ ...patientMatchInput, conditions: e.target.value })}
                             />
                         </div>
                         <div className="flex items-end">
-                            <button 
+                            <button
                                 onClick={handleAITrialMatch}
                                 disabled={cdssLoading || !patientMatchInput.diagnosis}
                                 className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 flex items-center justify-center gap-2"
@@ -168,48 +168,48 @@ const ClinicalResearch: React.FC = () => {
                             </button>
                         </div>
                     </div>
-                    
+
                     {/* Results */}
                     {aiMatchResult && (
                         <div className="mt-6 space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="bg-white p-4 rounded-xl border border-purple-100">
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-purple-100 dark:border-purple-800">
                                     <div className="flex items-center gap-2 mb-2">
                                         <CheckCircle className="text-green-600" size={18} />
-                                        <span className="text-sm font-medium text-slate-700">Matched Trials</span>
+                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Matched Trials</span>
                                     </div>
-                                    <p className="text-2xl font-bold text-slate-900">{aiMatchResult.matchedTrials.length}</p>
+                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{aiMatchResult.matchedTrials.length}</p>
                                 </div>
-                                <div className="bg-white p-4 rounded-xl border border-purple-100">
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-purple-100 dark:border-purple-800">
                                     <div className="flex items-center gap-2 mb-2">
                                         <AlertTriangle className="text-amber-600" size={18} />
-                                        <span className="text-sm font-medium text-slate-700">Avg Match Score</span>
+                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Avg Match Score</span>
                                     </div>
-                                    <p className="text-2xl font-bold text-slate-900">{Math.round(aiMatchResult.matchedTrials.reduce((acc: number, t: any) => acc + t.matchScore, 0) / aiMatchResult.matchedTrials.length)}%</p>
+                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{Math.round(aiMatchResult.matchedTrials.reduce((acc: number, t: any) => acc + t.matchScore, 0) / aiMatchResult.matchedTrials.length)}%</p>
                                 </div>
-                                <div className="bg-white p-4 rounded-xl border border-purple-100">
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-purple-100 dark:border-purple-800">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <Brain className="text-purple-600" size={18} />
-                                        <span className="text-sm font-medium text-slate-700">Recommendations</span>
+                                        <Brain className="text-purple-600 dark:text-purple-400" size={18} />
+                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Recommendations</span>
                                     </div>
-                                    <p className="text-2xl font-bold text-slate-900">{aiMatchResult.recommendations.length}</p>
+                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{aiMatchResult.recommendations.length}</p>
                                 </div>
                             </div>
-                            
+
                             {/* Matched Trials List */}
                             <div>
-                                <h4 className="font-semibold text-slate-800 mb-3">Recommended Trials</h4>
+                                <h4 className="font-semibold text-slate-800 dark:text-white mb-3">Recommended Trials</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {aiMatchResult.matchedTrials.map((match: any, idx: number) => (
-                                        <div key={idx} className="bg-white p-4 rounded-xl border border-purple-200 hover:shadow-md transition-shadow">
+                                        <div key={idx} className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-purple-200 dark:border-purple-800 hover:shadow-md transition-shadow">
                                             <div className="flex justify-between items-start mb-2">
-                                                <h5 className="font-semibold text-slate-800">{match.trial.title}</h5>
-                                                <span className={`px-2 py-1 rounded text-xs font-bold ${match.matchScore >= 80 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                <h5 className="font-semibold text-slate-800 dark:text-white">{match.trial.title}</h5>
+                                                <span className={`px-2 py-1 rounded text-xs font-bold ${match.matchScore >= 80 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}>
                                                     {match.matchScore}% Match
                                                 </span>
                                             </div>
-                                            <p className="text-sm text-slate-500 mb-2">{match.trial.phase}</p>
-                                            <ul className="text-xs text-slate-600 space-y-1">
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{match.trial.phase}</p>
+                                            <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
                                                 {match.reasons.map((reason: string, i: number) => (
                                                     <li key={i} className="flex items-center gap-1">
                                                         <CheckCircle size={12} className="text-green-600" />
@@ -221,17 +221,17 @@ const ClinicalResearch: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
-                            
+
                             {/* AI Recommendations */}
-                            <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
-                                <h4 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+                            <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl border border-purple-200 dark:border-purple-800">
+                                <h4 className="font-semibold text-purple-900 dark:text-purple-200 mb-3 flex items-center gap-2">
                                     <Brain size={18} />
                                     AI Recommendations
                                 </h4>
                                 <ul className="space-y-2">
                                     {aiMatchResult.recommendations.map((rec: string, idx: number) => (
-                                        <li key={idx} className="text-sm text-purple-800 flex items-start gap-2">
-                                            <Sparkles size={14} className="mt-0.5 text-purple-600" />
+                                        <li key={idx} className="text-sm text-purple-800 dark:text-purple-300 flex items-start gap-2">
+                                            <Sparkles size={14} className="mt-0.5 text-purple-600 dark:text-purple-400" />
                                             {rec}
                                         </li>
                                     ))}
@@ -244,21 +244,21 @@ const ClinicalResearch: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {researchTrials.map(trial => (
-                    <div key={trial.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                    <div key={trial.id} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
                         <div className="flex items-start gap-4">
-                            <div className="bg-purple-50 p-3 rounded-xl text-purple-600">
+                            <div className="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-xl text-purple-600 dark:text-purple-400">
                                 <Microscope size={24} />
                             </div>
                             <div className="flex-1">
-                                <h3 className="font-bold text-slate-800 text-lg">{trial.title}</h3>
-                                <p className="text-sm text-slate-500 mb-2">Lead: {trial.leadResearcher}</p>
+                                <h3 className="font-bold text-slate-800 dark:text-white text-lg">{trial.title}</h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Lead: {trial.leadResearcher}</p>
                                 <div className="flex gap-2 mb-4">
-                                    <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold">{trial.phase}</span>
-                                    <span className={`px-2 py-1 rounded text-xs font-bold ${trial.status === 'Recruiting' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                    <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded text-xs font-bold">{trial.phase}</span>
+                                    <span className={`px-2 py-1 rounded text-xs font-bold ${trial.status === 'Recruiting' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'}`}>
                                         {trial.status}
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-slate-600">
+                                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                                     <Users size={16} />
                                     <span>{trial.participants} Participants</span>
                                 </div>
@@ -271,41 +271,41 @@ const ClinicalResearch: React.FC = () => {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 m-4 animate-scale-up">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 m-4 animate-scale-up">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-slate-900">New Clinical Trial</h2>
-                            <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white">New Clinical Trial</h2>
+                            <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">
                                 <X size={24} />
                             </button>
                         </div>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Trial Title</label>
-                                <input 
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Trial Title</label>
+                                <input
                                     required
-                                    type="text" 
-                                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                    type="text"
+                                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                     value={formData.title}
-                                    onChange={e => setFormData({...formData, title: e.target.value})}
+                                    onChange={e => setFormData({ ...formData, title: e.target.value })}
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Lead Researcher</label>
-                                <input 
+                                <input
                                     required
-                                    type="text" 
-                                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                    type="text"
+                                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                     value={formData.leadResearcher}
-                                    onChange={e => setFormData({...formData, leadResearcher: e.target.value})}
+                                    onChange={e => setFormData({ ...formData, leadResearcher: e.target.value })}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Phase</label>
-                                    <select 
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                    <select
+                                        className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                         value={formData.phase}
-                                        onChange={e => setFormData({...formData, phase: e.target.value})}
+                                        onChange={e => setFormData({ ...formData, phase: e.target.value })}
                                     >
                                         <option>Phase I</option>
                                         <option>Phase II</option>
@@ -315,28 +315,28 @@ const ClinicalResearch: React.FC = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Participants</label>
-                                    <input 
+                                    <input
                                         required
-                                        type="number" 
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                        type="number"
+                                        className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                         value={formData.participants}
-                                        onChange={e => setFormData({...formData, participants: Number(e.target.value)})}
+                                        onChange={e => setFormData({ ...formData, participants: Number(e.target.value) })}
                                     />
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                                <select 
-                                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                <select
+                                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                     value={formData.status}
-                                    onChange={e => setFormData({...formData, status: e.target.value})}
+                                    onChange={e => setFormData({ ...formData, status: e.target.value })}
                                 >
                                     <option value="Recruiting">Recruiting</option>
                                     <option value="Active">Active</option>
                                     <option value="Completed">Completed</option>
                                 </select>
                             </div>
-                            <button 
+                            <button
                                 type="submit"
                                 className="w-full bg-teal-600 text-white font-bold py-3 rounded-xl hover:bg-teal-700 transition-colors mt-2"
                             >

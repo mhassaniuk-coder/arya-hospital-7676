@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Stethoscope, 
-  Calendar, 
+import {
+  LayoutDashboard,
+  Users,
+  Stethoscope,
+  Calendar,
   Activity,
+  Brain,
   BedDouble,
   Pill,
   CreditCard,
@@ -63,14 +64,12 @@ import {
   Receipt,
   PiggyBank,
   DollarSign,
-  Radio,
-  Sun,
-  Moon
+  Radio
 } from 'lucide-react';
 import { useAuth } from '../src/contexts/AuthContext';
-import { useTheme } from '../src/contexts/ThemeContext';
 import { UserRole } from '../types';
 import LogoutModal from './LogoutModal';
+import ThemeToggle from './ThemeToggle';
 
 interface SidebarProps {
   activeTab: string;
@@ -83,7 +82,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
   const [collapsed, setCollapsed] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
 
   // Grouped Menu Items for better organization
   const menuGroups = [
@@ -161,28 +159,28 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
       ]
     },
     {
-        title: "Administration",
-        items: [
-            { id: 'departments', label: 'Departments', icon: <Building2 size={20} /> },
-            { id: 'help-desk', label: 'Help Desk (IT)', icon: <LifeBuoy size={20} /> },
-            { id: 'legal', label: 'Legal / MLC', icon: <Scale size={20} /> },
-            { id: 'security', label: 'Security Monitor', icon: <Shield size={20} /> },
-            { id: 'audit', label: 'Audit Logs', icon: <ScrollText size={20} /> },
-            { id: 'visitors', label: 'Visitor Pass', icon: <Ticket size={20} /> },
-            { id: 'events', label: 'Events & CME', icon: <PartyPopper size={20} /> },
-            { id: 'incidents', label: 'Incident Reporting', icon: <FileWarning size={20} /> },
-            { id: 'lost-found', label: 'Lost & Found', icon: <HelpCircle size={20} /> },
-            { id: 'library', label: 'Library', icon: <Book size={20} /> },
-            { id: 'donations', label: 'Donations', icon: <Heart size={20} /> },
-            { id: 'feedback', label: 'Feedback', icon: <MessageSquare size={20} /> },
-            { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
-        ]
+      title: "Administration",
+      items: [
+        { id: 'departments', label: 'Departments', icon: <Building2 size={20} /> },
+        { id: 'help-desk', label: 'Help Desk (IT)', icon: <LifeBuoy size={20} /> },
+        { id: 'legal', label: 'Legal / MLC', icon: <Scale size={20} /> },
+        { id: 'security', label: 'Security Monitor', icon: <Shield size={20} /> },
+        { id: 'audit', label: 'Audit Logs', icon: <ScrollText size={20} /> },
+        { id: 'visitors', label: 'Visitor Pass', icon: <Ticket size={20} /> },
+        { id: 'events', label: 'Events & CME', icon: <PartyPopper size={20} /> },
+        { id: 'incidents', label: 'Incident Reporting', icon: <FileWarning size={20} /> },
+        { id: 'lost-found', label: 'Lost & Found', icon: <HelpCircle size={20} /> },
+        { id: 'library', label: 'Library', icon: <Book size={20} /> },
+        { id: 'donations', label: 'Donations', icon: <Heart size={20} /> },
+        { id: 'feedback', label: 'Feedback', icon: <MessageSquare size={20} /> },
+        { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
+      ]
     }
   ];
 
   const getFilteredMenu = () => {
     if (!user) return [];
-    
+
     let allowedIds: string[] | 'all' = [];
 
     switch (user.role) {
@@ -211,7 +209,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
         allowedIds = ['dashboard', 'schedule', 'tasks', 'notices', 'patients', 'opd-queue', 'visitors', 'call-center', 'intercom', 'lost-found', 'feedback', 'settings'];
         break;
       case UserRole.HR_MANAGER:
-        allowedIds = ['dashboard', 'tasks', 'notices', 'staff', 'training', 'roster', 'departments', 'events', 'settings'];
+        allowedIds = ['dashboard', 'tasks', 'notices', 'staff', 'attendance', 'payroll', 'leave', 'recruitment', 'training', 'roster', 'departments', 'events', 'settings'];
         break;
       case UserRole.FACILITY_MANAGER:
         allowedIds = ['dashboard', 'tasks', 'notices', 'ambulance', 'transport', 'cssd', 'waste', 'dietary', 'canteen', 'housekeeping', 'facility', 'laundry', 'parking', 'security', 'incidents', 'settings'];
@@ -253,14 +251,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
     <>
       {/* Mobile Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar Container */}
-      <aside 
+      <aside
         className={`
           fixed md:relative inset-y-0 left-0 z-50
           bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300
@@ -274,13 +272,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
         {/* Header */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shrink-0">
           <div className={`flex items-center gap-3 transition-all duration-300 ${collapsed ? 'justify-center w-full' : ''}`}>
-            <div className="bg-gradient-to-tr from-teal-500 to-teal-400 p-2 rounded-xl shadow-lg shadow-teal-500/20 shrink-0">
-              <Activity size={22} className="text-white" />
+            <div className="shrink-0">
+              <img src="/arya-logo.svg" alt="Arya Hospital" className="h-10 w-10 object-contain rounded-lg shadow-sm" />
             </div>
             {!collapsed && (
               <div className="flex flex-col overflow-hidden whitespace-nowrap">
-                <span className="text-lg font-bold text-slate-800 dark:text-white tracking-tight leading-none">Nexus</span>
-                <span className="text-[10px] text-teal-600 dark:text-teal-500 font-bold tracking-[0.2em] uppercase mt-0.5">Health</span>
+                <span className="text-lg font-bold text-slate-800 dark:text-white tracking-tight leading-none">Arya Hospital</span>
+                <span className="text-[10px] text-teal-600 dark:text-teal-500 font-bold tracking-[0.2em] uppercase mt-0.5">(HMS)</span>
               </div>
             )}
           </div>
@@ -299,7 +297,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
                 </h3>
               )}
               {collapsed && groupIdx > 0 && <div className="h-px bg-slate-200 dark:bg-slate-800 my-4 mx-2" />}
-              
+
               <div className="space-y-1">
                 {group.items.map((item) => (
                   <button
@@ -307,20 +305,20 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
                     onClick={() => handleNavClick(item.id)}
                     className={`
                       w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
-                      ${activeTab === item.id 
-                        ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 shadow-sm' 
+                      ${activeTab === item.id
+                        ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 shadow-sm'
                         : 'hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}
                       ${collapsed ? 'justify-center' : ''}
                     `}
                   >
                     {/* Active Indicator */}
                     {activeTab === item.id && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-teal-500 rounded-r-full shadow-[0_0_8px_rgba(20,184,166,0.5)]"></div>
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-teal-500 rounded-r-full shadow-[0_0_8px_rgba(20,184,166,0.5)]"></div>
                     )}
-                    
+
                     {/* Icon */}
                     <div className={`${activeTab === item.id ? 'text-teal-600 dark:text-teal-400 drop-shadow-sm' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-white'} transition-colors duration-200 shrink-0`}>
-                        {item.icon}
+                      {item.icon}
                     </div>
 
                     {/* Label */}
@@ -330,11 +328,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
 
                     {/* Tooltip for Collapsed State */}
                     {collapsed && (
-                       <div className="absolute left-full ml-4 px-2 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-xl border border-slate-700 transition-opacity duration-200 translate-x-1 group-hover:translate-x-0">
-                          {item.label}
-                          {/* Tiny Arrow */}
-                          <div className="absolute top-1/2 right-full -translate-y-1/2 -mr-[1px] border-4 border-transparent border-r-slate-800"></div>
-                       </div>
+                      <div className="absolute left-full ml-4 px-2 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-xl border border-slate-700 transition-opacity duration-200 translate-x-1 group-hover:translate-x-0">
+                        {item.label}
+                        {/* Tiny Arrow */}
+                        <div className="absolute top-1/2 right-full -translate-y-1/2 -mr-[1px] border-4 border-transparent border-r-slate-800"></div>
+                      </div>
                     )}
                   </button>
                 ))}
@@ -345,67 +343,50 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
 
         {/* Footer / Toggle */}
         <div className="p-4 border-t border-slate-200 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/30 shrink-0 relative">
-            {!collapsed ? (
-                <div className="space-y-3">
-                   {/* Theme Toggle Button (Full Width) */}
-                   <button
-                    onClick={toggleTheme}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                   >
-                     <div className="flex items-center gap-2">
-                       {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
-                       <span className="text-sm font-medium">{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
-                     </div>
-                     <div className={`w-8 h-4 rounded-full p-0.5 transition-colors ${theme === 'dark' ? 'bg-teal-500' : 'bg-slate-300'}`}>
-                       <div className={`w-3 h-3 rounded-full bg-white shadow-sm transition-transform ${theme === 'dark' ? 'translate-x-4' : 'translate-x-0'}`} />
-                     </div>
-                   </button>
+          {!collapsed ? (
+            <div className="space-y-3">
+              {/* Theme Toggle - Dropdown variant for full control */}
+              <ThemeToggle variant="dropdown" size="sm" showLabel direction="up" className="w-full" />
 
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors group cursor-pointer">
-                        <div className="relative">
-                            <img src={user?.avatar || "https://ui-avatars.com/api/?name=User"} alt="User" className="w-9 h-9 rounded-full border border-teal-500/30" />
-                            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
-                        </div>
-                        <div className="flex-1 overflow-hidden">
-                            <p className="text-sm font-bold text-slate-700 dark:text-white truncate group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{user?.name || 'User'}</p>
-                            <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user?.role || 'Guest'}</p>
-                        </div>
-                        <button onClick={() => setIsLogoutModalOpen(true)} className="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-colors" title="Logout">
-                            <LogOut size={16} />
-                        </button>
-                    </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors group cursor-pointer">
+                <div className="relative">
+                  <img src={user?.avatar || "https://ui-avatars.com/api/?name=User"} alt="User" className="w-9 h-9 rounded-full border border-teal-500/30" />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
                 </div>
-            ) : (
-                <div className="flex flex-col items-center gap-4">
-                    {/* Theme Toggle (Collapsed) */}
-                    <button
-                        onClick={toggleTheme}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-teal-500 dark:hover:text-teal-400 transition-colors"
-                        title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                    >
-                        {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
-                    </button>
+                <div className="flex-1 overflow-hidden">
+                  <p className="text-sm font-bold text-slate-700 dark:text-white truncate group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{user?.name || 'User'}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user?.role || 'Guest'}</p>
+                </div>
+                <button onClick={() => setIsLogoutModalOpen(true)} className="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-colors" title="Logout">
+                  <LogOut size={16} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-4">
+              {/* Theme Toggle (Collapsed) - Icon variant */}
+              <ThemeToggle variant="icon" size="sm" />
 
-                    <div className="flex justify-center group relative">
-                        <div className="relative cursor-pointer" onClick={() => setIsLogoutModalOpen(true)}>
-                            <img src={user?.avatar || "https://ui-avatars.com/api/?name=User"} alt="User" className="w-8 h-8 rounded-full border border-teal-500/30" />
-                            <span className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
-                        </div>
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap shadow-xl border border-slate-700 transition-opacity">
-                            Logout
-                        </div>
-                    </div>
+              <div className="flex justify-center group relative">
+                <div className="relative cursor-pointer" onClick={() => setIsLogoutModalOpen(true)}>
+                  <img src={user?.avatar || "https://ui-avatars.com/api/?name=User"} alt="User" className="w-8 h-8 rounded-full border border-teal-500/30" />
+                  <span className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
                 </div>
-            )}
-             
-            {/* Collapse Toggle for Desktop */}
-            <button 
-                onClick={() => setCollapsed(!collapsed)}
-                className="hidden md:flex absolute -right-3 top-[-16px] bg-white dark:bg-[#0f172a] text-slate-400 border border-slate-200 dark:border-slate-700 w-6 h-6 rounded-full items-center justify-center hover:text-slate-900 dark:hover:text-white hover:bg-teal-50 dark:hover:bg-teal-600 hover:border-teal-500 transition-all shadow-lg z-50 transform hover:scale-110"
-                title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            >
-                {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-            </button>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap shadow-xl border border-slate-700 transition-opacity">
+                  Logout
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Collapse Toggle for Desktop */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="hidden md:flex absolute -right-3 top-[-16px] bg-white dark:bg-[#0f172a] text-slate-400 border border-slate-200 dark:border-slate-700 w-6 h-6 rounded-full items-center justify-center hover:text-slate-900 dark:hover:text-white hover:bg-teal-50 dark:hover:bg-teal-600 hover:border-teal-500 transition-all shadow-lg z-50 transform hover:scale-110"
+            title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
         </div>
       </aside>
 

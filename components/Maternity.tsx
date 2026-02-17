@@ -62,9 +62,9 @@ const Maternity: React.FC = () => {
 
     const renderConfidenceBadge = (confidence: number) => {
         const percentage = Math.round(confidence * 100);
-        const color = percentage >= 90 ? 'bg-green-100 text-green-700' :
-                      percentage >= 70 ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700';
+        const color = percentage >= 90 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
+                      percentage >= 70 ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400' :
+                      'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400';
         return (
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}>
                 {percentage}% confidence
@@ -77,7 +77,7 @@ const Maternity: React.FC = () => {
             return (
                 <div className="flex flex-col items-center justify-center py-12">
                     <Loader2 className="animate-spin text-pink-500 mb-4" size={48} />
-                    <p className="text-slate-600 font-medium">Running AI Ultrasound Analysis...</p>
+                    <p className="text-slate-600 dark:text-slate-400 font-medium">Running AI Ultrasound Analysis...</p>
                     <p className="text-slate-400 text-sm">Analyzing fetal development and biometry</p>
                 </div>
             );
@@ -87,7 +87,7 @@ const Maternity: React.FC = () => {
             return (
                 <div className="text-center py-12">
                     <AlertTriangle className="text-amber-500 mx-auto mb-4" size={48} />
-                    <p className="text-slate-600">Unable to perform ultrasound analysis</p>
+                    <p className="text-slate-600 dark:text-slate-400 dark:text-slate-400">Unable to perform ultrasound analysis</p>
                 </div>
             );
         }
@@ -97,7 +97,7 @@ const Maternity: React.FC = () => {
                 {/* Overall Impression */}
                 <div className="bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-lg border border-pink-200">
                     <h4 className="font-semibold text-pink-800 mb-2">Overall Impression</h4>
-                    <p className="text-slate-700">{ultrasoundAnalysis.overallImpression}</p>
+                    <p className="text-slate-700 dark:text-slate-300 dark:text-slate-300">{ultrasoundAnalysis.overallImpression}</p>
                     <div className="mt-2 flex items-center gap-2">
                         {renderConfidenceBadge(ultrasoundAnalysis.confidence)}
                     </div>
@@ -107,7 +107,7 @@ const Maternity: React.FC = () => {
                 {ultrasoundAnalysis.obstetricAnalysis && (
                     <>
                         {/* Gestational Age */}
-                        <div className="bg-white p-4 rounded-lg border border-slate-200">
+                        <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600 dark:border-slate-600">
                             <h5 className="font-medium text-slate-800 mb-3 flex items-center gap-2">
                                 <Baby className="text-pink-500" size={18} />
                                 Gestational Age Assessment
@@ -124,15 +124,15 @@ const Maternity: React.FC = () => {
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-slate-600">Method:</span>
+                                        <span className="text-slate-600 dark:text-slate-400 dark:text-slate-400">Method:</span>
                                         <span className="font-medium uppercase">{ultrasoundAnalysis.obstetricAnalysis.gestationalAge.method}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-slate-600">Fetal Presentation:</span>
+                                        <span className="text-slate-600 dark:text-slate-400 dark:text-slate-400">Fetal Presentation:</span>
                                         <span className="font-medium capitalize">{ultrasoundAnalysis.obstetricAnalysis.fetalPresentation}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-slate-600">Multiple Gestation:</span>
+                                        <span className="text-slate-600 dark:text-slate-400 dark:text-slate-400">Multiple Gestation:</span>
                                         <span className={`font-medium ${ultrasoundAnalysis.obstetricAnalysis.multipleGestation ? 'text-amber-600' : 'text-green-600'}`}>
                                             {ultrasoundAnalysis.obstetricAnalysis.multipleGestation ? 'Yes' : 'No'}
                                         </span>
@@ -142,52 +142,52 @@ const Maternity: React.FC = () => {
                         </div>
 
                         {/* Fetal Biometry */}
-                        <div className="bg-white p-4 rounded-lg border border-slate-200">
+                        <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600 dark:border-slate-600">
                             <h5 className="font-medium text-slate-800 mb-3 flex items-center gap-2">
                                 <Activity className="text-blue-500" size={18} />
                                 Fetal Biometry
                             </h5>
                             <div className="grid grid-cols-2 gap-3">
                                 {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.biparietalDiameter && (
-                                    <div className="p-3 bg-slate-50 rounded-lg">
+                                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs text-slate-500">BPD</span>
                                             <span className="text-xs text-slate-400">{ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.biparietalDiameter.percentile}th %ile</span>
                                         </div>
-                                        <p className="font-bold text-slate-800">
+                                        <p className="font-bold text-slate-800 dark:text-white">
                                             {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.biparietalDiameter.value} {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.biparietalDiameter.unit}
                                         </p>
                                     </div>
                                 )}
                                 {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.headCircumference && (
-                                    <div className="p-3 bg-slate-50 rounded-lg">
+                                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs text-slate-500">HC</span>
                                             <span className="text-xs text-slate-400">{ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.headCircumference.percentile}th %ile</span>
                                         </div>
-                                        <p className="font-bold text-slate-800">
+                                        <p className="font-bold text-slate-800 dark:text-white">
                                             {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.headCircumference.value} {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.headCircumference.unit}
                                         </p>
                                     </div>
                                 )}
                                 {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.abdominalCircumference && (
-                                    <div className="p-3 bg-slate-50 rounded-lg">
+                                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs text-slate-500">AC</span>
                                             <span className="text-xs text-slate-400">{ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.abdominalCircumference.percentile}th %ile</span>
                                         </div>
-                                        <p className="font-bold text-slate-800">
+                                        <p className="font-bold text-slate-800 dark:text-white">
                                             {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.abdominalCircumference.value} {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.abdominalCircumference.unit}
                                         </p>
                                     </div>
                                 )}
                                 {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.femurLength && (
-                                    <div className="p-3 bg-slate-50 rounded-lg">
+                                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs text-slate-500">FL</span>
                                             <span className="text-xs text-slate-400">{ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.femurLength.percentile}th %ile</span>
                                         </div>
-                                        <p className="font-bold text-slate-800">
+                                        <p className="font-bold text-slate-800 dark:text-white">
                                             {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.femurLength.value} {ultrasoundAnalysis.obstetricAnalysis.fetalBiometry.femurLength.unit}
                                         </p>
                                     </div>
@@ -217,17 +217,17 @@ const Maternity: React.FC = () => {
 
                         {/* Amniotic Fluid & Placenta */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-white p-4 rounded-lg border border-slate-200">
+                            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600 dark:border-slate-600">
                                 <h5 className="font-medium text-slate-800 mb-3">Amniotic Fluid</h5>
                                 <div className="space-y-2">
                                     {ultrasoundAnalysis.obstetricAnalysis.amnioticFluid.index && (
                                         <div className="flex justify-between text-sm">
-                                            <span className="text-slate-600">AFI:</span>
+                                            <span className="text-slate-600 dark:text-slate-400 dark:text-slate-400">AFI:</span>
                                             <span className="font-medium">{ultrasoundAnalysis.obstetricAnalysis.amnioticFluid.index} cm</span>
                                         </div>
                                     )}
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-slate-600">Status:</span>
+                                        <span className="text-slate-600 dark:text-slate-400 dark:text-slate-400">Status:</span>
                                         <span className={`font-medium capitalize ${
                                             ultrasoundAnalysis.obstetricAnalysis.amnioticFluid.status === 'normal' ? 'text-green-600' :
                                             ultrasoundAnalysis.obstetricAnalysis.amnioticFluid.status === 'oligohydramnios' ? 'text-amber-600' :
@@ -239,19 +239,19 @@ const Maternity: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-white p-4 rounded-lg border border-slate-200">
+                            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600 dark:border-slate-600">
                                 <h5 className="font-medium text-slate-800 mb-3">Placenta</h5>
                                 <div className="space-y-2 text-sm">
                                     <div className="flex justify-between">
-                                        <span className="text-slate-600">Location:</span>
+                                        <span className="text-slate-600 dark:text-slate-400 dark:text-slate-400">Location:</span>
                                         <span className="font-medium">{ultrasoundAnalysis.obstetricAnalysis.placenta.location}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-slate-600">Grade:</span>
+                                        <span className="text-slate-600 dark:text-slate-400 dark:text-slate-400">Grade:</span>
                                         <span className="font-medium">{ultrasoundAnalysis.obstetricAnalysis.placenta.grade}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-slate-600">Position:</span>
+                                        <span className="text-slate-600 dark:text-slate-400 dark:text-slate-400">Position:</span>
                                         <span className={`font-medium capitalize ${
                                             ultrasoundAnalysis.obstetricAnalysis.placenta.position === 'normal' ? 'text-green-600' :
                                             'text-amber-600'
@@ -264,14 +264,14 @@ const Maternity: React.FC = () => {
                         </div>
 
                         {/* Fetal Anatomy Survey */}
-                        <div className="bg-white p-4 rounded-lg border border-slate-200">
+                        <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600 dark:border-slate-600">
                             <h5 className="font-medium text-slate-800 mb-3">Fetal Anatomy Survey</h5>
                             <div className="grid grid-cols-2 gap-2">
                                 {ultrasoundAnalysis.obstetricAnalysis.fetalAnatomy.map((structure, idx) => (
                                     <div key={idx} className={`p-2 rounded-lg text-sm ${
                                         structure.status === 'visualized' ? 'bg-green-50 border border-green-200' :
                                         structure.status === 'abnormal' ? 'bg-red-50 border border-red-200' :
-                                        'bg-slate-50 border border-slate-200'
+                                        'bg-slate-50 dark:bg-slate-700/50 border border-slate-200'
                                     }`}>
                                         <div className="flex items-center justify-between">
                                             <span className="font-medium text-slate-700">{structure.structure}</span>
@@ -287,7 +287,7 @@ const Maternity: React.FC = () => {
                 )}
 
                 {/* Recommendations */}
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg border border-slate-200 dark:border-slate-600 dark:border-slate-600">
                     <h5 className="font-medium text-slate-800 mb-3">Recommendations</h5>
                     <div className="space-y-2">
                         {ultrasoundAnalysis.recommendations.map((rec, idx) => (
@@ -295,7 +295,7 @@ const Maternity: React.FC = () => {
                                 <Info className="text-pink-500 mt-0.5 flex-shrink-0" size={16} />
                                 <div>
                                     <span className="font-medium">{rec.recommendation}</span>
-                                    <p className="text-slate-500 text-xs">Timeframe: {rec.timeframe}</p>
+                                    <p className="text-slate-500 dark:text-slate-400 text-xs">Timeframe: {rec.timeframe}</p>
                                 </div>
                             </div>
                         ))}
@@ -303,7 +303,7 @@ const Maternity: React.FC = () => {
                 </div>
 
                 {/* Disclaimer */}
-                <div className="p-3 bg-slate-100 rounded-lg border border-slate-200">
+                <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 dark:border-slate-600">
                     <p className="text-xs text-slate-500 flex items-start gap-2">
                         <AlertTriangle size={14} className="flex-shrink-0 mt-0.5" />
                         <span>
@@ -320,8 +320,8 @@ const Maternity: React.FC = () => {
         <div className="space-y-6 animate-fade-in">
              <div className="flex justify-between items-center">
                 <div>
-                  <h1 className="text-2xl font-bold text-slate-900">Maternity Ward</h1>
-                  <p className="text-slate-500">Monitoring ante-natal and labor patients with AI-powered ultrasound analysis.</p>
+                  <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Maternity Ward</h1>
+                  <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400">Monitoring ante-natal and labor patients with AI-powered ultrasound analysis.</p>
                 </div>
                 <button 
                     onClick={() => setIsModalOpen(true)}
@@ -350,22 +350,22 @@ const Maternity: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {maternityPatients.map(mom => (
-                    <div key={mom.id} className={`p-6 rounded-2xl border relative bg-white ${mom.status === 'Labor' ? 'border-pink-300 shadow-md shadow-pink-100' : 'border-slate-100 shadow-sm'}`}>
+                    <div key={mom.id} className={`p-6 rounded-2xl border relative bg-white dark:bg-slate-800 ${mom.status === 'Labor' ? 'border-pink-300 shadow-md shadow-pink-100' : 'border-slate-100 dark:border-slate-700 shadow-sm'}`}>
                         <div className="flex justify-between items-start mb-4">
                             <div className="bg-pink-50 p-3 rounded-full text-pink-500">
                                 <Baby size={24} />
                             </div>
-                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${mom.status === 'Labor' ? 'bg-pink-500 text-white animate-pulse' : 'bg-slate-100 text-slate-600'}`}>
+                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${mom.status === 'Labor' ? 'bg-pink-500 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-700 text-slate-600'}`}>
                                 {mom.status}
                             </span>
                         </div>
                         <h3 className="font-bold text-slate-800 text-lg">{mom.name}</h3>
                         <p className="text-sm text-slate-500 mb-4">Room: {mom.room}</p>
                         
-                        <div className="bg-slate-50 p-3 rounded-xl flex justify-between items-center mb-3">
+                        <div className="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl flex justify-between items-center mb-3">
                             <div>
                                 <p className="text-xs text-slate-500 uppercase font-bold">Gestation</p>
-                                <p className="font-bold text-slate-800">{mom.weeksPregnant} Weeks</p>
+                                <p className="font-bold text-slate-800 dark:text-white">{mom.weeksPregnant} Weeks</p>
                             </div>
                             <Heart size={20} className="text-red-400" fill="currentColor" />
                         </div>
@@ -385,10 +385,10 @@ const Maternity: React.FC = () => {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 m-4 animate-scale-up">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 m-4 animate-scale-up">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-slate-900">Admit Maternity Patient</h2>
-                            <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Admit Maternity Patient</h2>
+                            <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">
                                 <X size={24} />
                             </button>
                         </div>
@@ -398,7 +398,7 @@ const Maternity: React.FC = () => {
                                 <input 
                                     required
                                     type="text" 
-                                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                     value={formData.name}
                                     onChange={e => setFormData({...formData, name: e.target.value})}
                                 />
@@ -409,7 +409,7 @@ const Maternity: React.FC = () => {
                                     <input 
                                         required
                                         type="number" 
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                        className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                         value={formData.weeksPregnant}
                                         onChange={e => setFormData({...formData, weeksPregnant: Number(e.target.value)})}
                                     />
@@ -419,7 +419,7 @@ const Maternity: React.FC = () => {
                                     <input 
                                         required
                                         type="text" 
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                        className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                         value={formData.room}
                                         onChange={e => setFormData({...formData, room: e.target.value})}
                                     />
@@ -430,7 +430,7 @@ const Maternity: React.FC = () => {
                                 <input 
                                     required
                                     type="text" 
-                                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                     value={formData.doctor}
                                     onChange={e => setFormData({...formData, doctor: e.target.value})}
                                 />
@@ -438,7 +438,7 @@ const Maternity: React.FC = () => {
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
                                 <select 
-                                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                     value={formData.status}
                                     onChange={e => setFormData({...formData, status: e.target.value})}
                                 >
@@ -461,15 +461,15 @@ const Maternity: React.FC = () => {
             {/* Ultrasound AI Analysis Modal */}
             {showUltrasoundAI && selectedPatient && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden m-4 animate-scale-up">
-                        <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-pink-500 to-rose-500 text-white">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden m-4 animate-scale-up">
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-600 flex items-center justify-between bg-gradient-to-r from-pink-500 to-rose-500 text-white">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-white/20 rounded-lg">
                                     <Brain size={20} />
                                 </div>
                                 <div>
                                     <h2 className="font-bold">AI Ultrasound Analysis</h2>
-                                    <p className="text-sm text-pink-100">{selectedPatient.name} • {selectedPatient.weeksPregnant} weeks</p>
+                                    <p className="text-sm text-pink-100">{selectedPatient.name} â€¢ {selectedPatient.weeksPregnant} weeks</p>
                                 </div>
                             </div>
                             <button 

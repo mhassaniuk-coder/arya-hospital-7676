@@ -167,7 +167,7 @@ const isApiKeyAvailable = (): boolean => {
 export const analyzeTriage = async (input: TriageInput): Promise<AIResponse<TriageResult>> => {
   const startTime = Date.now();
   const cacheKey = `triage-${JSON.stringify(input)}`;
-  
+
   // Check cache
   const cached = getCached<TriageResult>(cacheKey);
   if (cached) {
@@ -198,24 +198,24 @@ Provide a comprehensive triage assessment including urgency level, priority scor
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            urgencyLevel: { 
-              type: Type.STRING, 
+            urgencyLevel: {
+              type: Type.STRING,
               enum: ["Emergency", "Urgent", "Normal", "Low"],
               description: "The urgency level of the patient's condition"
             },
-            priorityScore: { 
+            priorityScore: {
               type: Type.NUMBER,
               description: "Priority score from 1-10, where 10 is most urgent"
             },
-            recommendedDepartment: { 
+            recommendedDepartment: {
               type: Type.STRING,
               description: "Recommended department for the patient"
             },
-            estimatedWaitTime: { 
+            estimatedWaitTime: {
               type: Type.STRING,
               description: "Estimated wait time recommendation"
             },
-            reasoning: { 
+            reasoning: {
               type: Type.STRING,
               description: "Clinical reasoning for the triage decision"
             },
@@ -237,10 +237,10 @@ Provide a comprehensive triage assessment including urgency level, priority scor
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as TriageResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in triage analysis:", error);
@@ -251,7 +251,7 @@ Provide a comprehensive triage assessment including urgency level, priority scor
 // Mock triage result for fallback
 const getMockTriageResult = (input: TriageInput): TriageResult => {
   const symptoms = input.symptoms.toLowerCase();
-  
+
   if (symptoms.includes('chest pain') || symptoms.includes('difficulty breathing') || symptoms.includes('stroke')) {
     return {
       urgencyLevel: 'Emergency',
@@ -263,7 +263,7 @@ const getMockTriageResult = (input: TriageInput): TriageResult => {
       redFlags: ['Cardiac event', 'Pulmonary embolism', 'Stroke']
     };
   }
-  
+
   if (symptoms.includes('fever') && symptoms.includes('cough')) {
     return {
       urgencyLevel: 'Urgent',
@@ -275,7 +275,7 @@ const getMockTriageResult = (input: TriageInput): TriageResult => {
       redFlags: ['Sepsis', 'Pneumonia', 'COVID-19']
     };
   }
-  
+
   return {
     urgencyLevel: 'Normal',
     priorityScore: 5,
@@ -294,7 +294,7 @@ const getMockTriageResult = (input: TriageInput): TriageResult => {
 export const calculateDosage = async (input: DosageInput): Promise<AIResponse<DosageResult>> => {
   const startTime = Date.now();
   const cacheKey = `dosage-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<DosageResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -351,10 +351,10 @@ Provide comprehensive dosing recommendations including any necessary adjustments
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as DosageResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in dosage calculation:", error);
@@ -364,7 +364,7 @@ Provide comprehensive dosing recommendations including any necessary adjustments
 
 const getMockDosageResult = (input: DosageInput): DosageResult => {
   const med = input.medication.toLowerCase();
-  
+
   if (med.includes('amoxicillin')) {
     return {
       recommendedDose: input.patientWeight ? `${Math.round(input.patientWeight * 25)} mg` : '500 mg',
@@ -376,23 +376,23 @@ const getMockDosageResult = (input: DosageInput): DosageResult => {
       pediatricDose: input.patientWeight ? `${Math.round(input.patientWeight * 25)} mg every 8 hours` : undefined,
     };
   }
-  
+
   if (med.includes('metformin')) {
     return {
       recommendedDose: '500 mg',
       doseFrequency: 'Twice daily',
       route: 'Oral',
       maxDailyDose: '2.5 g',
-      adjustments: input.renalFunction?.creatinineClearance && input.renalFunction.creatinineClearance < 30 
-        ? ['Contraindicated in severe renal impairment'] 
+      adjustments: input.renalFunction?.creatinineClearance && input.renalFunction.creatinineClearance < 30
+        ? ['Contraindicated in severe renal impairment']
         : [],
       warnings: ['Monitor renal function', 'Risk of lactic acidosis', 'Hold before contrast imaging'],
-      renalAdjustment: input.renalFunction?.creatinineClearance && input.renalFunction.creatinineClearance < 60 
-        ? 'Reduce dose or avoid' 
+      renalAdjustment: input.renalFunction?.creatinineClearance && input.renalFunction.creatinineClearance < 60
+        ? 'Reduce dose or avoid'
         : undefined,
     };
   }
-  
+
   return {
     recommendedDose: 'As per standard guidelines',
     doseFrequency: 'As directed',
@@ -410,7 +410,7 @@ const getMockDosageResult = (input: DosageInput): DosageResult => {
 export const getClinicalDecisionSupport = async (input: CDSSInput): Promise<AIResponse<CDSSResult>> => {
   const startTime = Date.now();
   const cacheKey = `cdss-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<CDSSResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -488,10 +488,10 @@ Provide clinical alerts, recommendations, and evidence-based guidelines.`;
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as CDSSResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in CDSS:", error);
@@ -501,7 +501,7 @@ Provide clinical alerts, recommendations, and evidence-based guidelines.`;
 
 const getMockCDSSResult = (input: CDSSInput): CDSSResult => {
   const alerts: CDSSAlert[] = [];
-  
+
   // Check for drug interactions
   if (input.currentMedications && input.currentMedications.length > 3) {
     alerts.push({
@@ -515,7 +515,7 @@ const getMockCDSSResult = (input: CDSSInput): CDSSResult => {
       suggestedAction: 'Review medication list with clinical pharmacist'
     });
   }
-  
+
   // Check for abnormal vitals
   if (input.vitalSigns && input.vitalSigns.length > 0) {
     const latestVitals = input.vitalSigns[input.vitalSigns.length - 1];
@@ -532,7 +532,7 @@ const getMockCDSSResult = (input: CDSSInput): CDSSResult => {
       });
     }
   }
-  
+
   return {
     alerts,
     recommendations: [
@@ -558,7 +558,7 @@ const getMockCDSSResult = (input: CDSSInput): CDSSResult => {
 export const generateMedicalNotes = async (input: ScribeInput): Promise<AIResponse<ScribeResult>> => {
   const startTime = Date.now();
   const cacheKey = `scribe-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<ScribeResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -631,10 +631,10 @@ Generate a comprehensive SOAP note with appropriate medical codes.`;
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as ScribeResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in medical scribe:", error);
@@ -671,7 +671,7 @@ const getMockScribeResult = (input: ScribeInput): ScribeResult => {
 export const checkAllergiesAndContraindications = async (input: AllergyCheckInput): Promise<AIResponse<AllergyCheckResult>> => {
   const startTime = Date.now();
   const cacheKey = `allergy-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<AllergyCheckResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -747,10 +747,10 @@ Identify any potential allergic reactions, cross-reactivity, contraindications, 
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as AllergyCheckResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in allergy check:", error);
@@ -761,7 +761,7 @@ Identify any potential allergic reactions, cross-reactivity, contraindications, 
 const getMockAllergyResult = (input: AllergyCheckInput): AllergyCheckResult => {
   const alerts: AllergyCheckResult['alerts'] = [];
   const contraindications: AllergyCheckResult['contraindications'] = [];
-  
+
   // Check for penicillin allergy
   if (input.patientAllergies.some(a => a.toLowerCase().includes('penicillin'))) {
     if (input.medications.some(m => m.toLowerCase().includes('amoxicillin') || m.toLowerCase().includes('ampicillin'))) {
@@ -775,7 +775,7 @@ const getMockAllergyResult = (input: AllergyCheckInput): AllergyCheckResult => {
       });
     }
   }
-  
+
   // Check for sulfa allergy
   if (input.patientAllergies.some(a => a.toLowerCase().includes('sulfa'))) {
     if (input.medications.some(m => m.toLowerCase().includes('sulfamethoxazole') || m.toLowerCase().includes('furosemide'))) {
@@ -789,7 +789,7 @@ const getMockAllergyResult = (input: AllergyCheckInput): AllergyCheckResult => {
       });
     }
   }
-  
+
   return {
     hasAlerts: alerts.length > 0 || contraindications.length > 0,
     alerts,
@@ -805,7 +805,7 @@ const getMockAllergyResult = (input: AllergyCheckInput): AllergyCheckResult => {
 export const interpretLabResult = async (input: LabInterpretationInput): Promise<AIResponse<LabInterpretationResult>> => {
   const startTime = Date.now();
   const cacheKey = `lab-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<LabInterpretationResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -864,10 +864,10 @@ Provide comprehensive interpretation including clinical significance and recomme
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as LabInterpretationResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in lab interpretation:", error);
@@ -877,7 +877,7 @@ Provide comprehensive interpretation including clinical significance and recomme
 
 const getMockLabInterpretation = (input: LabInterpretationInput): LabInterpretationResult => {
   const testLower = input.testName.toLowerCase();
-  
+
   if (testLower.includes('hemoglobin') || testLower.includes('hgb')) {
     const result = typeof input.result === 'number' ? input.result : parseFloat(input.result as string);
     if (result < 12) {
@@ -892,7 +892,7 @@ const getMockLabInterpretation = (input: LabInterpretationInput): LabInterpretat
       };
     }
   }
-  
+
   if (testLower.includes('glucose') && testLower.includes('fasting')) {
     const result = typeof input.result === 'number' ? input.result : parseFloat(input.result as string);
     if (result >= 126) {
@@ -907,7 +907,7 @@ const getMockLabInterpretation = (input: LabInterpretationInput): LabInterpretat
       };
     }
   }
-  
+
   if (testLower.includes('troponin')) {
     const result = typeof input.result === 'number' ? input.result : parseFloat(input.result as string);
     if (result > 0.04) {
@@ -922,7 +922,7 @@ const getMockLabInterpretation = (input: LabInterpretationInput): LabInterpretat
       };
     }
   }
-  
+
   return {
     status: 'Normal',
     interpretation: 'Result within normal limits',
@@ -940,7 +940,7 @@ const getMockLabInterpretation = (input: LabInterpretationInput): LabInterpretat
 export const getAntimicrobialRecommendation = async (input: AntimicrobialInput): Promise<AIResponse<AntimicrobialResult>> => {
   const startTime = Date.now();
   const cacheKey = `antimicrobial-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<AntimicrobialResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -999,10 +999,10 @@ Provide evidence-based antibiotic recommendations including duration and de-esca
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as AntimicrobialResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in antimicrobial recommendation:", error);
@@ -1012,7 +1012,7 @@ Provide evidence-based antibiotic recommendations including duration and de-esca
 
 const getMockAntimicrobialResult = (input: AntimicrobialInput): AntimicrobialResult => {
   const infection = input.infectionType?.toLowerCase() || '';
-  
+
   if (infection.includes('pneumonia') || infection.includes('respiratory')) {
     return {
       recommendedAntibiotic: 'Ceftriaxone 1g IV daily + Azithromycin 500mg PO daily',
@@ -1025,7 +1025,7 @@ const getMockAntimicrobialResult = (input: AntimicrobialInput): AntimicrobialRes
       cultureGuidedRecommendation: 'Await culture results for targeted therapy'
     };
   }
-  
+
   if (infection.includes('uti') || infection.includes('urinary')) {
     return {
       recommendedAntibiotic: 'Nitrofurantoin 100mg PO BID',
@@ -1038,7 +1038,7 @@ const getMockAntimicrobialResult = (input: AntimicrobialInput): AntimicrobialRes
       cultureGuidedRecommendation: 'Culture-guided therapy recommended if prior antibiotic exposure'
     };
   }
-  
+
   return {
     recommendedAntibiotic: 'Based on clinical assessment and culture results',
     alternativeOptions: ['Consult infectious disease for complex cases'],
@@ -1058,7 +1058,7 @@ const getMockAntimicrobialResult = (input: AntimicrobialInput): AntimicrobialRes
 export const analyzeVitalSigns = async (input: VitalSignsAnalysisInput): Promise<AIResponse<VitalSignsAnalysisResult>> => {
   const startTime = Date.now();
   const cacheKey = `vitals-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<VitalSignsAnalysisResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -1155,10 +1155,10 @@ Calculate early warning scores, identify deterioration risk, and provide clinica
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as VitalSignsAnalysisResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in vital signs analysis:", error);
@@ -1170,7 +1170,7 @@ const getMockVitalSignsAnalysis = (input: VitalSignsAnalysisInput): VitalSignsAn
   const latestVitals = input.vitalSigns[input.vitalSigns.length - 1];
   const parameters: EarlyWarningScore['parameters'] = [];
   let totalScore = 0;
-  
+
   // Heart rate scoring
   if (latestVitals.heartRate > 130 || latestVitals.heartRate < 40) {
     parameters.push({ parameter: 'Heart Rate', value: String(latestVitals.heartRate), score: 3, abnormality: 'Severe abnormality' });
@@ -1184,7 +1184,7 @@ const getMockVitalSignsAnalysis = (input: VitalSignsAnalysisInput): VitalSignsAn
   } else {
     parameters.push({ parameter: 'Heart Rate', value: String(latestVitals.heartRate), score: 0, abnormality: 'Normal' });
   }
-  
+
   // Temperature scoring
   if (latestVitals.temp > 39 || latestVitals.temp < 35) {
     parameters.push({ parameter: 'Temperature', value: `${latestVitals.temp}°C`, score: 2, abnormality: 'Significant fever or hypothermia' });
@@ -1195,9 +1195,9 @@ const getMockVitalSignsAnalysis = (input: VitalSignsAnalysisInput): VitalSignsAn
   } else {
     parameters.push({ parameter: 'Temperature', value: `${latestVitals.temp}°C`, score: 0, abnormality: 'Normal' });
   }
-  
+
   const riskLevel = totalScore >= 7 ? 'Critical' : totalScore >= 5 ? 'High' : totalScore >= 3 ? 'Medium' : 'Low';
-  
+
   return {
     earlyWarningScore: {
       score: totalScore,
@@ -1232,7 +1232,7 @@ const getMockVitalSignsAnalysis = (input: VitalSignsAnalysisInput): VitalSignsAn
 export const getDiagnosticSuggestions = async (input: DiagnosticInput): Promise<AIResponse<DiagnosticResult>> => {
   const startTime = Date.now();
   const cacheKey = `diagnostic-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<DiagnosticResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -1327,10 +1327,10 @@ Provide comprehensive differential diagnoses with ICD-10 codes, confidence level
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as DiagnosticResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in diagnostic suggestions:", error);
@@ -1340,7 +1340,7 @@ Provide comprehensive differential diagnoses with ICD-10 codes, confidence level
 
 const getMockDiagnosticResult = (input: DiagnosticInput): DiagnosticResult => {
   const symptoms = input.symptoms.join(' ').toLowerCase();
-  
+
   if (symptoms.includes('chest pain')) {
     return {
       differentialDiagnoses: [
@@ -1380,7 +1380,7 @@ const getMockDiagnosticResult = (input: DiagnosticInput): DiagnosticResult => {
       clinicalGuidelines: ['ACC/AHA Chest Pain Guidelines']
     };
   }
-  
+
   if (symptoms.includes('fever') && symptoms.includes('cough')) {
     return {
       differentialDiagnoses: [
@@ -1420,7 +1420,7 @@ const getMockDiagnosticResult = (input: DiagnosticInput): DiagnosticResult => {
       clinicalGuidelines: ['IDSA/ATS Pneumonia Guidelines']
     };
   }
-  
+
   return {
     differentialDiagnoses: [
       {
@@ -1457,7 +1457,7 @@ const getMockDiagnosticResult = (input: DiagnosticInput): DiagnosticResult => {
 export const generatePrescription = async (input: PrescriptionInput): Promise<AIResponse<PrescriptionResult>> => {
   const startTime = Date.now();
   const cacheKey = `prescription-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<PrescriptionResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -1583,10 +1583,10 @@ Provide comprehensive prescription recommendations including alternatives, inter
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as PrescriptionResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in prescription generation:", error);
@@ -1596,7 +1596,7 @@ Provide comprehensive prescription recommendations including alternatives, inter
 
 const getMockPrescriptionResult = (input: PrescriptionInput): PrescriptionResult => {
   const diagnosis = input.diagnosis.toLowerCase();
-  
+
   if (diagnosis.includes('hypertension') || diagnosis.includes('high blood pressure')) {
     return {
       primaryPrescription: {
@@ -1639,7 +1639,7 @@ const getMockPrescriptionResult = (input: PrescriptionInput): PrescriptionResult
       followUpRequired: true
     };
   }
-  
+
   if (diagnosis.includes('diabetes') || diagnosis.includes('diabetic')) {
     return {
       primaryPrescription: {
@@ -1667,7 +1667,7 @@ const getMockPrescriptionResult = (input: PrescriptionInput): PrescriptionResult
       followUpRequired: true
     };
   }
-  
+
   if (diagnosis.includes('infection') || diagnosis.includes('pneumonia') || diagnosis.includes('bronchitis')) {
     return {
       primaryPrescription: {
@@ -1710,7 +1710,7 @@ const getMockPrescriptionResult = (input: PrescriptionInput): PrescriptionResult
       followUpRequired: true
     };
   }
-  
+
   return {
     primaryPrescription: {
       medication: 'As clinically indicated',
@@ -1743,7 +1743,7 @@ const getMockPrescriptionResult = (input: PrescriptionInput): PrescriptionResult
 export const optimizeBedManagement = async (input: BedManagementInput): Promise<AIResponse<BedManagementResult>> => {
   const startTime = Date.now();
   const cacheKey = `bed-mgmt-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<BedManagementResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -1848,10 +1848,10 @@ Provide optimal bed assignments, turnover predictions, and discharge planning su
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as BedManagementResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in bed management optimization:", error);
@@ -1862,7 +1862,7 @@ Provide optimal bed assignments, turnover predictions, and discharge planning su
 const getMockBedManagementResult = (input: BedManagementInput): BedManagementResult => {
   const availableBeds = input.currentBeds.filter(b => b.status === 'Available');
   const occupiedBeds = input.currentBeds.filter(b => b.status === 'Occupied');
-  
+
   return {
     optimalAssignments: availableBeds.slice(0, 3).map((bed, idx) => ({
       bedId: bed.id,
@@ -1906,7 +1906,7 @@ const getMockBedManagementResult = (input: BedManagementInput): BedManagementRes
 export const optimizeORSchedule = async (input: ORSchedulerInput): Promise<AIResponse<ORSchedulerResult>> => {
   const startTime = Date.now();
   const cacheKey = `or-schedule-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<ORSchedulerResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -2019,10 +2019,10 @@ Provide an optimized schedule with predicted durations and resource allocation.`
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as ORSchedulerResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in OR scheduling optimization:", error);
@@ -2073,7 +2073,7 @@ const getMockORSchedulerResult = (input: ORSchedulerInput): ORSchedulerResult =>
 export const forecastInventory = async (input: InventoryForecastInput): Promise<AIResponse<InventoryForecastResult>> => {
   const startTime = Date.now();
   const cacheKey = `inventory-forecast-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<InventoryForecastResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -2193,10 +2193,10 @@ Provide demand forecasts, reorder recommendations, expiry alerts, and cost optim
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as InventoryForecastResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in inventory forecasting:", error);
@@ -2206,7 +2206,7 @@ Provide demand forecasts, reorder recommendations, expiry alerts, and cost optim
 
 const getMockInventoryForecastResult = (input: InventoryForecastInput): InventoryForecastResult => {
   const lowStockItems = input.items.filter(i => i.status === 'Low Stock' || i.status === 'Out of Stock');
-  
+
   return {
     demandForecasts: input.items.slice(0, 5).map(item => ({
       itemId: item.id,
@@ -2264,7 +2264,7 @@ const getMockInventoryForecastResult = (input: InventoryForecastInput): Inventor
 export const analyzePatientFlow = async (input: PatientFlowInput): Promise<AIResponse<PatientFlowResult>> => {
   const startTime = Date.now();
   const cacheKey = `patient-flow-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<PatientFlowResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -2382,10 +2382,10 @@ Provide volume predictions, bottleneck analysis, staffing recommendations, and w
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as PatientFlowResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in patient flow analysis:", error);
@@ -2448,7 +2448,7 @@ const getMockPatientFlowResult = (input: PatientFlowInput): PatientFlowResult =>
 export const optimizeAmbulanceDispatch = async (input: AmbulanceDispatchInput): Promise<AIResponse<AmbulanceDispatchResult>> => {
   const startTime = Date.now();
   const cacheKey = `ambulance-dispatch-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<AmbulanceDispatchResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -2549,10 +2549,10 @@ Provide optimal ambulance selection, route recommendations, and ETA predictions.
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as AmbulanceDispatchResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in ambulance dispatch optimization:", error);
@@ -2562,7 +2562,7 @@ Provide optimal ambulance selection, route recommendations, and ETA predictions.
 
 const getMockAmbulanceDispatchResult = (input: AmbulanceDispatchInput): AmbulanceDispatchResult => {
   const availableAmbulance = input.availableAmbulances[0];
-  
+
   return {
     recommendedAmbulance: {
       ambulanceId: availableAmbulance?.id || 'AMB-001',
@@ -2609,7 +2609,7 @@ const getMockAmbulanceDispatchResult = (input: AmbulanceDispatchInput): Ambulanc
 export const optimizeStaffScheduling = async (input: StaffSchedulingInput): Promise<AIResponse<StaffSchedulingResult>> => {
   const startTime = Date.now();
   const cacheKey = `staff-scheduling-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<StaffSchedulingResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -2724,10 +2724,10 @@ Provide an optimized schedule that balances preferences, skills, workload, and f
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as StaffSchedulingResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in staff scheduling optimization:", error);
@@ -2795,7 +2795,7 @@ const getMockStaffSchedulingResult = (input: StaffSchedulingInput): StaffSchedul
 export const predictEquipmentMaintenance = async (input: EquipmentMaintenanceInput): Promise<AIResponse<EquipmentMaintenanceResult>> => {
   const startTime = Date.now();
   const cacheKey = `equipment-maintenance-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<EquipmentMaintenanceResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -2905,10 +2905,10 @@ Provide predictive maintenance schedules, risk assessments, and cost optimizatio
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as EquipmentMaintenanceResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in equipment maintenance prediction:", error);
@@ -2975,7 +2975,7 @@ const getMockEquipmentMaintenanceResult = (input: EquipmentMaintenanceInput): Eq
 export const optimizeHousekeepingSchedule = async (input: HousekeepingSchedulingInput): Promise<AIResponse<HousekeepingSchedulingResult>> => {
   const startTime = Date.now();
   const cacheKey = `housekeeping-schedule-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<HousekeepingSchedulingResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -3092,10 +3092,10 @@ Provide an optimized cleaning schedule that prioritizes discharge-based tasks an
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as HousekeepingSchedulingResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in housekeeping schedule optimization:", error);
@@ -3155,7 +3155,7 @@ const getMockHousekeepingResult = (input: HousekeepingSchedulingInput): Housekee
 export const optimizeWasteManagement = async (input: WasteManagementInput): Promise<AIResponse<WasteManagementResult>> => {
   const startTime = Date.now();
   const cacheKey = `waste-management-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<WasteManagementResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -3268,10 +3268,10 @@ Provide waste generation predictions, collection optimization, compliance alerts
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as WasteManagementResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in waste management optimization:", error);
@@ -3360,7 +3360,7 @@ const getMockWasteManagementResult = (input: WasteManagementInput): WasteManagem
 export const optimizeEnergyManagement = async (input: EnergyManagementInput): Promise<AIResponse<EnergyManagementResult>> => {
   const startTime = Date.now();
   const cacheKey = `energy-management-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<EnergyManagementResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -3483,10 +3483,10 @@ Provide usage optimization, peak predictions, cost savings, and sustainability r
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as EnergyManagementResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in energy management optimization:", error);
@@ -3578,7 +3578,7 @@ const getMockEnergyManagementResult = (input: EnergyManagementInput): EnergyMana
 export const analyzeMedicalCoding = async (input: MedicalCodingInput): Promise<AIResponse<MedicalCodingResult>> => {
   const startTime = Date.now();
   const cacheKey = `medical-coding-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<MedicalCodingResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -3708,10 +3708,10 @@ Provide comprehensive coding suggestions including ICD-10 codes, CPT codes, HCPC
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as MedicalCodingResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in medical coding analysis:", error);
@@ -3788,7 +3788,7 @@ const getMockMedicalCodingResult = (input: MedicalCodingInput): MedicalCodingRes
 export const predictClaimsDenial = async (input: ClaimsDenialInput): Promise<AIResponse<ClaimsDenialResult>> => {
   const startTime = Date.now();
   const cacheKey = `claims-denial-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<ClaimsDenialResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -3897,10 +3897,10 @@ Analyze for denial risk and provide recommendations.`;
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as ClaimsDenialResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in claims denial prediction:", error);
@@ -3911,7 +3911,7 @@ Analyze for denial risk and provide recommendations.`;
 // Mock claims denial result
 const getMockClaimsDenialResult = (input: ClaimsDenialInput): ClaimsDenialResult => {
   const totalAmount = input.services.reduce((sum, s) => sum + (s.quantity * s.unitCost), 0);
-  
+
   return {
     denialProbability: input.priorAuthorization?.required && !input.priorAuthorization.obtained ? 0.85 : 0.25,
     riskLevel: input.priorAuthorization?.required && !input.priorAuthorization.obtained ? 'High' : 'Low',
@@ -3975,7 +3975,7 @@ const getMockClaimsDenialResult = (input: ClaimsDenialInput): ClaimsDenialResult
 export const analyzeRevenueCycle = async (input: RevenueCycleInput): Promise<AIResponse<RevenueCycleResult>> => {
   const startTime = Date.now();
   const cacheKey = `revenue-cycle-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<RevenueCycleResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -4115,10 +4115,10 @@ Provide revenue forecasts, leakage analysis, and optimization recommendations.`;
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as RevenueCycleResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in revenue cycle analysis:", error);
@@ -4244,7 +4244,7 @@ const getMockRevenueCycleResult = (input: RevenueCycleInput): RevenueCycleResult
 export const monitorCompliance = async (input: ComplianceMonitoringInput): Promise<AIResponse<ComplianceMonitoringResult>> => {
   const startTime = Date.now();
   const cacheKey = `compliance-monitoring-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<ComplianceMonitoringResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -4373,10 +4373,10 @@ Provide comprehensive compliance monitoring analysis including checklists, risk 
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as ComplianceMonitoringResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in compliance monitoring:", error);
@@ -4505,7 +4505,7 @@ const getMockComplianceMonitoringResult = (input: ComplianceMonitoringInput): Co
 export const detectFraud = async (input: FraudDetectionInput): Promise<AIResponse<FraudDetectionResult>> => {
   const startTime = Date.now();
   const cacheKey = `fraud-detection-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<FraudDetectionResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -4621,10 +4621,10 @@ Analyze for fraud indicators, generate investigation alerts, and provide prevent
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as FraudDetectionResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in fraud detection:", error);
@@ -4705,7 +4705,7 @@ const getMockFraudDetectionResult = (input: FraudDetectionInput): FraudDetection
 export const processDocument = async (input: DocumentProcessingInput): Promise<AIResponse<DocumentProcessingResult>> => {
   const startTime = Date.now();
   const cacheKey = `document-processing-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<DocumentProcessingResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -4834,10 +4834,10 @@ Extract information, classify the document, and provide structured output.`;
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as DocumentProcessingResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in document processing:", error);
@@ -4945,7 +4945,7 @@ const getMockDocumentProcessingResult = (input: DocumentProcessingInput): Docume
 export const analyzeAuditTrail = async (input: AuditTrailInput): Promise<AIResponse<AuditTrailResult>> => {
   const startTime = Date.now();
   const cacheKey = `audit-trail-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<AuditTrailResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -5097,10 +5097,10 @@ Analyze for suspicious activities, access patterns, and compliance issues.`;
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as AuditTrailResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in audit trail analysis:", error);
@@ -5209,7 +5209,7 @@ const getMockAuditTrailResult = (input: AuditTrailInput): AuditTrailResult => {
 export const manageContracts = async (input: ContractManagementInput): Promise<AIResponse<ContractManagementResult>> => {
   const startTime = Date.now();
   const cacheKey = `contract-management-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<ContractManagementResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -5395,10 +5395,10 @@ Provide contract management insights, renewal recommendations, and cost optimiza
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as ContractManagementResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in contract management:", error);
@@ -5502,7 +5502,7 @@ const getMockContractManagementResult = (input: ContractManagementInput): Contra
 export const managePolicies = async (input: PolicyManagementInput): Promise<AIResponse<PolicyManagementResult>> => {
   const startTime = Date.now();
   const cacheKey = `policy-management-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<PolicyManagementResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -5656,10 +5656,10 @@ Provide policy management insights including version control, gap analysis, and 
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as PolicyManagementResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in policy management:", error);
@@ -5764,7 +5764,7 @@ const getMockPolicyManagementResult = (input: PolicyManagementInput): PolicyMana
 export const generateReport = async (input: ReportingInput): Promise<AIResponse<ReportingResult>> => {
   const startTime = Date.now();
   const cacheKey = `reporting-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<ReportingResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -5905,10 +5905,10 @@ Generate a comprehensive report with executive summary, key findings, and recomm
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as ReportingResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in report generation:", error);
@@ -6055,7 +6055,7 @@ const getMockReportingResult = (input: ReportingInput): ReportingResult => {
 export const getHealthChatbotResponse = async (input: HealthChatbotInput): Promise<AIResponse<HealthChatbotResult>> => {
   const startTime = Date.now();
   const cacheKey = `chatbot-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<HealthChatbotResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -6066,7 +6066,7 @@ export const getHealthChatbotResponse = async (input: HealthChatbotInput): Promi
   }
 
   try {
-    const conversationContext = input.conversationHistory?.map(msg => 
+    const conversationContext = input.conversationHistory?.map(msg =>
       `${msg.role === 'user' ? 'Patient' : 'Assistant'}: ${msg.content}`
     ).join('\n') || 'No previous conversation';
 
@@ -6096,13 +6096,13 @@ Provide a helpful, empathetic response with appropriate resources and next steps
           type: Type.OBJECT,
           properties: {
             response: { type: Type.STRING, description: "The main response to the patient's message" },
-            intent: { 
-              type: Type.STRING, 
+            intent: {
+              type: Type.STRING,
               enum: ["general_inquiry", "symptom_assessment", "appointment_booking", "medication_reminder", "health_education", "emergency_alert", "triage_recommendation"],
               description: "The detected intent of the patient's message"
             },
-            sentiment: { 
-              type: Type.STRING, 
+            sentiment: {
+              type: Type.STRING,
               enum: ["concerned", "neutral", "anxious", "urgent", "curious"],
               description: "The detected emotional sentiment"
             },
@@ -6147,10 +6147,10 @@ Provide a helpful, empathetic response with appropriate resources and next steps
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as HealthChatbotResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in health chatbot:", error);
@@ -6160,7 +6160,7 @@ Provide a helpful, empathetic response with appropriate resources and next steps
 
 const getMockChatbotResult = (input: HealthChatbotInput): HealthChatbotResult => {
   const message = input.message.toLowerCase();
-  
+
   if (message.includes('emergency') || message.includes('chest pain') || message.includes('difficulty breathing')) {
     return {
       response: "I notice you may be describing a potentially serious situation. If you're experiencing chest pain, difficulty breathing, or any emergency symptoms, please call emergency services (911) immediately or go to your nearest emergency room. Do not wait for an appointment.",
@@ -6241,7 +6241,7 @@ const getMockChatbotResult = (input: HealthChatbotInput): HealthChatbotResult =>
 export const analyzeSymptoms = async (input: SymptomCheckerInput): Promise<AIResponse<SymptomCheckerResult>> => {
   const startTime = Date.now();
   const cacheKey = `symptoms-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<SymptomCheckerResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -6252,7 +6252,7 @@ export const analyzeSymptoms = async (input: SymptomCheckerInput): Promise<AIRes
   }
 
   try {
-    const symptomsList = input.symptoms.map(s => 
+    const symptomsList = input.symptoms.map(s =>
       `${s.name} (Severity: ${s.severity}, Duration: ${s.duration}${s.location ? `, Location: ${s.location}` : ''})`
     ).join('\n');
 
@@ -6361,10 +6361,10 @@ Provide a comprehensive symptom analysis with possible conditions, urgency asses
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as SymptomCheckerResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in symptom analysis:", error);
@@ -6499,7 +6499,7 @@ const getMockSymptomCheckerResult = (input: SymptomCheckerInput): SymptomChecker
 export const getAppointmentSchedulingAssistance = async (input: AppointmentSchedulingInput): Promise<AIResponse<AppointmentSchedulingResult>> => {
   const startTime = Date.now();
   const cacheKey = `appointment-scheduling-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<AppointmentSchedulingResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -6637,10 +6637,10 @@ Provide intelligent scheduling recommendations with provider matching and wait t
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as AppointmentSchedulingResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in appointment scheduling:", error);
@@ -6732,7 +6732,7 @@ const getMockAppointmentSchedulingResult = (input: AppointmentSchedulingInput): 
 export const getDischargeFollowUpPlan = async (input: DischargeFollowUpInput): Promise<AIResponse<DischargeFollowUpResult>> => {
   const startTime = Date.now();
   const cacheKey = `discharge-followup-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<DischargeFollowUpResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -6907,10 +6907,10 @@ Create a detailed follow-up plan including schedule, milestones, medication adhe
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as DischargeFollowUpResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in discharge follow-up:", error);
@@ -6920,7 +6920,7 @@ Create a detailed follow-up plan including schedule, milestones, medication adhe
 
 const getMockDischargeFollowUpResult = (input: DischargeFollowUpInput): DischargeFollowUpResult => {
   const dischargeDate = new Date(input.dischargeDetails.dischargeDate);
-  
+
   return {
     followUpSchedule: [
       {
@@ -7016,7 +7016,7 @@ const getMockDischargeFollowUpResult = (input: DischargeFollowUpInput): Discharg
 export const generateHealthEducation = async (input: HealthEducationInput): Promise<AIResponse<HealthEducationResult>> => {
   const startTime = Date.now();
   const cacheKey = `health-education-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<HealthEducationResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -7189,10 +7189,10 @@ Create comprehensive, patient-friendly educational content that addresses their 
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as HealthEducationResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in health education:", error);
@@ -7202,7 +7202,7 @@ Create comprehensive, patient-friendly educational content that addresses their 
 
 const getMockHealthEducationResult = (input: HealthEducationInput): HealthEducationResult => {
   const conditions = input.healthContext.conditions;
-  
+
   return {
     primaryContent: {
       title: `Understanding Your Health: ${conditions[0] || 'General Wellness'}`,
@@ -7299,7 +7299,7 @@ const getMockHealthEducationResult = (input: HealthEducationInput): HealthEducat
 export const getMedicationReminderPlan = async (input: MedicationReminderInput): Promise<AIResponse<MedicationReminderResult>> => {
   const startTime = Date.now();
   const cacheKey = `medication-reminder-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<MedicationReminderResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -7472,10 +7472,10 @@ Create an optimized medication schedule with reminders, interaction warnings, an
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as MedicationReminderResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in medication reminder:", error);
@@ -7485,7 +7485,7 @@ Create an optimized medication schedule with reminders, interaction warnings, an
 
 const getMockMedicationReminderResult = (input: MedicationReminderInput): MedicationReminderResult => {
   return {
-    optimizedSchedule: input.medications.flatMap(med => 
+    optimizedSchedule: input.medications.flatMap(med =>
       med.times.map((time, idx) => ({
         medicationId: med.medicationId,
         medicationName: med.name,
@@ -7534,7 +7534,7 @@ const getMockMedicationReminderResult = (input: MedicationReminderInput): Medica
         "Setting multiple reminders improves adherence by 15%"
       ]
     },
-    personalizedReminders: input.medications.slice(0, 3).flatMap(med => 
+    personalizedReminders: input.medications.slice(0, 3).flatMap(med =>
       med.times.slice(0, 1).map(time => ({
         medication: med.name,
         time,
@@ -7577,7 +7577,7 @@ const getMockMedicationReminderResult = (input: MedicationReminderInput): Medica
 export const analyzePatientFeedback = async (input: PatientFeedbackInput): Promise<AIResponse<PatientFeedbackResult>> => {
   const startTime = Date.now();
   const cacheKey = `patient-feedback-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<PatientFeedbackResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -7588,7 +7588,7 @@ export const analyzePatientFeedback = async (input: PatientFeedbackInput): Promi
   }
 
   try {
-    const feedbackSummary = input.feedbackItems.slice(0, 10).map(f => 
+    const feedbackSummary = input.feedbackItems.slice(0, 10).map(f =>
       `[${f.category}] Rating: ${f.rating || 'N/A'} - "${f.feedback.substring(0, 200)}"`
     ).join('\n');
 
@@ -7801,10 +7801,10 @@ Provide comprehensive sentiment analysis, trend identification, and actionable r
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as PatientFeedbackResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in patient feedback analysis:", error);
@@ -7982,7 +7982,7 @@ const getMockPatientFeedbackResult = (input: PatientFeedbackInput): PatientFeedb
 export const predictReadmissionRisk = async (input: ReadmissionRiskInput): Promise<AIResponse<ReadmissionRiskResult>> => {
   const startTime = Date.now();
   const cacheKey = `readmission-${input.patientId}-${JSON.stringify(input.diagnosis)}`;
-  
+
   const cached = getCached<ReadmissionRiskResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -8041,8 +8041,8 @@ Provide a comprehensive readmission risk assessment including risk score (0-100)
           type: Type.OBJECT,
           properties: {
             riskScore: { type: Type.NUMBER, description: "Risk score from 0-100" },
-            riskLevel: { 
-              type: Type.STRING, 
+            riskLevel: {
+              type: Type.STRING,
               enum: ["very_low", "low", "moderate", "high", "very_high"],
               description: "Categorical risk level"
             },
@@ -8113,10 +8113,10 @@ Provide a comprehensive readmission risk assessment including risk score (0-100)
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as ReadmissionRiskResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in readmission risk prediction:", error);
@@ -8130,9 +8130,9 @@ const getMockReadmissionRiskResult = (input: ReadmissionRiskInput): ReadmissionR
   const admissionRisk = input.medicalHistory.previousAdmissionsLast30Days * 10;
   const chronicRisk = input.medicalHistory.chronicConditions.length * 5;
   const socialRisk = input.socialDeterminants?.supportSystem === 'limited' ? 10 : 0;
-  
+
   const totalRisk = Math.min(95, Math.max(5, baseRisk + ageRisk + admissionRisk + chronicRisk + socialRisk));
-  
+
   let riskLevel: 'very_low' | 'low' | 'moderate' | 'high' | 'very_high';
   if (totalRisk < 20) riskLevel = 'very_low';
   else if (totalRisk < 40) riskLevel = 'low';
@@ -8174,7 +8174,7 @@ const getMockReadmissionRiskResult = (input: ReadmissionRiskInput): ReadmissionR
         factor: "Social support",
         category: "social",
         impact: socialRisk > 0 ? "high" : "low",
-        description: input.socialDeterminants?.supportSystem === 'limited' 
+        description: input.socialDeterminants?.supportSystem === 'limited'
           ? "Limited social support increases risk of non-compliance and readmission"
           : "Adequate social support present",
         modifiable: true
@@ -8257,7 +8257,7 @@ const getMockReadmissionRiskResult = (input: ReadmissionRiskInput): ReadmissionR
 export const detectDiseaseOutbreak = async (input: OutbreakDetectionInput): Promise<AIResponse<OutbreakDetectionResult>> => {
   const startTime = Date.now();
   const cacheKey = `outbreak-${input.timeRange.startDate}-${input.timeRange.endDate}`;
-  
+
   const cached = getCached<OutbreakDetectionResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -8299,8 +8299,8 @@ Analyze for potential outbreaks, geographic clustering, and provide early warnin
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            overallRiskLevel: { 
-              type: Type.STRING, 
+            overallRiskLevel: {
+              type: Type.STRING,
               enum: ["normal", "elevated", "high", "critical"]
             },
             activeAlerts: {
@@ -8405,10 +8405,10 @@ Analyze for potential outbreaks, geographic clustering, and provide early warnin
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as OutbreakDetectionResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in outbreak detection:", error);
@@ -8562,7 +8562,7 @@ const getMockOutbreakDetectionResult = (input: OutbreakDetectionInput): Outbreak
 export const predictLengthOfStay = async (input: LengthOfStayInput): Promise<AIResponse<LengthOfStayResult>> => {
   const startTime = Date.now();
   const cacheKey = `los-${input.patientId}-${input.diagnosis.primary}`;
-  
+
   const cached = getCached<LengthOfStayResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -8704,10 +8704,10 @@ Provide a comprehensive length of stay prediction with discharge planning recomm
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as LengthOfStayResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in length of stay prediction:", error);
@@ -8717,13 +8717,13 @@ Provide a comprehensive length of stay prediction with discharge planning recomm
 
 const getMockLengthOfStayResult = (input: LengthOfStayInput): LengthOfStayResult => {
   const baseLOS = input.hospitalFactors?.averageLOSForDiagnosis || 5;
-  const severityMultiplier = input.diagnosis.severity === 'critical' ? 2.5 : 
-                             input.diagnosis.severity === 'severe' ? 1.8 :
-                             input.diagnosis.severity === 'moderate' ? 1.3 : 1;
+  const severityMultiplier = input.diagnosis.severity === 'critical' ? 2.5 :
+    input.diagnosis.severity === 'severe' ? 1.8 :
+      input.diagnosis.severity === 'moderate' ? 1.3 : 1;
   const procedureDays = input.procedures?.filter(p => p.type === 'surgical').length || 0;
-  const socialAdjustment = input.socialFactors?.supportSystem === 'limited' ? 1.2 : 
-                          input.socialFactors?.supportSystem === 'none' ? 1.5 : 1;
-  
+  const socialAdjustment = input.socialFactors?.supportSystem === 'limited' ? 1.2 :
+    input.socialFactors?.supportSystem === 'none' ? 1.5 : 1;
+
   const predictedLOS = Math.round(baseLOS * severityMultiplier + procedureDays * socialAdjustment);
   const admissionDate = new Date(input.admission.date);
   const predictedDischargeDate = new Date(admissionDate);
@@ -8736,9 +8736,9 @@ const getMockLengthOfStayResult = (input: LengthOfStayInput): LengthOfStayResult
       upper: predictedLOS + 4
     },
     predictedDischargeDate: predictedDischargeDate.toISOString().split('T')[0],
-    riskLevel: predictedLOS > baseLOS * 1.5 ? 'significantly_prolonged' : 
-               predictedLOS > baseLOS * 1.2 ? 'prolonged' :
-               predictedLOS < baseLOS * 0.8 ? 'short' : 'average',
+    riskLevel: predictedLOS > baseLOS * 1.5 ? 'significantly_prolonged' :
+      predictedLOS > baseLOS * 1.2 ? 'prolonged' :
+        predictedLOS < baseLOS * 0.8 ? 'short' : 'average',
     losFactors: [
       {
         factor: "Primary diagnosis severity",
@@ -8761,8 +8761,8 @@ const getMockLengthOfStayResult = (input: LengthOfStayInput): LengthOfStayResult
         category: "social",
         impact: socialAdjustment > 1 ? "prolonging" : "shortening",
         magnitude: "medium",
-        description: input.socialFactors?.supportSystem === 'limited' ? 
-          "Limited support system may delay discharge" : 
+        description: input.socialFactors?.supportSystem === 'limited' ?
+          "Limited support system may delay discharge" :
           "Adequate support facilitates timely discharge",
         modifiable: true
       },
@@ -8822,8 +8822,8 @@ const getMockLengthOfStayResult = (input: LengthOfStayInput): LengthOfStayResult
           mitigation: "Arrange home health services and community resources"
         }
       ],
-      servicesNeeded: input.functionalStatus?.mobility === 'dependent' ? 
-        ["Home health nursing", "Physical therapy at home"] : 
+      servicesNeeded: input.functionalStatus?.mobility === 'dependent' ?
+        ["Home health nursing", "Physical therapy at home"] :
         ["Follow-up appointment"]
     },
     resourcePlanning: [
@@ -8868,7 +8868,7 @@ const getMockLengthOfStayResult = (input: LengthOfStayInput): LengthOfStayResult
 export const assessMortalityRisk = async (input: MortalityRiskInput): Promise<AIResponse<MortalityRiskResult>> => {
   const startTime = Date.now();
   const cacheKey = `mortality-${input.patientId}`;
-  
+
   const cached = getCached<MortalityRiskResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -9045,10 +9045,10 @@ Provide a comprehensive mortality risk assessment with clinical recommendations 
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as MortalityRiskResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in mortality risk assessment:", error);
@@ -9060,17 +9060,17 @@ const getMockMortalityRiskResult = (input: MortalityRiskInput): MortalityRiskRes
   const apacheScore = input.scores?.apacheII || 15;
   const sofaScore = input.scores?.sofa || 5;
   const charlsonIndex = input.scores?.charlsonComorbidityIndex || 2;
-  
+
   // Simplified mortality calculation based on scores
   const baseRisk = Math.min(90, (apacheScore * 2) + (sofaScore * 3) + (charlsonIndex * 5));
   const ageAdjustment = input.patientInfo.age > 75 ? 10 : input.patientInfo.age > 65 ? 5 : 0;
   const icuAdjustment = input.admission.icuAdmission ? 15 : 0;
-  const interventionAdjustment = (input.currentStatus.ventilation ? 10 : 0) + 
-                                  (input.currentStatus.vasopressors ? 10 : 0) +
-                                  (input.currentStatus.dialysis ? 8 : 0);
-  
+  const interventionAdjustment = (input.currentStatus.ventilation ? 10 : 0) +
+    (input.currentStatus.vasopressors ? 10 : 0) +
+    (input.currentStatus.dialysis ? 8 : 0);
+
   const totalRisk = Math.min(98, Math.max(2, baseRisk + ageAdjustment + icuAdjustment + interventionAdjustment));
-  
+
   let riskLevel: 'very_low' | 'low' | 'moderate' | 'high' | 'very_high';
   if (totalRisk < 15) riskLevel = 'very_low';
   else if (totalRisk < 30) riskLevel = 'low';
@@ -9189,21 +9189,21 @@ const getMockMortalityRiskResult = (input: MortalityRiskInput): MortalityRiskRes
     ],
     icuRecommendation: {
       recommended: totalRisk > 40 || input.currentStatus.ventilation || input.currentStatus.vasopressors,
-      reason: totalRisk > 60 ? "High mortality risk with organ support requirements" : 
-              totalRisk > 40 ? "Moderate-high risk requiring intensive monitoring" : 
-              "Standard ward care appropriate with close monitoring",
+      reason: totalRisk > 60 ? "High mortality risk with organ support requirements" :
+        totalRisk > 40 ? "Moderate-high risk requiring intensive monitoring" :
+          "Standard ward care appropriate with close monitoring",
       timing: totalRisk > 60 ? "immediate" : totalRisk > 40 ? "within_hours" : "not_indicated",
       alternatives: totalRisk < 40 ? ["Step-down unit", "Enhanced ward monitoring"] : undefined
     },
     prognosis: {
-      shortTerm: totalRisk > 60 ? "Guarded with significant risk of deterioration" : 
-                 totalRisk > 40 ? "Cautiously optimistic with close monitoring needed" :
-                 "Favorable with appropriate treatment",
+      shortTerm: totalRisk > 60 ? "Guarded with significant risk of deterioration" :
+        totalRisk > 40 ? "Cautiously optimistic with close monitoring needed" :
+          "Favorable with appropriate treatment",
       mediumTerm: totalRisk > 50 ? "Recovery possible but prolonged course expected" :
-                  "Expected recovery with rehabilitation needs",
+        "Expected recovery with rehabilitation needs",
       longTerm: totalRisk > 60 ? "Significant functional decline likely if survives" :
-                totalRisk > 40 ? "May have residual functional limitations" :
-                "Good functional recovery expected",
+        totalRisk > 40 ? "May have residual functional limitations" :
+          "Good functional recovery expected",
       uncertainties: [
         "Response to treatment",
         "Development of complications",
@@ -9235,11 +9235,11 @@ const getMockMortalityRiskResult = (input: MortalityRiskInput): MortalityRiskRes
       }
     ],
     goalsOfCareRecommendations: {
-      currentStatus: input.goalsOfCare?.documented ? 
-        `Currently documented as ${input.goalsOfCare.type}` : 
+      currentStatus: input.goalsOfCare?.documented ?
+        `Currently documented as ${input.goalsOfCare.type}` :
         "No documented goals of care",
-      recommendation: totalRisk > 50 ? 
-        "Urgent goals of care discussion recommended" : 
+      recommendation: totalRisk > 50 ?
+        "Urgent goals of care discussion recommended" :
         "Consider documenting goals of care during this admission",
       discussionPoints: [
         "Patient's values and preferences",
@@ -9308,7 +9308,7 @@ const getMockMortalityRiskResult = (input: MortalityRiskInput): MortalityRiskRes
 export const analyzeHealthTrends = async (input: HealthTrendInput): Promise<AIResponse<HealthTrendResult>> => {
   const startTime = Date.now();
   const cacheKey = `health-trends-${input.timeRange.startDate}-${input.timeRange.endDate}`;
-  
+
   const cached = getCached<HealthTrendResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -9452,10 +9452,10 @@ Provide comprehensive trend predictions, resource demand forecasts, and strategi
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(text) as HealthTrendResult;
     setCache(cacheKey, result);
-    
+
     return createResponse(true, result, undefined, Date.now() - startTime);
   } catch (error) {
     console.error("Error in health trend analysis:", error);
@@ -9465,7 +9465,7 @@ Provide comprehensive trend predictions, resource demand forecasts, and strategi
 
 const getMockHealthTrendResult = (input: HealthTrendInput): HealthTrendResult => {
   const lastData = input.historicalData[input.historicalData.length - 1];
-  
+
   return {
     overallTrends: [
       {
@@ -9879,7 +9879,7 @@ const getMockHealthTrendResult = (input: HealthTrendInput): HealthTrendResult =>
 export const analyzeChestXRay = async (input: ChestXRayAnalysisInput): Promise<AIResponse<ChestXRayAnalysisResult>> => {
   const startTime = Date.now();
   const cacheKey = `chest-xray-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<ChestXRayAnalysisResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -10035,7 +10035,7 @@ const getMockChestXRayResult = (input: ChestXRayAnalysisInput): ChestXRayAnalysi
 export const analyzeCTScan = async (input: CTScanAnalysisInput): Promise<AIResponse<CTScanAnalysisResult>> => {
   const startTime = Date.now();
   const cacheKey = `ct-scan-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<CTScanAnalysisResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -10179,7 +10179,7 @@ const getMockCTScanResult = (input: CTScanAnalysisInput): CTScanAnalysisResult =
 export const analyzeUltrasound = async (input: UltrasoundAnalysisInput): Promise<AIResponse<UltrasoundAnalysisResult>> => {
   const startTime = Date.now();
   const cacheKey = `ultrasound-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<UltrasoundAnalysisResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -10238,9 +10238,9 @@ Provide comprehensive ultrasound analysis including findings, measurements, and 
 
 const getMockUltrasoundResult = (input: UltrasoundAnalysisInput): UltrasoundAnalysisResult => {
   const isObstetric = input.scanType === 'obstetric';
-  
+
   const baseResult: UltrasoundAnalysisResult = {
-    overallImpression: isObstetric 
+    overallImpression: isObstetric
       ? "Single live intrauterine pregnancy. Fetal biometry consistent with dates. Normal amniotic fluid volume. Placenta appears normal."
       : "Unremarkable ultrasound examination. No focal abnormality identified.",
     findings: isObstetric ? [
@@ -10278,20 +10278,20 @@ const getMockUltrasoundResult = (input: UltrasoundAnalysisInput): UltrasoundAnal
       clinicalIndication: input.patientInfo?.clinicalIndication || (isObstetric ? "Routine obstetric ultrasound" : "Abdominal evaluation"),
       technique: `${input.scanType} ultrasound was performed using standard protocol.`,
       comparison: input.previousStudies?.length ? "Comparison made with prior study" : "No prior comparison available",
-      findings: isObstetric 
+      findings: isObstetric
         ? "Single live intrauterine pregnancy. Fetal biometry consistent with gestational age. Normal amniotic fluid volume. Placenta normal in appearance."
         : "No focal abnormality identified. The visualized structures appear within normal limits.",
-      impression: isObstetric 
+      impression: isObstetric
         ? "Single live intrauterine pregnancy. No abnormality identified."
         : "Unremarkable ultrasound examination.",
-      recommendations: isObstetric 
+      recommendations: isObstetric
         ? "Routine follow-up ultrasound as per standard obstetric care."
         : "Clinical correlation recommended."
     },
     recommendations: [
       {
         type: isObstetric ? "follow_up" : "clinical_correlation",
-        recommendation: isObstetric 
+        recommendation: isObstetric
           ? "Schedule routine follow-up ultrasound at 28-32 weeks"
           : "Correlate with clinical findings",
         timeframe: isObstetric ? "4-6 weeks" : "As clinically indicated",
@@ -10381,7 +10381,7 @@ const getMockUltrasoundResult = (input: UltrasoundAnalysisInput): UltrasoundAnal
 export const analyzeMRI = async (input: MRIAnalysisInput): Promise<AIResponse<MRIAnalysisResult>> => {
   const startTime = Date.now();
   const cacheKey = `mri-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<MRIAnalysisResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -10444,13 +10444,13 @@ const getMockMRIResult = (input: MRIAnalysisInput): MRIAnalysisResult => {
   const isBrain = input.scanType === 'brain';
   const isSpine = input.scanType === 'spine';
   const isJoint = input.scanType === 'joint';
-  
+
   const baseResult: MRIAnalysisResult = {
-    overallImpression: isBrain 
+    overallImpression: isBrain
       ? "No acute intracranial abnormality. Normal brain MRI. No evidence of mass, hemorrhage, or acute infarction."
       : isSpine
-      ? "Unremarkable MRI of the spine. No significant disc herniation or spinal canal stenosis."
-      : "No significant abnormality identified on MRI examination.",
+        ? "Unremarkable MRI of the spine. No significant disc herniation or spinal canal stenosis."
+        : "No significant abnormality identified on MRI examination.",
     findings: [
       {
         finding: isBrain ? "Normal brain parenchyma" : "Normal signal intensity",
@@ -10458,7 +10458,7 @@ const getMockMRIResult = (input: MRIAnalysisInput): MRIAnalysisResult => {
         location: isBrain ? "Bilateral cerebral hemispheres" : "Scanned region",
         confidence: 0.94,
         severity: "normal",
-        description: isBrain 
+        description: isBrain
           ? "Normal signal intensity throughout the brain parenchyma. No focal lesions identified."
           : "Normal signal characteristics without focal abnormality.",
         signalCharacteristics: {
@@ -10473,10 +10473,10 @@ const getMockMRIResult = (input: MRIAnalysisInput): MRIAnalysisResult => {
       clinicalIndication: input.patientInfo?.clinicalIndication || (isBrain ? "Headache evaluation" : isSpine ? "Back pain" : "MRI evaluation"),
       technique: `MRI ${input.scanType} was performed ${input.contrastUsed ? 'with intravenous gadolinium contrast' : 'without contrast'} using ${input.sequences?.join(', ') || 'standard sequences'}.`,
       comparison: input.previousStudies?.length ? "Comparison made with prior study" : "No prior comparison available",
-      findings: isBrain 
+      findings: isBrain
         ? "No acute intracranial abnormality. Normal brain parenchyma signal. Ventricles and sulci are normal in size. No mass effect or midline shift."
         : "No significant abnormality identified.",
-      impression: isBrain 
+      impression: isBrain
         ? "No acute intracranial abnormality."
         : "Unremarkable MRI examination.",
       recommendations: "Clinical correlation recommended."
@@ -10599,7 +10599,7 @@ const getMockMRIResult = (input: MRIAnalysisInput): MRIAnalysisResult => {
 export const analyzeMammography = async (input: MammographyAnalysisInput): Promise<AIResponse<MammographyAnalysisResult>> => {
   const startTime = Date.now();
   const cacheKey = `mammography-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<MammographyAnalysisResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -10765,7 +10765,7 @@ const getMockMammographyResult = (input: MammographyAnalysisInput): MammographyA
 export const analyzeRetinalImaging = async (input: RetinalImagingAnalysisInput): Promise<AIResponse<RetinalImagingAnalysisResult>> => {
   const startTime = Date.now();
   const cacheKey = `retinal-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<RetinalImagingAnalysisResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -10827,9 +10827,9 @@ Provide comprehensive retinal analysis including diabetic retinopathy assessment
 
 const getMockRetinalImagingResult = (input: RetinalImagingAnalysisInput): RetinalImagingAnalysisResult => {
   const hasDiabetes = input.patientInfo?.diabetesStatus && input.patientInfo.diabetesStatus !== 'none';
-  
+
   return {
-    overallImpression: hasDiabetes 
+    overallImpression: hasDiabetes
       ? "Fundus examination shows no evidence of diabetic retinopathy. The optic disc, macula, and retinal vasculature appear within normal limits."
       : "Normal fundus examination. No evidence of diabetic retinopathy, glaucoma, or age-related macular degeneration. Optic disc and macula are normal.",
     findings: [
@@ -10950,14 +10950,14 @@ const getMockRetinalImagingResult = (input: RetinalImagingAnalysisInput): Retina
       comparison: input.previousStudies?.length ? "Comparison made with prior study" : "No prior comparison available",
       findings: "The optic disc, macula, and retinal vasculature appear within normal limits. No evidence of diabetic retinopathy, glaucomatous changes, or age-related macular degeneration.",
       impression: "Normal fundus examination. No diabetic retinopathy identified.",
-      recommendations: hasDiabetes 
+      recommendations: hasDiabetes
         ? "Continue annual diabetic eye screening as per standard of care."
         : "Routine follow-up in 1-2 years or as clinically indicated."
     },
     recommendations: [
       {
         type: hasDiabetes ? "routine_screening" : "follow_up",
-        recommendation: hasDiabetes 
+        recommendation: hasDiabetes
           ? "Schedule annual diabetic eye screening"
           : "Routine eye examination in 1-2 years",
         timeframe: hasDiabetes ? "1 year" : "1-2 years",
@@ -10979,7 +10979,7 @@ const getMockRetinalImagingResult = (input: RetinalImagingAnalysisInput): Retina
 export const analyzeDermatologyImage = async (input: DermatologyImageAnalysisInput): Promise<AIResponse<DermatologyImageAnalysisResult>> => {
   const startTime = Date.now();
   const cacheKey = `dermatology-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<DermatologyImageAnalysisResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };
@@ -11170,7 +11170,7 @@ const getMockDermatologyResult = (input: DermatologyImageAnalysisInput): Dermato
 export const analyzeECG = async (input: ECGAnalysisInput): Promise<AIResponse<ECGAnalysisResult>> => {
   const startTime = Date.now();
   const cacheKey = `ecg-${JSON.stringify(input)}`;
-  
+
   const cached = getCached<ECGAnalysisResult>(cacheKey);
   if (cached) {
     return { ...createResponse(true, cached), cached: true };

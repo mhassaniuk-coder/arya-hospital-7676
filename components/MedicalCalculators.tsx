@@ -26,7 +26,7 @@ const MedicalCalculators: React.FC<MedicalCalculatorsProps> = ({ isOpen, onClose
                     <Calculator size={20} className="text-teal-600" />
                     Medical Tools
                 </h3>
-                <button onClick={onClose}><X size={20} className="text-slate-400 hover:text-slate-600" /></button>
+                <button type="button" onClick={onClose} aria-label="Close calculator"><X size={20} className="text-slate-400 hover:text-slate-600" /></button>
             </div>
             
             <div className="flex border-b border-slate-100">

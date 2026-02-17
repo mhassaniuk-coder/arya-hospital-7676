@@ -1,25 +1,206 @@
 @import "tailwindcss";
 
+/* ============================================
+   NexusHealth HMS - Dark/Light Mode CSS Variables
+   ============================================ */
+
+/* Light Theme (Default) */
+:root {
+  /* Background Colors */
+  --bg-primary: #f8fafc;
+  /* slate-50 - Main background */
+  --bg-secondary: #ffffff;
+  /* white - Cards, modals */
+  --bg-tertiary: #f1f5f9;
+  /* slate-100 - Nested sections */
+  --bg-elevated: #ffffff;
+  /* white - Elevated surfaces */
+
+  /* Text Colors */
+  --text-primary: #0f172a;
+  /* slate-900 - Primary text */
+  --text-secondary: #64748b;
+  /* slate-500 - Secondary text */
+  --text-muted: #94a3b8;
+  /* slate-400 - Muted/disabled text */
+  --text-inverse: #f8fafc;
+  /* slate-50 - Inverted text (on dark backgrounds) */
+
+  /* Border Colors */
+  --border: #e2e8f0;
+  /* slate-200 - Default borders */
+  --border-muted: #f1f5f9;
+  /* slate-100 - Subtle borders */
+  --border-focus: #14b8a6;
+  /* teal-500 - Focus ring color */
+
+  /* Status Colors - Success */
+  --success: #10b981;
+  /* emerald-500 */
+  --success-light: #d1fae5;
+  /* emerald-100 */
+  --success-dark: #059669;
+  /* emerald-600 */
+
+  /* Status Colors - Warning */
+  --warning: #f59e0b;
+  /* amber-500 */
+  --warning-light: #fef3c7;
+  /* amber-100 */
+  --warning-dark: #d97706;
+  /* amber-600 */
+
+  /* Status Colors - Error */
+  --error: #ef4444;
+  /* red-500 */
+  --error-light: #fee2e2;
+  /* red-100 */
+  --error-dark: #dc2626;
+  /* red-600 */
+
+  /* Status Colors - Info */
+  --info: #3b82f6;
+  /* blue-500 */
+  --info-light: #dbeafe;
+  /* blue-100 */
+  --info-dark: #2563eb;
+  /* blue-600 */
+
+  /* Shadow Variables */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+  /* Accent Color (Teal - Brand Color) */
+  --accent: #14b8a6;
+  /* teal-500 */
+  --accent-light: #5eead4;
+  /* teal-200 */
+  --accent-dark: #0d9488;
+  /* teal-600 */
+}
+
+/* Dark Theme */
+.dark {
+  /* Background Colors */
+  --bg-primary: #020617;
+  /* slate-950 - Main background */
+  --bg-secondary: #0f172a;
+  /* slate-900 - Cards, modals */
+  --bg-tertiary: #1e293b;
+  /* slate-800 - Nested sections */
+  --bg-elevated: #1e293b;
+  /* slate-800 - Elevated surfaces */
+
+  /* Text Colors */
+  --text-primary: #f1f5f9;
+  /* slate-100 - Primary text */
+  --text-secondary: #94a3b8;
+  /* slate-400 - Secondary text */
+  --text-muted: #64748b;
+  /* slate-500 - Muted/disabled text */
+  --text-inverse: #0f172a;
+  /* slate-900 - Inverted text (on light backgrounds) */
+
+  /* Border Colors */
+  --border: #334155;
+  /* slate-700 - Default borders */
+  --border-muted: #1e293b;
+  /* slate-800 - Subtle borders */
+  --border-focus: #14b8a6;
+  /* teal-500 - Focus ring color */
+
+  /* Status Colors - Success (adjusted for dark mode) */
+  --success: #34d399;
+  /* emerald-400 */
+  --success-light: rgba(52, 211, 153, 0.15);
+  --success-dark: #10b981;
+  /* emerald-500 */
+
+  /* Status Colors - Warning (adjusted for dark mode) */
+  --warning: #fbbf24;
+  /* amber-400 */
+  --warning-light: rgba(251, 191, 36, 0.15);
+  --warning-dark: #f59e0b;
+  /* amber-500 */
+
+  /* Status Colors - Error (adjusted for dark mode) */
+  --error: #f87171;
+  /* red-400 */
+  --error-light: rgba(248, 113, 113, 0.15);
+  --error-dark: #ef4444;
+  /* red-500 */
+
+  /* Status Colors - Info (adjusted for dark mode) */
+  --info: #60a5fa;
+  /* blue-400 */
+  --info-light: rgba(96, 165, 250, 0.15);
+  --info-dark: #3b82f6;
+  /* blue-500 */
+
+  /* Shadow Variables (darker for dark mode) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+
+  /* Accent Color (Teal - Brand Color) */
+  --accent: #14b8a6;
+  /* teal-500 */
+  --accent-light: #2dd4bf;
+  /* teal-300 */
+  --accent-dark: #0d9488;
+  /* teal-600 */
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+
 @layer base {
+
+  /* Smooth transitions for theme changes */
+  html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300;
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  /* Focus ring styles */
+  *:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
   }
 }
 
-/* Custom scrollbar for webkit - Dark Mode Support */
+/* ============================================
+   Custom Scrollbar - Dark Mode Support
+   ============================================ */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   @apply bg-slate-100 dark:bg-slate-800;
 }
+
 ::-webkit-scrollbar-thumb {
   @apply bg-slate-300 dark:bg-slate-600 rounded-full;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-slate-400 dark:bg-slate-500;
 }
+
+/* ============================================
+   Utility Classes
+   ============================================ */
 
 .card-hover {
   @apply hover:shadow-lg hover:-translate-y-1 transition-all duration-300;
@@ -29,3 +210,11 @@
   @apply bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-white/20 dark:border-slate-700/50;
 }
 
+/* Theme transition utility */
+.theme-transition {
+  transition: background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    fill 0.3s ease,
+    stroke 0.3s ease;
+}

@@ -658,12 +658,12 @@ const AIFeaturesHub: React.FC<AIFeaturesHubProps> = ({ onNavigate }) => {
       // Map component names to tab IDs
       const componentToTab: Record<string, string> = {
         'AIConsult': 'clinical-ai',
-        'AIAppointmentScheduler': 'ai-appointment',
-        'AIDischargeFollowUp': 'ai-discharge',
+        'AIAppointmentScheduler': 'ai-appointment-scheduler',
+        'AIDischargeFollowUp': 'ai-discharge-followup',
         'AIHealthChatWidget': 'ai-health-chat',
         'AIHealthEducation': 'ai-health-education',
         'AIMedicationReminder': 'ai-med-reminder',
-        'AIPatientFeedbackAnalyzer': 'ai-feedback',
+        'AIPatientFeedbackAnalyzer': 'ai-feedback-analyzer',
         'AISymptomChecker': 'ai-symptom-checker',
         'Dashboard': 'dashboard',
         'OPDQueue': 'opd-queue',

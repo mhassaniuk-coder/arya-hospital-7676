@@ -31,7 +31,6 @@ import {
   CheckCircle2,
   XCircle,
   Info,
-  Warning,
   BarChart3,
   Stethoscope,
 } from 'lucide-react';
@@ -81,7 +80,7 @@ const StatCard: React.FC<StatCardProps> = ({
   onClick,
 }) => (
   <div
-    className={`bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
+    className={`bg-background-primary p-6 rounded-2xl shadow-sm border border-border hover:shadow-md transition-all theme-transition ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
     onClick={onClick}
   >
     <div className="flex justify-between items-start mb-4">
@@ -90,20 +89,19 @@ const StatCard: React.FC<StatCardProps> = ({
       </div>
       {trend && (
         <div
-          className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${
-            trendUp
-              ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-              : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
-          }`}
+          className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${trendUp
+            ? 'bg-success-light text-success-dark'
+            : 'bg-danger-light text-danger-dark'
+            }`}
         >
           {trendUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
           {trend}
         </div>
       )}
     </div>
-    <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">{title}</h3>
-    <p className="text-2xl font-bold text-slate-800 dark:text-white">{value}</p>
-    {subtitle && <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{subtitle}</p>}
+    <h3 className="text-foreground-secondary text-sm font-medium mb-1">{title}</h3>
+    <p className="text-2xl font-bold text-foreground-primary">{value}</p>
+    {subtitle && <p className="text-xs text-foreground-muted mt-1">{subtitle}</p>}
   </div>
 );
 
@@ -135,22 +133,22 @@ const AIInsightCard: React.FC<AIInsightCardProps> = ({
 }) => {
   const severityStyles = {
     critical: {
-      bg: 'bg-red-50 dark:bg-red-900/20',
-      border: 'border-red-200 dark:border-red-800',
-      icon: 'text-red-500',
-      badge: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+      bg: 'bg-danger-light',
+      border: 'border-danger',
+      icon: 'text-danger-dark',
+      badge: 'bg-danger-light text-danger-dark border border-danger',
     },
     warning: {
-      bg: 'bg-amber-50 dark:bg-amber-900/20',
-      border: 'border-amber-200 dark:border-amber-800',
-      icon: 'text-amber-500',
-      badge: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+      bg: 'bg-warning-light',
+      border: 'border-warning',
+      icon: 'text-warning-dark',
+      badge: 'bg-warning-light text-warning-dark border border-warning',
     },
     info: {
-      bg: 'bg-blue-50 dark:bg-blue-900/20',
-      border: 'border-blue-200 dark:border-blue-800',
-      icon: 'text-blue-500',
-      badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+      bg: 'bg-info-light',
+      border: 'border-info',
+      icon: 'text-info-dark',
+      badge: 'bg-info-light text-info-dark border border-info',
     },
   };
 
@@ -158,31 +156,31 @@ const AIInsightCard: React.FC<AIInsightCardProps> = ({
 
   if (isLoading) {
     return (
-      <div className={`${style.bg} ${style.border} border rounded-xl p-4 animate-pulse`}>
+      <div className={`${style.bg} ${style.border} border rounded-xl p-4 animate-pulse theme-transition`}>
         <div className="flex items-center gap-3">
-          <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
-          <span className="text-slate-500 dark:text-slate-400">Analyzing...</span>
+          <Loader2 className="w-5 h-5 animate-spin text-foreground-muted" />
+          <span className="text-foreground-secondary">Analyzing...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`${style.bg} ${style.border} border rounded-xl overflow-hidden`}>
+    <div className={`${style.bg} ${style.border} border rounded-xl overflow-hidden theme-transition`}>
       <div className="p-4 cursor-pointer" onClick={onToggle}>
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
             {icon && <div className={style.icon}>{icon}</div>}
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-semibold text-slate-800 dark:text-white">{title}</h4>
+                <h4 className="font-semibold text-foreground-primary">{title}</h4>
                 <span className={`text-xs px-2 py-0.5 rounded-full ${style.badge}`}>
                   {severity.charAt(0).toUpperCase() + severity.slice(1)}
                 </span>
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-300">{description}</p>
+              <p className="text-sm text-foreground-secondary">{description}</p>
               <div className="flex items-center gap-2 mt-2">
-                <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                <div className="flex items-center gap-1 text-xs text-foreground-muted">
                   <Brain size={12} />
                   <span>AI Confidence: {confidence}%</span>
                 </div>
@@ -190,21 +188,21 @@ const AIInsightCard: React.FC<AIInsightCardProps> = ({
             </div>
           </div>
           {recommendations.length > 0 && (
-            <div className="text-slate-400 dark:text-slate-500">
+            <div className="text-foreground-muted">
               {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </div>
           )}
         </div>
       </div>
       {expanded && recommendations.length > 0 && (
-        <div className="px-4 pb-4 border-t border-slate-200 dark:border-slate-700 pt-3 mt-2">
-          <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">
+        <div className="px-4 pb-4 border-t border-border pt-3 mt-2">
+          <h5 className="text-xs font-semibold text-foreground-secondary uppercase mb-2">
             AI Recommendations
           </h5>
           <ul className="space-y-2">
             {recommendations.map((rec, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                <Zap className="w-4 h-4 text-teal-500 mt-0.5 flex-shrink-0" />
+              <li key={idx} className="flex items-start gap-2 text-sm text-foreground-secondary">
+                <Zap className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
                 <span>{rec}</span>
               </li>
             ))}
@@ -235,14 +233,14 @@ const QuickAction: React.FC<QuickActionProps> = ({
 }) => (
   <button
     onClick={onClick}
-    className={`flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all hover:scale-[1.02] text-left w-full`}
+    className={`flex items-center gap-3 p-4 rounded-xl bg-background-primary border border-border hover:shadow-md transition-all hover:scale-[1.02] text-left w-full theme-transition`}
   >
     <div className={`p-2 rounded-lg ${color} bg-opacity-10 dark:bg-opacity-20`}>
       {icon}
     </div>
     <div>
-      <h4 className="font-semibold text-slate-800 dark:text-white text-sm">{label}</h4>
-      <p className="text-xs text-slate-500 dark:text-slate-400">{description}</p>
+      <h4 className="font-semibold text-foreground-primary text-sm">{label}</h4>
+      <p className="text-xs text-foreground-secondary">{description}</p>
     </div>
   </button>
 );
@@ -259,18 +257,18 @@ interface ActivityItemProps {
 
 const ActivityItem: React.FC<ActivityItemProps> = ({ icon, title, time, type }) => {
   const typeStyles = {
-    success: 'text-green-500 bg-green-100 dark:bg-green-900/30',
-    warning: 'text-amber-500 bg-amber-100 dark:bg-amber-900/30',
-    info: 'text-blue-500 bg-blue-100 dark:bg-blue-900/30',
-    error: 'text-red-500 bg-red-100 dark:bg-red-900/30',
+    success: 'text-success-dark bg-success-light',
+    warning: 'text-warning-dark bg-warning-light',
+    info: 'text-info-dark bg-info-light',
+    error: 'text-danger-dark bg-danger-light',
   };
 
   return (
-    <div className="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors">
+    <div className="flex items-center gap-3 p-3 hover:bg-background-secondary rounded-lg transition-colors theme-transition">
       <div className={`p-2 rounded-lg ${typeStyles[type]}`}>{icon}</div>
       <div className="flex-1">
-        <p className="text-sm font-medium text-slate-800 dark:text-white">{title}</p>
-        <p className="text-xs text-slate-500 dark:text-slate-400">{time}</p>
+        <p className="text-sm font-medium text-foreground-primary">{title}</p>
+        <p className="text-xs text-foreground-secondary">{time}</p>
       </div>
     </div>
   );
@@ -340,62 +338,80 @@ const AdminOverview: React.FC = () => {
     const runAIAnalysis = async () => {
       setIsAiLoading(true);
 
-      // Readmission Risk Analysis
+      // Readmission Risk Analysis - using correct interface
       const readmissionInput: ReadmissionRiskInput = {
-        patientData: patients.map((p) => ({
-          patientId: p.id,
-          age: p.age,
-          gender: p.gender,
-          diagnoses: [p.condition],
-          previousAdmissions: Math.floor(Math.random() * 3) + 1,
-          lengthOfStay: Math.floor(Math.random() * 10) + 1,
-          dischargeDisposition: 'home',
-          medications: [],
-          vitalSigns: {
-            bloodPressure: '120/80',
-            heartRate: 72,
-            temperature: 98.6,
-            respiratoryRate: 16,
-            oxygenSaturation: 98,
-          },
-          labResults: [],
-          socialDeterminants: {
-            livingSituation: 'home',
-            supportSystem: 'family',
-            transportationAccess: true,
-          },
-        })),
-        analysisType: 'hospital-wide',
+        patientId: patients[0]?.id || 'demo-patient',
+        patientInfo: {
+          age: patients[0]?.age || 65,
+          gender: patients[0]?.gender || 'Male',
+          admissionDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          dischargeDate: new Date().toISOString().split('T')[0],
+          lengthOfStay: 5
+        },
+        diagnosis: {
+          primary: patients[0]?.condition || 'General Medicine',
+          secondary: [],
+          icdCodes: []
+        },
+        medicalHistory: {
+          conditions: [],
+          previousAdmissions: 2,
+          previousAdmissionsLast30Days: 1,
+          previousAdmissionsLast90Days: 2,
+          chronicConditions: []
+        },
+        currentVisit: {
+          department: 'Medicine',
+          admissionType: 'emergency'
+        }
       };
 
-      // Outbreak Detection Analysis
+      // Outbreak Detection Analysis - using correct interface
       const outbreakInput: OutbreakDetectionInput = {
-        patientData: patients.map((p) => ({
-          patientId: p.id,
-          symptoms: [p.condition],
-          diagnosis: p.condition,
-          department: p.roomNumber?.includes('ICU') ? 'ICU' : 'General',
-          admissionDate: p.admissionDate,
-          location: p.roomNumber || 'OPD',
-        })),
-        timeRange: '7d',
-        detectionSensitivity: 'high',
+        facilityInfo: {
+          type: 'Hospital',
+          capacity: 200,
+          location: { region: 'Metro Area', city: 'Healthcare City' }
+        },
+        timeRange: {
+          startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          endDate: new Date().toISOString().split('T')[0]
+        },
+        patientData: [
+          {
+            date: new Date().toISOString().split('T')[0],
+            department: 'Emergency',
+            diagnoses: [
+              { icdCode: 'J11.1', description: 'Influenza-like Illness', count: 12 }
+            ],
+            symptoms: [
+              { symptom: 'Fever', count: 18 },
+              { symptom: 'Cough', count: 15 }
+            ],
+            demographics: [
+              { ageGroup: '19-65', count: 15 }
+            ]
+          }
+        ]
       };
 
-      // Inventory Forecast Analysis
+      // Inventory Forecast Analysis - using correct interface
       const inventoryInput: InventoryForecastInput = {
-        currentInventory: inventory.map((i) => ({
+        items: inventory.slice(0, 5).map((i) => ({
           itemId: i.id,
-          itemName: i.name,
+          name: i.name,
+          category: i.category,
           currentStock: i.stock,
           unit: i.unit,
-          category: i.category,
-          reorderPoint: 50,
-          averageDailyUsage: 5,
-          leadTime: 3,
+          reorderLevel: 50,
+          unitCost: 10,
+          leadTime: 3
         })),
-        forecastDays: 30,
-        seasonalFactors: [],
+        currentStock: inventory.slice(0, 5).map((i) => ({
+          itemId: i.id,
+          quantity: i.stock,
+          reorderLevel: 50
+        }))
       };
 
       // Patient Flow Analysis
@@ -549,23 +565,23 @@ const AdminOverview: React.FC = () => {
       </div>
 
       {/* AI Insights Section */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
+      <div className="bg-background-primary rounded-2xl shadow-sm border border-border p-6 theme-transition">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
               <Brain className="text-purple-600 dark:text-purple-400" size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+              <h2 className="text-lg font-bold text-foreground-primary">
                 AI-Powered Insights
               </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-foreground-secondary">
                 Predictive analytics and recommendations
               </p>
             </div>
           </div>
           {isAiLoading && (
-            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <div className="flex items-center gap-2 text-sm text-foreground-secondary">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span>Analyzing...</span>
             </div>
@@ -583,7 +599,7 @@ const AdminOverview: React.FC = () => {
             confidence={aiInsights.readmission?.confidence || 85}
             severity={
               aiInsights.readmission?.highRiskPatients &&
-              aiInsights.readmission.highRiskPatients.length > 0
+                aiInsights.readmission.highRiskPatients.length > 0
                 ? 'warning'
                 : 'info'
             }
@@ -607,7 +623,7 @@ const AdminOverview: React.FC = () => {
             confidence={aiInsights.outbreak?.confidence || 92}
             severity={
               aiInsights.outbreak?.outbreaksDetected &&
-              aiInsights.outbreak.outbreaksDetected.length > 0
+                aiInsights.outbreak.outbreaksDetected.length > 0
                 ? 'critical'
                 : 'info'
             }
@@ -668,12 +684,12 @@ const AdminOverview: React.FC = () => {
       {/* Quick Actions and Activity Feed */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Quick Actions */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
+        <div className="bg-background-primary rounded-2xl shadow-sm border border-border p-6 theme-transition">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 rounded-lg bg-teal-100 dark:bg-teal-900/30">
               <Zap className="text-teal-600 dark:text-teal-400" size={20} />
             </div>
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+            <h2 className="text-lg font-bold text-foreground-primary">
               Quick Actions
             </h2>
           </div>
@@ -718,17 +734,17 @@ const AdminOverview: React.FC = () => {
         </div>
 
         {/* Recent Activity Feed */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
+        <div className="bg-background-primary rounded-2xl shadow-sm border border-border p-6 theme-transition">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
                 <Clock className="text-blue-600 dark:text-blue-400" size={20} />
               </div>
-              <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+              <h2 className="text-lg font-bold text-foreground-primary">
                 Recent Activity
               </h2>
             </div>
-            <button className="text-sm text-teal-600 dark:text-teal-400 font-medium hover:underline">
+            <button className="text-sm text-accent font-medium hover:underline">
               View All
             </button>
           </div>
@@ -741,13 +757,13 @@ const AdminOverview: React.FC = () => {
       </div>
 
       {/* Department Summary */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
+      <div className="bg-background-primary rounded-2xl shadow-sm border border-border p-6 theme-transition">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
               <Shield className="text-indigo-600 dark:text-indigo-400" size={20} />
             </div>
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+            <h2 className="text-lg font-bold text-foreground-primary">
               Department Status
             </h2>
           </div>
@@ -761,43 +777,41 @@ const AdminOverview: React.FC = () => {
           ].map((dept, idx) => (
             <div
               key={idx}
-              className="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600"
+              className="p-4 rounded-xl bg-background-secondary border border-border theme-transition"
             >
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-slate-800 dark:text-white">
+                <h3 className="font-semibold text-foreground-primary">
                   {dept.name}
                 </h3>
                 <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    dept.color === 'red'
-                      ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                      : dept.color === 'amber'
-                      ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                  className={`text-xs px-2 py-1 rounded-full ${dept.color === 'red'
+                    ? 'bg-danger-light text-danger-dark'
+                    : dept.color === 'amber'
+                      ? 'bg-warning-light text-warning-dark'
                       : dept.color === 'green'
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                      : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                  }`}
+                        ? 'bg-success-light text-success-dark'
+                        : 'bg-info-light text-info-dark'
+                    }`}
                 >
                   {dept.status}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400">Patients</span>
-                <span className="font-medium text-slate-800 dark:text-white">
+                <span className="text-foreground-secondary">Patients</span>
+                <span className="font-medium text-foreground-primary">
                   {dept.patients}/{dept.capacity}
                 </span>
               </div>
-              <div className="mt-2 h-2 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+              <div className="mt-2 h-2 bg-background-tertiary rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full ${
-                    dept.color === 'red'
-                      ? 'bg-red-500'
-                      : dept.color === 'amber'
+                  className={`h-full rounded-full ${dept.color === 'red'
+                    ? 'bg-red-500'
+                    : dept.color === 'amber'
                       ? 'bg-amber-500'
                       : dept.color === 'green'
-                      ? 'bg-green-500'
-                      : 'bg-blue-500'
-                  }`}
+                        ? 'bg-green-500'
+                        : 'bg-blue-500'
+                    }`}
                   style={{ width: `${(dept.patients / dept.capacity) * 100}%` }}
                 />
               </div>

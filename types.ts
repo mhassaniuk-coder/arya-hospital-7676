@@ -103,6 +103,10 @@ export interface InventoryItem {
   category: string;
   stock: number;
   unit: string;
+  threshold?: number;
+  supplier?: string;
+  expiryDate?: string;
+  batchNumber?: string;
   lastUpdated: string;
   status: 'In Stock' | 'Low Stock' | 'Out of Stock';
 }
@@ -291,440 +295,461 @@ export interface VitalRecord {
 }
 
 export interface OTStatus {
-    id: string;
-    name: string;
-    status: 'Available' | 'Occupied' | 'Cleaning' | 'Maintenance';
-    currentProcedure?: string;
-    doctor?: string;
-    startTime?: string;
+  id: string;
+  name: string;
+  status: 'Available' | 'Occupied' | 'Cleaning' | 'Maintenance';
+  currentProcedure?: string;
+  doctor?: string;
+  startTime?: string;
 }
 
 export interface Asset {
-    id: string;
-    name: string;
-    type: string;
-    serialNumber: string;
-    status: 'Operational' | 'Maintenance' | 'Broken';
-    lastService: string;
+  id: string;
+  name: string;
+  type: string;
+  serialNumber: string;
+  status: 'Operational' | 'Maintenance' | 'Broken';
+  lastService: string;
 }
 
 export interface Shift {
-    id: string;
-    staffName: string;
-    role: string;
-    day: string;
-    time: string;
-    area: string;
+  id: string;
+  staffName: string;
+  role: string;
+  day: string;
+  time: string;
+  area: string;
 }
 
 export interface InsuranceClaim {
-    id: string;
-    patientName: string;
-    provider: string;
-    amount: number;
-    status: 'Approved' | 'Pending' | 'Rejected';
-    date: string;
+  id: string;
+  patientName: string;
+  provider: string;
+  amount: number;
+  status: 'Approved' | 'Pending' | 'Rejected';
+  date: string;
 }
 
 export interface KitchenOrder {
-    id: string;
-    patientName: string;
-    room: string;
-    dietType: string;
-    status: 'Pending' | 'Cooking' | 'Delivered';
+  id: string;
+  patientName: string;
+  room: string;
+  dietType: string;
+  status: 'Pending' | 'Cooking' | 'Delivered';
+  allergies?: string[];
+  instructions?: string;
+  timestamp: string;
 }
 
 export interface HousekeepingTask {
-    id: string;
-    area: string;
-    assignee: string;
-    status: 'Pending' | 'In Progress' | 'Completed';
-    priority: 'High' | 'Normal';
+  id: string;
+  area: string;
+  assignee: string;
+  status: 'Pending' | 'In Progress' | 'Completed';
+  priority: 'High' | 'Normal';
 }
 
 export interface Visitor {
-    id: string;
-    visitorName: string;
-    patientName: string;
-    checkInTime: string;
-    status: 'Active' | 'Checked Out';
+  id: string;
+  visitorName: string;
+  patientName: string;
+  checkInTime: string;
+  status: 'Active' | 'Checked Out';
 }
 
 export interface Vaccine {
-    id: string;
-    name: string;
-    stock: number;
-    batchNo: string;
-    expiry: string;
-    manufacturer?: string;
-    storageTemp?: string;
-    dosesPerVial?: number;
-    status?: 'Available' | 'Low Stock' | 'Out of Stock' | 'Expired';
-    createdAt?: string;
-    updatedAt?: string;
+  id: string;
+  name: string;
+  stock: number;
+  batchNo: string;
+  expiry: string;
+  manufacturer?: string;
+  storageTemp?: string;
+  dosesPerVial?: number;
+  status?: 'Available' | 'Low Stock' | 'Out of Stock' | 'Expired';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface VaccinationAppointment {
-    id: string;
-    patientId: string;
-    patientName: string;
-    vaccineId: string;
-    vaccineName: string;
-    scheduledDate: string;
-    scheduledTime: string;
-    doseNumber: number;
-    status: 'Scheduled' | 'Completed' | 'Cancelled' | 'No Show';
-    administeredBy?: string;
-    notes?: string;
-    createdAt: string;
+  id: string;
+  patientId: string;
+  patientName: string;
+  vaccineId: string;
+  vaccineName: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  doseNumber: number;
+  status: 'Scheduled' | 'Completed' | 'Cancelled' | 'No Show';
+  administeredBy?: string;
+  notes?: string;
+  createdAt: string;
 }
 
 export interface VaccinationRecord {
-    id: string;
-    patientId: string;
-    patientName: string;
-    vaccineId: string;
-    vaccineName: string;
-    batchNo: string;
-    administeredDate: string;
-    administeredTime: string;
-    doseNumber: number;
-    site: 'Left Arm' | 'Right Arm' | 'Left Thigh' | 'Right Thigh';
-    route: 'IM' | 'SC' | 'ID';
-    administeredBy: string;
-    adverseReaction?: string;
-    notes?: string;
-    nextDoseDate?: string;
-    createdAt: string;
+  id: string;
+  patientId: string;
+  patientName: string;
+  vaccineId: string;
+  vaccineName: string;
+  batchNo: string;
+  administeredDate: string;
+  administeredTime: string;
+  doseNumber: number;
+  site: 'Left Arm' | 'Right Arm' | 'Left Thigh' | 'Right Thigh';
+  route: 'IM' | 'SC' | 'ID';
+  administeredBy: string;
+  adverseReaction?: string;
+  notes?: string;
+  nextDoseDate?: string;
+  createdAt: string;
 }
 
 export interface Feedback {
-    id: string;
-    patientName: string;
-    rating: number;
-    comment: string;
-    date: string;
+  id: string;
+  patientName: string;
+  rating: number;
+  comment: string;
+  date: string;
+  department: string;
 }
 
 export interface Notice {
-    id: string;
-    title: string;
-    content: string;
-    date: string;
-    priority: 'Normal' | 'Urgent';
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  priority: 'Normal' | 'Urgent';
 }
 
 export interface LabTestRequest {
-    id: string;
-    patientName: string;
-    testName: string;
-    priority: 'Routine' | 'Urgent';
-    status: 'Sample Collected' | 'Processing' | 'Completed';
-    date: string;
+  id: string;
+  patientName: string;
+  testName: string;
+  priority: 'Routine' | 'Urgent';
+  status: 'Sample Collected' | 'Processing' | 'Completed';
+  date: string;
 }
 
 export interface RadiologyRequest {
-    id: string;
-    patientName: string;
-    modality: 'X-Ray' | 'MRI' | 'CT Scan' | 'Ultrasound';
-    bodyPart: string;
-    status: 'Scheduled' | 'Imaging' | 'Report Ready';
-    date: string;
+  id: string;
+  patientName: string;
+  modality: 'X-Ray' | 'MRI' | 'CT Scan' | 'Ultrasound';
+  bodyPart: string;
+  status: 'Scheduled' | 'Imaging' | 'Report Ready';
+  date: string;
 }
 
 export interface ProcurementItem {
-    id: string;
-    itemName: string;
-    vendor: string;
-    quantity: number;
-    status: 'Ordered' | 'Received' | 'Pending';
-    cost: number;
+  id: string;
+  itemName: string;
+  vendor: string;
+  quantity: number;
+  status: 'Ordered' | 'Received' | 'Pending';
+  cost: number;
 }
 
 export interface TeleConsultation {
-    id: string;
-    doctorName: string;
-    patientName: string;
-    startTime: string;
-    duration: string;
-    platform: 'Zoom' | 'In-App' | 'Meet';
-    status: 'Scheduled' | 'Live' | 'Completed';
+  id: string;
+  doctorName: string;
+  patientName: string;
+  startTime: string;
+  duration: string;
+  platform: 'Zoom' | 'In-App' | 'Meet';
+  status: 'Scheduled' | 'Live' | 'Completed';
 }
 
 export interface CanteenItem {
-    id: string;
-    name: string;
-    category: 'Meal' | 'Snack' | 'Beverage';
-    price: number;
-    available: boolean;
+  id: string;
+  name: string;
+  category: 'Meal' | 'Snack' | 'Beverage';
+  price: number;
+  available: boolean;
+  image?: string;
 }
 
 export interface LaundryBatch {
-    id: string;
-    type: 'Bed Sheets' | 'Gowns' | 'Towels';
-    weight: string;
-    status: 'Washing' | 'Drying' | 'Folded' | 'Dispatched';
-    department: string;
+  id: string;
+  type: 'Bed Sheets' | 'Gowns' | 'Towels' | 'Uniforms';
+  weight: number;
+  status: 'Collected' | 'Washing' | 'Drying' | 'Folded' | 'Delivered';
+  department: string;
+  temperature?: number;
+  cycleType?: 'Normal' | 'Heavy Duty' | 'Delicate';
+  startTime: string;
+  completedTime?: string;
 }
 
 export interface MortuaryRecord {
-    id: string;
-    deceasedName: string;
-    dateOfDeath: string;
-    timeOfDeath: string;
-    causeOfDeath: string;
-    deathCertificateNo?: string;
-    age: number;
-    gender: string;
-    patientId?: string;
-    freezerNo: string;
-    status: 'Admitted' | 'Post-Mortem' | 'Released' | 'Transferred';
-    admittedDate: string;
-    releasedDate?: string;
-    releasedTo?: string;
-    releaseType?: 'Family' | 'Funeral Home' | 'Transfer';
-    relativeName: string;
-    relativeContact: string;
-    relativeRelation: string;
-    relativeAddress?: string;
-    belongings?: MortuaryBelonging[];
-    postMortemRequired: boolean;
-    postMortemStatus?: 'Pending' | 'Completed' | 'Not Required';
-    postMortemReport?: string;
-    doctorName: string;
-    notes?: string;
-    createdAt: string;
-    updatedAt?: string;
+  id: string;
+  deceasedName: string;
+  dateOfDeath: string;
+  timeOfDeath: string;
+  causeOfDeath: string;
+  deathCertificateNo?: string;
+  age: number;
+  gender: string;
+  patientId?: string;
+  freezerNo: string;
+  status: 'Admitted' | 'Post-Mortem' | 'Released' | 'Transferred';
+  admittedDate: string;
+  releasedDate?: string;
+  releasedTo?: string;
+  releaseType?: 'Family' | 'Funeral Home' | 'Transfer';
+  relativeName: string;
+  relativeContact: string;
+  relativeRelation: string;
+  relativeAddress?: string;
+  belongings?: MortuaryBelonging[];
+  postMortemRequired: boolean;
+  postMortemStatus?: 'Pending' | 'Completed' | 'Not Required';
+  postMortemReport?: string;
+  doctorName: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface MortuaryBelonging {
-    id: string;
-    item: string;
-    description?: string;
-    value?: number;
-    handedOverTo?: string;
-    handedOverDate?: string;
-    status: 'With Body' | 'Handed Over' | 'Stored';
+  id: string;
+  item: string;
+  description?: string;
+  value?: number;
+  handedOverTo?: string;
+  handedOverDate?: string;
+  status: 'With Body' | 'Handed Over' | 'Stored';
 }
 
 export interface MortuaryFreezer {
-    id: string;
-    number: string;
-    capacity: number;
-    temperature: number;
-    status: 'Available' | 'Occupied' | 'Maintenance' | 'Cleaning';
-    currentOccupant?: string;
-    lastMaintenance?: string;
+  id: string;
+  number: string;
+  capacity: number;
+  temperature: number;
+  status: 'Available' | 'Occupied' | 'Maintenance' | 'Cleaning';
+  currentOccupant?: string;
+  lastMaintenance?: string;
 }
 
 export interface HospitalEvent {
-    id: string;
-    title: string;
-    type: 'Training' | 'Conference' | 'Workshop';
-    date: string;
-    location: string;
-    attendees: number;
+  id: string;
+  title: string;
+  type: 'Training' | 'Conference' | 'Workshop';
+  date: string;
+  location: string;
+  attendees: number;
 }
 
 export interface LostItem {
-    id: string;
-    item: string;
-    foundLocation: string;
-    dateFound: string;
-    status: 'Unclaimed' | 'Returned';
-    finder: string;
+  id: string;
+  item: string;
+  foundLocation: string;
+  dateFound: string;
+  status: 'Unclaimed' | 'Returned';
+  finder: string;
 }
 
 export interface ParkingSpot {
-    id: string;
-    number: string;
-    section: 'Staff' | 'Visitor' | 'Ambulance';
-    status: 'Available' | 'Occupied';
-}
-
-export interface WasteRecord {
   id: string;
-  type: 'Infectious' | 'Sharps' | 'General' | 'Chemical';
-  weight: number;
-  collectionTime: string;
-  disposalStatus: 'Collected' | 'Incinerated' | 'Pending';
+  number: string;
+  section: 'Staff' | 'Visitor' | 'Ambulance' | 'Disabled';
+  status: 'Available' | 'Occupied' | 'Reserved';
+  vehicleNumber?: string;
+  assignedTo?: string;
+  checkInTime?: string;
+  reservedFor?: string;
 }
 
 export interface TherapySession {
-    id: string;
-    patientName: string;
-    therapyType: string;
-    therapist: string;
-    date: string;
-    status: 'Scheduled' | 'Completed';
+  id: string;
+  patientName: string;
+  therapyType: string;
+  therapist: string;
+  date: string;
+  status: 'Scheduled' | 'In Progress' | 'Completed';
 }
 
 export interface SterilizationBatch {
-    id: string;
-    setName: string;
-    cycleNumber: string;
-    sterilizationDate: string;
-    expiryDate: string;
-    status: 'Sterile' | 'Processing' | 'Expired';
+  id: string;
+  setName: string;
+  cycleNumber: string;
+  sterilizationDate: string;
+  expiryDate: string;
+  status: 'Sterile' | 'Processing' | 'Expired' | 'Cleaning';
+  method: 'Autoclave' | 'ETO' | 'Plasma';
+  technician: string;
+  items: string[];
+  startTime: string;
+  endTime?: string;
 }
 
 export interface SupportTicket {
-    id: string;
-    subject: string;
-    department: string;
-    requester: string;
-    priority: 'High' | 'Medium' | 'Low';
-    status: 'Open' | 'In Progress' | 'Resolved';
+  id: string;
+  subject: string;
+  department: string;
+  requester: string;
+  priority: 'High' | 'Medium' | 'Low';
+  status: 'Open' | 'In Progress' | 'Resolved';
 }
 
 export interface MaternityPatient {
-    id: string;
-    name: string;
-    weeksPregnant: number;
-    doctor: string;
-    status: 'Ante-natal' | 'Labor' | 'Post-natal';
-    room: string;
+  id: string;
+  name: string;
+  weeksPregnant: number;
+  doctor: string;
+  status: 'Ante-natal' | 'Labor' | 'Post-natal';
+  room: string;
 }
 
 export interface Incident {
-    id: string;
-    type: string;
-    location: string;
-    reportedBy: string;
-    date: string;
-    severity: 'Low' | 'Medium' | 'High';
-    status: 'Investigating' | 'Closed';
+  id: string;
+  type: string;
+  location: string;
+  reportedBy: string;
+  date: string;
+  severity: 'Low' | 'Medium' | 'High';
+  status: 'Investigating' | 'Closed';
 }
 
 export interface LibraryItem {
-    id: string;
-    title: string;
-    author: string;
-    category: string;
-    status: 'Available' | 'Checked Out';
+  id: string;
+  title: string;
+  author: string;
+  category: string;
+  status: 'Available' | 'Checked Out';
 }
 
 export interface Donation {
-    id: string;
-    donor: string;
-    amount: number;
-    cause: string;
-    date: string;
+  id: string;
+  donor: string;
+  amount: number;
+  cause: string;
+  date: string;
 }
 
 export interface CallLog {
-    id: string;
-    caller: string;
-    type: 'Inquiry' | 'Emergency' | 'Appointment';
-    agent: string;
-    duration: string;
-    time: string;
+  id: string;
+  caller: string;
+  type: 'Inquiry' | 'Emergency' | 'Appointment' | 'Complaint';
+  agent: string;
+  duration: string;
+  time: string;
+  notes?: string;
+  priority: 'Normal' | 'High' | 'Critical';
+  status: 'Active' | 'Completed' | 'Transferred';
 }
 
 export interface LegalCase {
-    id: string;
-    caseNumber: string;
-    patientName: string;
-    type: 'Accident' | 'Assault' | 'Other';
-    policeStation: string;
-    status: 'Active' | 'Closed';
+  id: string;
+  caseNumber: string;
+  patientName: string;
+  type: 'Accident' | 'Assault' | 'Other';
+  policeStation: string;
+  status: 'Active' | 'Closed';
 }
 
 // 10 NEW FEATURES TYPES
 
 export interface QueueItem {
-    id: string;
-    tokenNumber: number;
-    patientName: string;
-    doctorName: string;
-    department: string;
-    status: 'Waiting' | 'In Consultation' | 'Completed';
-    waitTime: string;
-    priority?: 'Routine' | 'Urgent' | 'Emergency';
-    symptoms?: string;
+  id: string;
+  tokenNumber: number;
+  patientName: string;
+  doctorName: string;
+  department: string;
+  status: 'Waiting' | 'In Consultation' | 'Completed';
+  waitTime: string;
+  priority?: 'Routine' | 'Urgent' | 'Emergency';
+  symptoms?: string;
 }
 
 export interface Referral {
-    id: string;
-    patientName: string;
-    direction: 'Inbound' | 'Outbound';
-    hospital: string;
-    reason: string;
-    status: 'Pending' | 'Accepted' | 'Completed';
-    date: string;
+  id: string;
+  patientName: string;
+  direction: 'Inbound' | 'Outbound';
+  hospital: string;
+  reason: string;
+  status: 'Pending' | 'Accepted' | 'Completed';
+  date: string;
 }
 
 export interface MedicalCertificate {
-    id: string;
-    patientName: string;
-    type: 'Sick Leave' | 'Fitness' | 'Death';
-    issueDate: string;
-    doctor: string;
-    status: 'Draft' | 'Issued';
+  id: string;
+  patientName: string;
+  type: 'Sick Leave' | 'Fitness' | 'Death';
+  issueDate: string;
+  doctor: string;
+  status: 'Draft' | 'Issued';
 }
 
 export interface AuditLog {
-    id: string;
-    user: string;
-    action: string;
-    resource: string;
-    timestamp: string;
-    status: 'Success' | 'Failed';
+  id: string;
+  user: string;
+  action: string;
+  resource: string;
+  timestamp: string;
+  status: 'Success' | 'Failed';
 }
 
 export interface SecurityLog {
-    id: string;
-    location: string;
-    event: string;
-    timestamp: string;
-    type: 'Entry' | 'Exit' | 'Alert';
-    personnel: string;
+  id: string;
+  location: string;
+  event: string;
+  timestamp: string;
+  type: 'Entry' | 'Exit' | 'Alert';
+  personnel: string;
 }
 
 export interface TrainingModule {
-    id: string;
-    title: string;
-    assignedTo: string;
-    dueDate: string;
-    status: 'Not Started' | 'In Progress' | 'Completed';
-    score?: number;
+  id: string;
+  title: string;
+  assignedTo: string;
+  dueDate: string;
+  status: 'Not Started' | 'In Progress' | 'Completed';
+  score?: number;
+  duration?: string;
+  description?: string;
+  type?: 'Compliance' | 'Skill' | 'Safety' | 'Clinical';
+  image?: string;
 }
 
 export interface FacilityJob {
-    id: string;
-    issue: string;
-    location: string;
-    type: 'Electrical' | 'Plumbing' | 'HVAC';
-    status: 'Reported' | 'Fixing' | 'Resolved';
-    technician: string;
+  id: string;
+  issue: string;
+  location: string;
+  type: 'Electrical' | 'Plumbing' | 'HVAC';
+  status: 'Reported' | 'Fixing' | 'Resolved';
+  technician: string;
 }
 
 export interface TransportRequest {
-    id: string;
-    patientName: string;
-    from: string;
-    to: string;
-    priority: 'Routine' | 'Urgent';
-    status: 'Pending' | 'In Transit' | 'Completed';
-    porter: string;
+  id: string;
+  patientName: string;
+  from: string;
+  to: string;
+  priority: 'Routine' | 'Urgent' | 'Emergency';
+  status: 'Pending' | 'In Transit' | 'Completed';
+  porter: string;
+  notes?: string;
+  timestamp: string;
 }
 
 export interface ResearchTrial {
-    id: string;
-    title: string;
-    phase: string;
-    participants: number;
-    status: 'Recruiting' | 'Active' | 'Completed';
-    leadResearcher: string;
+  id: string;
+  title: string;
+  phase: string;
+  participants: number;
+  status: 'Recruiting' | 'Active' | 'Completed';
+  leadResearcher: string;
 }
 
 export interface IntercomLog {
-    id: string;
-    sender: string;
-    recipient: string; // "All Staff", "Dr. X", "ICU Ward"
-    message: string;
-    time: string;
-    priority: 'Normal' | 'Emergency';
+  id: string;
+  sender: string;
+  recipient: string; // "All Staff", "Dr. X", "ICU Ward"
+  message: string;
+  time: string;
+  priority: 'Normal' | 'Emergency';
+  category?: 'General' | 'Medical' | 'Maintenance' | 'Security';
+  repeat?: boolean;
 }
 
 export interface StatCardProps {
@@ -1403,7 +1428,7 @@ export interface AmbulanceDispatchResult {
     ambulanceId: string;
     vehicleNumber: string;
     driverName: string;
-    type: 'ALS' | 'BLS';
+    type: 'ALS' | 'BLS' | 'Neonatal' | 'Patient Transport';
     eta: number;
     distance: number;
   };
@@ -5042,4 +5067,44 @@ export interface ECGAnalysisResult {
   };
   confidence: number;
   disclaimer: string;
+}
+
+export interface Staff {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  email: string;
+  phone: string;
+  status: 'Active' | 'On Leave' | 'Terminated';
+  joinDate: string;
+  salary: number;
+  image?: string;
+  specialty?: string;
+}
+
+export interface PayrollRecord {
+  id: string;
+  staffId: string;
+  staffName: string;
+  role: string;
+  department: string;
+  baseSalary: number;
+  bonus: number;
+  deductions: number;
+  netSalary: number;
+  paymentDate: string;
+  status: 'Paid' | 'Processing' | 'Pending';
+  paymentMethod: 'Bank Transfer' | 'Check' | 'Cash';
+}
+
+export interface WasteRecord {
+  id: string;
+  type: 'Infectious' | 'Sharps' | 'General' | 'Chemical' | 'Radioactive';
+  weight: number;
+  unit: string;
+  source: string;
+  handler: string;
+  collectionTime: string;
+  disposalStatus: 'Pending' | 'Collected' | 'Incinerated' | 'Disposed';
 }
