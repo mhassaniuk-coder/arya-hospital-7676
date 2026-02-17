@@ -1,85 +1,88 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Sidebar from './components/Sidebar';
-import Dashboard from './components/Dashboard';
-import PatientManager from './components/PatientManager';
-import AIConsult from './components/AIConsult';
-import Schedule from './components/Schedule';
-import Analytics from './components/Analytics';
-import StaffDirectory from './components/StaffDirectory';
-import BedManagement from './components/BedManagement';
-import Pharmacy from './components/Pharmacy';
-import Billing from './components/Billing';
-import ChatWidget from './components/ChatWidget';
-import MedicalCalculators from './components/MedicalCalculators';
-import AmbulanceManager from './components/AmbulanceManager';
-import BloodBank from './components/BloodBank';
-import Departments from './components/Departments';
-import TaskManager from './components/TaskManager';
-import Settings from './components/Settings';
-import VitalRecords from './components/VitalRecords';
-import OTManagement from './components/OTManagement';
-import AssetManager from './components/AssetManager';
-import ShiftRoster from './components/ShiftRoster';
-import InsuranceClaims from './components/InsuranceClaims';
-import DietaryKitchen from './components/DietaryKitchen';
-import Housekeeping from './components/Housekeeping';
-import VisitorPass from './components/VisitorPass';
-import VaccinationManager from './components/VaccinationManager';
-import FeedbackSystem from './components/FeedbackSystem';
-import NoticeBoard from './components/NoticeBoard';
-import LabManagement from './components/LabManagement';
-import Radiology from './components/Radiology';
-import Procurement from './components/Procurement';
-import Telemedicine from './components/Telemedicine';
-import Canteen from './components/Canteen';
-import Laundry from './components/Laundry';
-import Mortuary from './components/Mortuary';
-import EventManagement from './components/EventManagement';
-import LostAndFound from './components/LostAndFound';
-import Parking from './components/Parking';
-import WasteManagement from './components/WasteManagement';
-import Physiotherapy from './components/Physiotherapy';
-import CSSD from './components/CSSD';
-import HelpDesk from './components/HelpDesk';
-import Maternity from './components/Maternity';
-import IncidentReporting from './components/IncidentReporting';
-import Library from './components/Library';
-import Donations from './components/Donations';
-import CallCenter from './components/CallCenter';
-import Legal from './components/Legal';
-import OPDQueue from './components/OPDQueue';
-import ReferralSystem from './components/ReferralSystem';
-import MedicalCertificates from './components/MedicalCertificates';
-import AuditLogs from './components/AuditLogs';
-import SecurityMonitor from './components/SecurityMonitor';
-import StaffTraining from './components/StaffTraining';
-import FacilityMaintenance from './components/FacilityMaintenance';
-import InternalTransport from './components/InternalTransport';
-import ClinicalResearch from './components/ClinicalResearch';
-import Intercom from './components/Intercom';
-import LoginPage from './components/LoginPage';
-import LogoutModal from './components/LogoutModal';
-import Payroll from './components/Payroll';
-import LeaveManagement from './components/LeaveManagement';
-import Expenses from './components/Expenses';
-import Recruitment from './components/Recruitment';
-import Revenue from './components/Revenue';
-import Attendance from './components/Attendance';
-import LandingPage from './components/LandingPage';
+// Lazy load components to split chunks
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const PatientManager = lazy(() => import('./components/PatientManager'));
+const AIConsult = lazy(() => import('./components/AIConsult'));
+const Schedule = lazy(() => import('./components/Schedule'));
+const Analytics = lazy(() => import('./components/Analytics'));
+const StaffDirectory = lazy(() => import('./components/StaffDirectory'));
+const BedManagement = lazy(() => import('./components/BedManagement'));
+const Pharmacy = lazy(() => import('./components/Pharmacy'));
+const Billing = lazy(() => import('./components/Billing'));
+const ChatWidget = lazy(() => import('./components/ChatWidget'));
+const MedicalCalculators = lazy(() => import('./components/MedicalCalculators'));
+const AmbulanceManager = lazy(() => import('./components/AmbulanceManager'));
+const BloodBank = lazy(() => import('./components/BloodBank'));
+const Departments = lazy(() => import('./components/Departments'));
+const TaskManager = lazy(() => import('./components/TaskManager'));
+const Settings = lazy(() => import('./components/Settings'));
+const VitalRecords = lazy(() => import('./components/VitalRecords'));
+const OTManagement = lazy(() => import('./components/OTManagement'));
+const AssetManager = lazy(() => import('./components/AssetManager'));
+const ShiftRoster = lazy(() => import('./components/ShiftRoster'));
+const InsuranceClaims = lazy(() => import('./components/InsuranceClaims'));
+const DietaryKitchen = lazy(() => import('./components/DietaryKitchen'));
+const Housekeeping = lazy(() => import('./components/Housekeeping'));
+const VisitorPass = lazy(() => import('./components/VisitorPass'));
+const VaccinationManager = lazy(() => import('./components/VaccinationManager'));
+const FeedbackSystem = lazy(() => import('./components/FeedbackSystem'));
+const NoticeBoard = lazy(() => import('./components/NoticeBoard'));
+const LabManagement = lazy(() => import('./components/LabManagement'));
+const Radiology = lazy(() => import('./components/Radiology'));
+const Procurement = lazy(() => import('./components/Procurement'));
+const Telemedicine = lazy(() => import('./components/Telemedicine'));
+const Canteen = lazy(() => import('./components/Canteen'));
+const Laundry = lazy(() => import('./components/Laundry'));
+const Mortuary = lazy(() => import('./components/Mortuary'));
+const EventManagement = lazy(() => import('./components/EventManagement'));
+const LostAndFound = lazy(() => import('./components/LostAndFound'));
+const Parking = lazy(() => import('./components/Parking'));
+const WasteManagement = lazy(() => import('./components/WasteManagement'));
+const Physiotherapy = lazy(() => import('./components/Physiotherapy'));
+const CSSD = lazy(() => import('./components/CSSD'));
+const HelpDesk = lazy(() => import('./components/HelpDesk'));
+const Maternity = lazy(() => import('./components/Maternity'));
+const IncidentReporting = lazy(() => import('./components/IncidentReporting'));
+const Library = lazy(() => import('./components/Library'));
+const Donations = lazy(() => import('./components/Donations'));
+const CallCenter = lazy(() => import('./components/CallCenter'));
+const Legal = lazy(() => import('./components/Legal'));
+const OPDQueue = lazy(() => import('./components/OPDQueue'));
+const ReferralSystem = lazy(() => import('./components/ReferralSystem'));
+const MedicalCertificates = lazy(() => import('./components/MedicalCertificates'));
+const AuditLogs = lazy(() => import('./components/AuditLogs'));
+const SecurityMonitor = lazy(() => import('./components/SecurityMonitor'));
+const StaffTraining = lazy(() => import('./components/StaffTraining'));
+const FacilityMaintenance = lazy(() => import('./components/FacilityMaintenance'));
+const InternalTransport = lazy(() => import('./components/InternalTransport'));
+const ClinicalResearch = lazy(() => import('./components/ClinicalResearch'));
+const Intercom = lazy(() => import('./components/Intercom'));
+const LoginPage = lazy(() => import('./components/LoginPage'));
+const LogoutModal = lazy(() => import('./components/LogoutModal'));
+const Payroll = lazy(() => import('./components/Payroll'));
+const LeaveManagement = lazy(() => import('./components/LeaveManagement'));
+const Expenses = lazy(() => import('./components/Expenses'));
+const Recruitment = lazy(() => import('./components/Recruitment'));
+const Revenue = lazy(() => import('./components/Revenue'));
+const Attendance = lazy(() => import('./components/Attendance'));
+const LandingPage = lazy(() => import('./components/LandingPage'));
 
-import { Menu, Search, Bell, Plus, Calculator, Siren, LogOut } from 'lucide-react';
+// AI Components
+const AISymptomChecker = lazy(() => import('./components/AISymptomChecker'));
+const AIHealthChatWidget = lazy(() => import('./components/AIHealthChatWidget'));
+const AIHealthEducation = lazy(() => import('./components/AIHealthEducation'));
+const AIMedicationReminder = lazy(() => import('./components/AIMedicationReminder'));
+const AIAppointmentScheduler = lazy(() => import('./components/AIAppointmentScheduler'));
+const AIDischargeFollowUp = lazy(() => import('./components/AIDischargeFollowUp'));
+const AIPatientFeedbackAnalyzer = lazy(() => import('./components/AIPatientFeedbackAnalyzer'));
+
+import { Menu, Search, Bell, Plus, Calculator, Siren, LogOut, Loader2 } from 'lucide-react';
 import { useAuth } from './src/contexts/AuthContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { SearchProvider, useSearch } from './src/contexts/SearchContext';
 import { NavProvider } from './src/contexts/NavContext';
 import ThemeToggle from './components/ThemeToggle';
-import AISymptomChecker from './components/AISymptomChecker';
-import AIHealthChatWidget from './components/AIHealthChatWidget';
-import AIHealthEducation from './components/AIHealthEducation';
-import AIMedicationReminder from './components/AIMedicationReminder';
-import AIAppointmentScheduler from './components/AIAppointmentScheduler';
-import AIDischargeFollowUp from './components/AIDischargeFollowUp';
-import AIPatientFeedbackAnalyzer from './components/AIPatientFeedbackAnalyzer';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
@@ -102,6 +105,14 @@ function HeaderSearch({ setActiveTab }: { setActiveTab: (tab: string) => void })
   );
 }
 
+function PageLoader() {
+  return (
+    <div className="flex h-full items-center justify-center">
+      <Loader2 className="w-10 h-10 text-teal-500 animate-spin" />
+    </div>
+  );
+}
+
 function DashboardLayout() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -112,77 +123,83 @@ function DashboardLayout() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard': return <Dashboard />;
-      case 'patients': return <PatientManager />;
-      case 'clinical-ai': return <AIConsult />;
-      case 'schedule': return <Schedule />;
-      case 'analytics': return <Analytics />;
-      case 'staff': return <StaffDirectory />;
-      case 'beds': return <BedManagement />;
-      case 'pharmacy': return <Pharmacy />;
-      case 'billing': return <Billing />;
-      case 'ambulance': return <AmbulanceManager />;
-      case 'blood-bank': return <BloodBank />;
-      case 'departments': return <Departments />;
-      case 'tasks': return <TaskManager />;
-      case 'settings': return <Settings />;
-      case 'records': return <VitalRecords />;
-      case 'ot': return <OTManagement />;
-      case 'assets': return <AssetManager />;
-      case 'roster': return <ShiftRoster />;
-      case 'insurance': return <InsuranceClaims />;
-      case 'dietary': return <DietaryKitchen />;
-      case 'housekeeping': return <Housekeeping />;
-      case 'visitors': return <VisitorPass />;
-      case 'vaccination': return <VaccinationManager />;
-      case 'feedback': return <FeedbackSystem />;
-      case 'notices': return <NoticeBoard />;
-      case 'lab': return <LabManagement />;
-      case 'radiology': return <Radiology />;
-      case 'procurement': return <Procurement />;
-      case 'telemedicine': return <Telemedicine />;
-      case 'canteen': return <Canteen />;
-      case 'laundry': return <Laundry />;
-      case 'mortuary': return <Mortuary />;
-      case 'events': return <EventManagement />;
-      case 'lost-found': return <LostAndFound />;
-      case 'parking': return <Parking />;
-      case 'waste': return <WasteManagement />;
-      case 'physio': return <Physiotherapy />;
-      case 'cssd': return <CSSD />;
-      case 'help-desk': return <HelpDesk />;
-      case 'maternity': return <Maternity />;
-      case 'incidents': return <IncidentReporting />;
-      case 'library': return <Library />;
-      case 'donations': return <Donations />;
-      case 'call-center': return <CallCenter />;
-      case 'legal': return <Legal />;
-      case 'opd-queue': return <OPDQueue />;
-      case 'referrals': return <ReferralSystem />;
-      case 'certificates': return <MedicalCertificates />;
-      case 'audit': return <AuditLogs />;
-      case 'security': return <SecurityMonitor />;
-      case 'facility': return <FacilityMaintenance />;
-      case 'transport': return <InternalTransport />;
-      case 'research': return <ClinicalResearch />;
-      case 'intercom': return <Intercom />;
-      case 'payroll': return <Payroll />;
-      case 'leave': return <LeaveManagement />;
-      case 'expenses': return <Expenses />;
-      case 'recruitment': return <Recruitment />;
-      case 'training': return <StaffTraining />;
-      case 'revenue': return <Revenue />;
-      case 'attendance': return <Attendance />;
-      case 'ai-symptom-checker': return <AISymptomChecker />;
-      case 'ai-health-chat': return <AIHealthChatWidget />;
-      case 'ai-health-education': return <AIHealthEducation />;
-      case 'ai-med-reminder': return <AIMedicationReminder />;
-      case 'ai-appointment-scheduler': return <AIAppointmentScheduler />;
-      case 'ai-discharge-followup': return <AIDischargeFollowUp />;
-      case 'ai-feedback-analyzer': return <AIPatientFeedbackAnalyzer />;
-      default: return <Dashboard />;
-    }
+    return (
+      <Suspense fallback={<PageLoader />}>
+        {(() => {
+          switch (activeTab) {
+            case 'dashboard': return <Dashboard />;
+            case 'patients': return <PatientManager />;
+            case 'clinical-ai': return <AIConsult />;
+            case 'schedule': return <Schedule />;
+            case 'analytics': return <Analytics />;
+            case 'staff': return <StaffDirectory />;
+            case 'beds': return <BedManagement />;
+            case 'pharmacy': return <Pharmacy />;
+            case 'billing': return <Billing />;
+            case 'ambulance': return <AmbulanceManager />;
+            case 'blood-bank': return <BloodBank />;
+            case 'departments': return <Departments />;
+            case 'tasks': return <TaskManager />;
+            case 'settings': return <Settings />;
+            case 'records': return <VitalRecords />;
+            case 'ot': return <OTManagement />;
+            case 'assets': return <AssetManager />;
+            case 'roster': return <ShiftRoster />;
+            case 'insurance': return <InsuranceClaims />;
+            case 'dietary': return <DietaryKitchen />;
+            case 'housekeeping': return <Housekeeping />;
+            case 'visitors': return <VisitorPass />;
+            case 'vaccination': return <VaccinationManager />;
+            case 'feedback': return <FeedbackSystem />;
+            case 'notices': return <NoticeBoard />;
+            case 'lab': return <LabManagement />;
+            case 'radiology': return <Radiology />;
+            case 'procurement': return <Procurement />;
+            case 'telemedicine': return <Telemedicine />;
+            case 'canteen': return <Canteen />;
+            case 'laundry': return <Laundry />;
+            case 'mortuary': return <Mortuary />;
+            case 'events': return <EventManagement />;
+            case 'lost-found': return <LostAndFound />;
+            case 'parking': return <Parking />;
+            case 'waste': return <WasteManagement />;
+            case 'physio': return <Physiotherapy />;
+            case 'cssd': return <CSSD />;
+            case 'help-desk': return <HelpDesk />;
+            case 'maternity': return <Maternity />;
+            case 'incidents': return <IncidentReporting />;
+            case 'library': return <Library />;
+            case 'donations': return <Donations />;
+            case 'call-center': return <CallCenter />;
+            case 'legal': return <Legal />;
+            case 'opd-queue': return <OPDQueue />;
+            case 'referrals': return <ReferralSystem />;
+            case 'certificates': return <MedicalCertificates />;
+            case 'audit': return <AuditLogs />;
+            case 'security': return <SecurityMonitor />;
+            case 'facility': return <FacilityMaintenance />;
+            case 'transport': return <InternalTransport />;
+            case 'research': return <ClinicalResearch />;
+            case 'intercom': return <Intercom />;
+            case 'payroll': return <Payroll />;
+            case 'leave': return <LeaveManagement />;
+            case 'expenses': return <Expenses />;
+            case 'recruitment': return <Recruitment />;
+            case 'training': return <StaffTraining />;
+            case 'revenue': return <Revenue />;
+            case 'attendance': return <Attendance />;
+            case 'ai-symptom-checker': return <AISymptomChecker />;
+            case 'ai-health-chat': return <AIHealthChatWidget />;
+            case 'ai-health-education': return <AIHealthEducation />;
+            case 'ai-med-reminder': return <AIMedicationReminder />;
+            case 'ai-appointment-scheduler': return <AIAppointmentScheduler />;
+            case 'ai-discharge-followup': return <AIDischargeFollowUp />;
+            case 'ai-feedback-analyzer': return <AIPatientFeedbackAnalyzer />;
+            default: return <Dashboard />;
+          }
+        })()}
+      </Suspense>
+    );
   };
 
   return (
@@ -348,12 +365,14 @@ function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
-          <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-          <Route path="/dashboard/*" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+            <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+            <Route path="/dashboard/*" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </ThemeProvider>
   );
