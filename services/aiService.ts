@@ -111,8 +111,18 @@ import {
   ECGAnalysisResult,
 } from "../types";
 
-// Initialize the API client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Initialize the API client lazily
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const DEMO_MODE = import.meta.env.VITE_USE_MOCK === 'true' || true; // Align with apiClient
+
+let ai: any = null;
+
+const getAIClient = () => {
+  if (!ai && apiKey) {
+    ai = new GoogleGenAI({ apiKey });
+  }
+  return ai;
+};
 
 // Default configuration for AI features
 const defaultConfig: AIFeatureConfig = {
@@ -153,8 +163,9 @@ const createResponse = <T>(success: boolean, data?: T, error?: string, processin
 
 // Check if API key is available
 const isApiKeyAvailable = (): boolean => {
-  if (!process.env.API_KEY) {
-    console.warn("API Key missing. AI features will use mock data.");
+  if (DEMO_MODE) return false; // Force mock data in demo mode
+  if (!apiKey) {
+    console.warn("Gemini API Key missing. AI features will use mock data.");
     return false;
   }
   return true;
@@ -190,7 +201,10 @@ Patient Information:
 
 Provide a comprehensive triage assessment including urgency level, priority score (1-10), recommended department, and any red flags.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -318,7 +332,10 @@ Current Medications: ${input.currentMedications?.join(', ') || 'None'}
 
 Provide comprehensive dosing recommendations including any necessary adjustments.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -435,7 +452,10 @@ Gender: ${input.gender || 'Unknown'}
 
 Provide clinical alerts, recommendations, and evidence-based guidelines.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -577,7 +597,10 @@ Patient Info: ${JSON.stringify(input.patientInfo || {})}
 
 Generate a comprehensive SOAP note with appropriate medical codes.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -692,7 +715,10 @@ Gender: ${input.gender || 'Unknown'}
 
 Identify any potential allergic reactions, cross-reactivity, contraindications, and suggest safe alternatives.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -828,7 +854,10 @@ Clinical Context: ${input.clinicalContext || 'Not provided'}
 
 Provide comprehensive interpretation including clinical significance and recommended actions.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -963,7 +992,10 @@ Previous Antibiotic Use: ${input.previousAntibioticUse?.join(', ') || 'None'}
 
 Provide evidence-based antibiotic recommendations including duration and de-escalation options.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -1078,7 +1110,10 @@ Baseline Vitals: ${JSON.stringify(input.baselineVitals || 'Not provided')}
 
 Calculate early warning scores, identify deterioration risk, and provide clinical alerts.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -1256,7 +1291,10 @@ Epidemiological Factors: ${input.epidemiologicalFactors?.join(', ') || 'None'}
 
 Provide comprehensive differential diagnoses with ICD-10 codes, confidence levels, and recommended workup.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -1482,7 +1520,10 @@ Insurance Formulary: ${input.insuranceFormulary?.join(', ') || 'Standard formula
 
 Provide comprehensive prescription recommendations including alternatives, interactions, and counseling points.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -1765,7 +1806,10 @@ Incoming Patients: ${JSON.stringify(input.incomingPatients || [])}
 
 Provide optimal bed assignments, turnover predictions, and discharge planning suggestions.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -1926,7 +1970,10 @@ Current Date/Time: ${input.currentDateTime || new Date().toISOString()}
 
 Provide an optimized schedule with predicted durations and resource allocation.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -2093,7 +2140,10 @@ Current Stock: ${JSON.stringify(input.currentStock)}
 
 Provide demand forecasts, reorder recommendations, expiry alerts, and cost optimization suggestions.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -2284,7 +2334,10 @@ Department Capacities: ${JSON.stringify(input.departmentCapacities || [])}
 
 Provide volume predictions, bottleneck analysis, staffing recommendations, and wait time optimizations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -2469,7 +2522,10 @@ Weather: ${input.weatherConditions || 'Unknown'}
 
 Provide optimal ambulance selection, route recommendations, and ETA predictions.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -2628,7 +2684,10 @@ Historical Patterns: ${JSON.stringify(input.historicalPatterns || [])}
 
 Provide an optimized schedule that balances preferences, skills, workload, and fatigue management.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -2814,7 +2873,10 @@ Usage Patterns: ${JSON.stringify(input.usagePatterns || [])}
 
 Provide predictive maintenance schedules, risk assessments, and cost optimization recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -2996,7 +3058,10 @@ Current Workload: ${JSON.stringify(input.currentWorkload || [])}
 
 Provide an optimized cleaning schedule that prioritizes discharge-based tasks and balances workload.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -3175,7 +3240,10 @@ Storage Capacity: ${JSON.stringify(input.storageCapacity || [])}
 
 Provide waste generation predictions, collection optimization, compliance alerts, and cost analysis.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -3381,7 +3449,10 @@ Renewable Sources: ${JSON.stringify(input.renewableSources || [])}
 
 Provide usage optimization, peak predictions, cost savings, and sustainability recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -3603,7 +3674,10 @@ Provider Specialty: ${input.providerSpecialty || 'Not specified'}
 
 Provide comprehensive coding suggestions including ICD-10 codes, CPT codes, HCPCS codes, DRG optimization, compliance alerts, and documentation recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -3819,7 +3893,10 @@ Medical Necessity Documented: ${input.medicalNecessity?.documented ? 'Yes' : 'No
 
 Analyze for denial risk and provide recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -4012,7 +4089,10 @@ Payer Mix: ${input.payerMix?.map(p => `${p.payer}: ${p.percentage}%`).join(', ')
 
 Provide revenue forecasts, leakage analysis, and optimization recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -4270,7 +4350,10 @@ Regulatory Requirements: ${input.regulatoryRequirements?.join(', ') || 'Standard
 
 Provide comprehensive compliance monitoring analysis including checklists, risk assessment, and recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -4530,7 +4613,10 @@ Time Window: ${input.timeWindow || 'Last 30 days'}
 
 Analyze for fraud indicators, generate investigation alerts, and provide prevention recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -4727,7 +4813,10 @@ Language: ${input.language || 'English'}
 
 Extract information, classify the document, and provide structured output.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -4971,7 +5060,10 @@ ${input.historicalPatterns?.map(h => `- User ${h.userId}: Typical hours ${h.typi
 
 Analyze for suspicious activities, access patterns, and compliance issues.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -5233,7 +5325,10 @@ ${input.vendorPerformance?.map(v => `- ${v.vendorName}: Score ${v.performanceSco
 
 Provide contract management insights, renewal recommendations, and cost optimization opportunities.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -5526,7 +5621,10 @@ Organization Type: ${input.organizationType || 'Hospital'}
 
 Provide policy management insights including version control, gap analysis, and compliance mapping.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -5788,7 +5886,10 @@ ${input.previousReports?.map(r => `- ${r.type} (${r.date}): ${r.keyFindings.join
 
 Generate a comprehensive report with executive summary, key findings, and recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -6087,7 +6188,10 @@ Session Type: ${input.sessionType || 'general'}
 
 Provide a helpful, empathetic response with appropriate resources and next steps. Always include safety disclaimers when discussing medical topics.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -6273,7 +6377,10 @@ Vital Signs: ${input.vitalSigns ? JSON.stringify(input.vitalSigns) : 'Not provid
 
 Provide a comprehensive symptom analysis with possible conditions, urgency assessment, and care recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -6534,7 +6641,10 @@ Available Slots: ${input.availableSlots ? JSON.stringify(input.availableSlots.sl
 
 Provide intelligent scheduling recommendations with provider matching and wait time predictions.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -6774,7 +6884,10 @@ Risk Factors:
 
 Create a detailed follow-up plan including schedule, milestones, medication adherence, and risk assessment.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -7047,7 +7160,10 @@ Specific Questions: ${input.specificQuestions?.join(', ') || 'None'}
 
 Create comprehensive, patient-friendly educational content that addresses their specific health situation.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -7334,7 +7450,10 @@ Adherence History: ${input.adherenceHistory ? JSON.stringify(input.adherenceHist
 
 Create an optimized medication schedule with reminders, interaction warnings, and adherence improvement strategies.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -7606,7 +7725,10 @@ ${input.previousAnalysis ? `Average Rating: ${input.previousAnalysis.averageRati
 
 Provide comprehensive sentiment analysis, trend identification, and actionable recommendations for service improvement.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -8032,7 +8154,10 @@ Social Determinants:
 
 Provide a comprehensive readmission risk assessment including risk score (0-100), risk factors, and preventive interventions.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -8291,7 +8416,10 @@ Current Alerts: ${input.currentAlerts?.map(a => `${a.type}: ${a.condition}`).joi
 
 Analyze for potential outbreaks, geographic clustering, and provide early warning alerts.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -8610,7 +8738,10 @@ Hospital Factors:
 
 Provide a comprehensive length of stay prediction with discharge planning recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -8917,7 +9048,10 @@ Goals of Care: ${input.goalsOfCare?.documented ? input.goalsOfCare.type : 'Not d
 
 Provide a comprehensive mortality risk assessment with clinical recommendations and family communication guidance.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -9349,7 +9483,10 @@ External Factors:
 
 Provide comprehensive trend predictions, resource demand forecasts, and strategic planning insights.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -9909,7 +10046,10 @@ Provide a comprehensive chest X-ray analysis including:
 
 Note: This is a simulated analysis for educational purposes. Always correlate clinically.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -10055,7 +10195,10 @@ Clinical Indication: ${input.patientInfo?.clinicalIndication || 'Not specified'}
 
 Provide comprehensive CT analysis including findings, measurements, and clinical recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -10199,7 +10342,10 @@ ${input.scanType === 'obstetric' ? `Gestational Age: ${input.patientInfo?.gestat
 
 Provide comprehensive ultrasound analysis including findings, measurements, and clinical recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -10402,7 +10548,10 @@ Clinical Indication: ${input.patientInfo?.clinicalIndication || 'Not specified'}
 
 Provide comprehensive MRI analysis including signal characteristics, findings, and clinical recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -10620,7 +10769,10 @@ Family History: ${input.patientInfo?.familyHistory?.join(', ') || 'None provided
 
 Provide comprehensive mammography analysis including BI-RADS assessment, findings, and recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -10787,7 +10939,10 @@ Visual Acuity: ${input.patientInfo?.visualAcuity || 'Unknown'}
 
 Provide comprehensive retinal analysis including diabetic retinopathy assessment, glaucoma screening, AMD evaluation, and clinical recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -11001,7 +11156,10 @@ Skin Type (Fitzpatrick): ${input.patientInfo?.skinType || 'Unknown'}
 
 Provide comprehensive dermatological analysis including lesion description, differential diagnosis, melanoma risk assessment, and treatment recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
@@ -11192,7 +11350,10 @@ Current Medications: ${input.patientInfo?.currentMedications?.join(', ') || 'Non
 
 Provide comprehensive ECG analysis including rhythm interpretation, interval measurements, detection of arrhythmias, ischemia assessment, and clinical recommendations.`;
 
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    if (!client) throw new Error("AI Client not initialized");
+
+    const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
