@@ -9,8 +9,8 @@
 import * as Mocks from './mockData';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-// Force Demo Mode if environment variable is set or defaults to true for Vercel demo
-const DEMO_MODE = import.meta.env.VITE_USE_MOCK === 'true' || true;
+// Force Demo Mode if environment variable is set
+const DEMO_MODE = import.meta.env.VITE_USE_MOCK === 'true';
 
 console.log(`API Client initialized. Mode: ${DEMO_MODE ? 'DEMO (Mock Data)' : 'PRODUCTION (Real API)'}`);
 

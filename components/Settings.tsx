@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, Monitor, Bell, Shield, Database, Plug, Save, X, Sun, Moon, Eye, EyeOff, Check, AlertCircle, Globe, Mail, Phone, MapPin, Clock, Palette, Layout, Lock, Key, Wifi, RefreshCw, Download, Trash2, Server, Webhook } from 'lucide-react';
+import { Settings as SettingsIcon, Monitor, Bell, Shield, Database, Plug, Save, X, Sun, Moon, Eye, EyeOff, Check, AlertCircle, Globe, Mail, Phone, MapPin, Clock, Palette, Layout, Lock, Key, Wifi, RefreshCw, Download, Trash2, Server, Webhook, Plus } from 'lucide-react';
+import { apiKeyService, ApiKey } from '../services/apiKeyService';
 
 type Tab = 'general' | 'appearance' | 'notifications' | 'security' | 'data' | 'integrations';
 
@@ -53,9 +54,35 @@ const Settings: React.FC = () => {
 
   // Integrations
   const [webhookUrl, setWebhookUrl] = useState('');
-  const [apiKeyVisible, setApiKeyVisible] = useState(false);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>(apiKeyService.listKeys());
+  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+  const [newKeyData, setNewKeyData] = useState<{ name: string; expiresAt?: string; ipWhitelist: string; rateLimit: 'standard' | 'unlimited' }>({
+    name: '',
+    ipWhitelist: '',
+    rateLimit: 'standard'
+  });
+  const [visibleKeys, setVisibleKeys] = useState<Record<string, boolean>>({});
 
   const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2500); };
+
+  const handleGenerateKey = () => {
+    const ips = newKeyData.ipWhitelist.split(',').map(ip => ip.trim()).filter(ip => ip);
+    apiKeyService.generateKey({
+      name: newKeyData.name,
+      expiresAt: newKeyData.expiresAt,
+      ipWhitelist: ips,
+      rateLimit: newKeyData.rateLimit
+    });
+    setApiKeys(apiKeyService.listKeys());
+    setIsKeyModalOpen(false);
+  };
+
+  const handleRevokeKey = (id: string) => {
+    if (confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
+      apiKeyService.revokeKey(id);
+      setApiKeys(apiKeyService.listKeys());
+    }
+  };
 
   const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
     <button onClick={() => onChange(!checked)} className={`relative w-11 h-6 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-slate-300 dark:bg-slate-600'}`}>
@@ -358,20 +385,166 @@ const Settings: React.FC = () => {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-border pt-6 space-y-4">
-                <h4 className="font-semibold text-foreground-primary text-sm flex items-center gap-2"><Key size={16} /> API Key</h4>
-                <div className="flex items-center gap-3">
-                  <input type={apiKeyVisible ? 'text' : 'password'} value="nhms_sk_live_abc123xyz789def456" readOnly
-                    className="flex-1 border border-border rounded-xl p-3 text-sm bg-background-primary text-foreground-primary font-mono theme-transition" />
-                  <button onClick={() => setApiKeyVisible(!apiKeyVisible)} className="p-3 border border-border rounded-xl text-foreground-muted hover:text-foreground-primary hover:bg-background-tertiary theme-transition">
-                    {apiKeyVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+
+              <div className="border-t border-border pt-6 space-y-6">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-foreground-primary text-sm flex items-center gap-2">
+                    <Key size={16} /> API Keys
+                  </h4>
+                  <button
+                    onClick={() => {
+                      setIsKeyModalOpen(true);
+                      setNewKeyData({ name: '', ipWhitelist: '', rateLimit: 'standard' });
+                    }}
+                    className="text-xs bg-accent text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-accent/90 transition-colors flex items-center gap-1"
+                  >
+                    <Plus size={14} /> Generate Key
                   </button>
                 </div>
+
+                <div className="space-y-3">
+                  {apiKeys.length === 0 ? (
+                    <div className="text-center p-8 bg-background-primary rounded-xl border border-dashed border-border text-foreground-secondary">
+                      <Key size={24} className="mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No API keys generated yet.</p>
+                    </div>
+                  ) : (
+                    apiKeys.map(key => (
+                      <div key={key.id} className={`p-4 rounded-xl border transition-all ${key.status === 'revoked' ? 'bg-background-tertiary border-border opacity-75' : 'bg-background-primary border-border hover:shadow-sm'}`}>
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h5 className="font-bold text-foreground-primary text-sm flex items-center gap-2">
+                              {key.name}
+                              <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${key.status === 'active' ? 'bg-success-light text-success-dark' : 'bg-background-tertiary text-foreground-muted'}`}>
+                                {key.status}
+                              </span>
+                            </h5>
+                            <p className="text-xs text-foreground-muted mt-1 font-mono">
+                              {visibleKeys[key.id] ? key.key : key.key.substring(0, 16) + '...'}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setVisibleKeys(prev => ({ ...prev, [key.id]: !prev[key.id] }))}
+                              className="p-1.5 text-foreground-muted hover:text-foreground-primary hover:bg-background-tertiary rounded-lg transition-colors"
+                              title={visibleKeys[key.id] ? "Hide Key" : "Show Key"}
+                            >
+                              {visibleKeys[key.id] ? <EyeOff size={14} /> : <Eye size={14} />}
+                            </button>
+                            {key.status === 'active' && (
+                              <button
+                                onClick={() => handleRevokeKey(key.id)}
+                                className="p-1.5 text-foreground-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                title="Revoke Key"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-foreground-secondary mt-3 pt-3 border-t border-border">
+                          <div>
+                            <span className="block text-foreground-muted mb-0.5">Created</span>
+                            {new Date(key.createdAt).toLocaleDateString()}
+                          </div>
+                          <div>
+                            <span className="block text-foreground-muted mb-0.5">Expires</span>
+                            {key.expiresAt ? new Date(key.expiresAt).toLocaleDateString() : 'Never'}
+                          </div>
+                          <div>
+                            <span className="block text-foreground-muted mb-0.5">Rate Limit</span>
+                            <span className="capitalize">{key.rateLimit}</span>
+                          </div>
+                          <div>
+                            <span className="block text-foreground-muted mb-0.5">Last Used</span>
+                            {key.lastUsed ? new Date(key.lastUsed).toLocaleDateString() : 'Never'}
+                          </div>
+                        </div>
+                        {key.ipWhitelist && key.ipWhitelist.length > 0 && (
+                          <div className="mt-2 text-xs text-foreground-secondary flex items-start gap-1">
+                            <Shield size={12} className="mt-0.5" />
+                            <span>Restricted to: {key.ipWhitelist.join(', ')}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
+
               <div>
                 <h4 className="font-semibold text-foreground-primary text-sm flex items-center gap-2 mb-3"><Webhook size={16} /> Webhook URL</h4>
                 <input type="url" value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} placeholder="https://your-server.com/webhook"
                   className="w-full border border-border rounded-xl p-3 text-sm bg-background-primary text-foreground-primary focus:ring-2 focus:ring-accent outline-none theme-transition" />
+              </div>
+            </div>
+          )}
+
+          {/* Generate Key Modal */}
+          {isKeyModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+              <div className="bg-background-primary rounded-2xl shadow-xl w-full max-w-md animate-scale-up">
+                <div className="flex justify-between items-center p-4 border-b border-border">
+                  <h3 className="font-bold text-foreground-primary">Generate New API Key</h3>
+                  <button onClick={() => setIsKeyModalOpen(false)} className="text-foreground-muted hover:text-foreground-primary">
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="p-4 space-y-4">
+                  <InputField
+                    label="Key Name"
+                    value={newKeyData.name}
+                    onChange={(v) => setNewKeyData({ ...newKeyData, name: v })}
+                    placeholder="e.g. Mobile App, Backend Service"
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-foreground-primary mb-1.5">Expiration</label>
+                      <input
+                        type="date"
+                        className="w-full border border-border rounded-xl p-3 text-sm bg-background-primary text-foreground-primary focus:ring-2 focus:ring-accent outline-none theme-transition"
+                        onChange={(e) => setNewKeyData({ ...newKeyData, expiresAt: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-foreground-primary mb-1.5">Rate Limit</label>
+                      <select
+                        className="w-full border border-border rounded-xl p-3 text-sm bg-background-primary text-foreground-primary focus:ring-2 focus:ring-accent outline-none theme-transition"
+                        value={newKeyData.rateLimit}
+                        onChange={(e) => setNewKeyData({ ...newKeyData, rateLimit: e.target.value as any })}
+                      >
+                        <option value="standard">Standard</option>
+                        <option value="unlimited">Unlimited</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground-primary mb-1.5">IP Whitelist (Optional)</label>
+                    <input
+                      type="text"
+                      className="w-full border border-border rounded-xl p-3 text-sm bg-background-primary text-foreground-primary focus:ring-2 focus:ring-accent outline-none theme-transition"
+                      placeholder="Comma separated IPs (e.g. 10.0.0.1, 192.168.1.1)"
+                      value={newKeyData.ipWhitelist}
+                      onChange={(e) => setNewKeyData({ ...newKeyData, ipWhitelist: e.target.value })}
+                    />
+                    <p className="text-[10px] text-foreground-muted mt-1">Leave empty to allow all IPs.</p>
+                  </div>
+                </div>
+                <div className="p-4 border-t border-border flex justify-end gap-2">
+                  <button
+                    onClick={() => setIsKeyModalOpen(false)}
+                    className="px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-background-tertiary rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleGenerateKey}
+                    disabled={!newKeyData.name}
+                    className="px-4 py-2 text-sm font-bold bg-accent text-white rounded-lg hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Generate Key
+                  </button>
+                </div>
               </div>
             </div>
           )}

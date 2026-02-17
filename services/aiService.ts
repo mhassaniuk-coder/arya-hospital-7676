@@ -111,15 +111,46 @@ import {
   ECGAnalysisResult,
 } from "../types";
 
-// Initialize the API client lazily
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-const DEMO_MODE = import.meta.env.VITE_USE_MOCK === 'true' || true; // Align with apiClient
+// Check for API key availability at module load time
+const getApiKey = (): string | undefined => {
+  return import.meta.env.VITE_GEMINI_API_KEY;
+};
+
+const isDemoMode = (): boolean => {
+  return import.meta.env.VITE_USE_MOCK === 'true';
+};
+
+// Check if API key is missing and log warning once
+const apiKey = getApiKey();
+const DEMO_MODE = isDemoMode();
+
+if (!apiKey && !DEMO_MODE) {
+  console.warn(
+    "⚠️ Gemini API Key (VITE_GEMINI_API_KEY) is not set. " +
+    "AI features will run in demo mode with mock responses. " +
+    "To enable real AI features, set your API key in the environment variables. " +
+    "Get your API key from: https://makersuite.google.com/app/apikey"
+  );
+}
 
 let ai: any = null;
 
+// Helper to check if we should use mock mode
+const shouldUseMockMode = (): boolean => {
+  return DEMO_MODE || !apiKey || apiKey === 'your_gemini_api_key_here' || apiKey.trim() === '';
+};
+
 const getAIClient = () => {
-  if (!ai && apiKey) {
-    ai = new GoogleGenAI({ apiKey });
+  // Never initialize without a valid API key
+  if (shouldUseMockMode()) return null;
+
+  if (!ai) {
+    try {
+      ai = new GoogleGenAI({ apiKey });
+    } catch (error) {
+      console.error("Failed to initialize Gemini API client:", error);
+      return null;
+    }
   }
   return ai;
 };
@@ -163,9 +194,8 @@ const createResponse = <T>(success: boolean, data?: T, error?: string, processin
 
 // Check if API key is available
 const isApiKeyAvailable = (): boolean => {
-  if (DEMO_MODE) return false; // Force mock data in demo mode
-  if (!apiKey) {
-    console.warn("Gemini API Key missing. AI features will use mock data.");
+  if (shouldUseMockMode()) {
+    console.warn("Gemini API Key missing or Demo Mode enabled. AI features will use mock data.");
     return false;
   }
   return true;

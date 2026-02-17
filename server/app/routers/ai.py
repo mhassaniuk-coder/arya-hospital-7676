@@ -29,8 +29,18 @@ class GenericAIRequest(BaseModel):
 
 async def _call_gemini(prompt: str) -> dict:
     """Call Gemini API with the given prompt. Returns parsed JSON or text response."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     api_key = settings.GEMINI_API_KEY
-    if not api_key or api_key == "PLACEHOLDER_API_KEY":
+    
+    # Check for missing or placeholder API key
+    if not api_key or api_key == "PLACEHOLDER_API_KEY" or api_key == "your_gemini_api_key_here" or api_key.strip() == "":
+        logger.warning(
+            "⚠️ GEMINI_API_KEY is not configured. AI features will return mock responses. "
+            "Set GEMINI_API_KEY in server/.env to enable real AI features. "
+            "Get your API key from: https://makersuite.google.com/app/apikey"
+        )
         return {
             "response": "AI features require a valid GEMINI_API_KEY in server/.env",
             "status": "mock",
@@ -47,6 +57,7 @@ async def _call_gemini(prompt: str) -> dict:
         )
         return {"response": response.text, "status": "success"}
     except Exception as e:
+        logger.error(f"Error calling Gemini API: {str(e)}")
         return {"response": str(e), "status": "error"}
 
 

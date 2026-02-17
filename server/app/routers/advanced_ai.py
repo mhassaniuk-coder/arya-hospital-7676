@@ -13,11 +13,20 @@ settings = get_settings()
 
 # ── Shared Gemini caller ──
 async def _gemini(prompt: str) -> dict:
+    import logging
+    import json
+    import random
+    
+    logger = logging.getLogger(__name__)
     api_key = settings.GEMINI_API_KEY
+    
     # Check for missing or placeholder key
-    if not api_key or "PLACEHOLDER" in api_key:
-        import json
-        import random
+    if not api_key or "PLACEHOLDER" in api_key or api_key == "your_gemini_api_key_here" or api_key.strip() == "":
+        logger.warning(
+            "⚠️ GEMINI_API_KEY is not configured. AI features will return mock responses. "
+            "Set GEMINI_API_KEY in server/.env to enable real AI features. "
+            "Get your API key from: https://makersuite.google.com/app/apikey"
+        )
         
         # Default mock response
         mock_content = {
@@ -54,7 +63,7 @@ async def _gemini(prompt: str) -> dict:
         resp = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
         return {"status": "success", "response": resp.text}
     except Exception as e:
-        print(f"Gemini API Error: {e}")
+        logger.error(f"Gemini API Error: {e}")
         return {"status": "error", "response": f"AI Error: {str(e)}"}
 
 
