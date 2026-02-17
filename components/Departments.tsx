@@ -1,17 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Department } from '../types';
+import { useData } from '../src/contexts/DataContext';
 import { Building2, Users, Plus, Search, Edit2, Trash2, X, MapPin, Phone, DollarSign, Activity, ChevronDown } from 'lucide-react';
 
-const INITIAL_DEPTS: Department[] = [
-  { id: '1', name: 'Cardiology', head: 'Dr. Sarah Chen', staffCount: 14, status: 'Active' },
-  { id: '2', name: 'Neurology', head: 'Dr. Michael Ross', staffCount: 8, status: 'Active' },
-  { id: '3', name: 'Pediatrics', head: 'Dr. John Doe', staffCount: 12, status: 'Active' },
-  { id: '4', name: 'Orthopedics', head: 'Dr. Alice Cooper', staffCount: 10, status: 'Active' },
-  { id: '5', name: 'Oncology', head: 'Dr. James Wilson', staffCount: 6, status: 'Active' },
-  { id: '6', name: 'Emergency', head: 'Dr. Lisa Cuddy', staffCount: 24, status: 'Active' },
-  { id: '7', name: 'Radiology', head: 'Dr. Robert Chase', staffCount: 7, status: 'Active' },
-  { id: '8', name: 'Pathology', head: 'Dr. Allison Cameron', staffCount: 5, status: 'Inactive' },
-];
+
 
 interface DeptExtra {
   location: string; floor: number; phone: string; budget: number; bedCount: number; services: string[];
@@ -31,7 +23,7 @@ const DEPT_EXTRAS: Record<string, DeptExtra> = {
 const COLORS = ['bg-blue-500', 'bg-teal-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500', 'bg-indigo-500', 'bg-emerald-500', 'bg-amber-500'];
 
 const Departments: React.FC = () => {
-  const [departments, setDepartments] = useState<Department[]>(INITIAL_DEPTS);
+  const { departments, addDepartment, updateDepartment, deleteDepartment } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
   const [showModal, setShowModal] = useState(false);
@@ -57,18 +49,25 @@ const Departments: React.FC = () => {
   const openAdd = () => { setEditingDept(null); setFormData({ name: '', head: '', staffCount: 0, status: 'Active' }); setShowModal(true); };
   const openEdit = (d: Department) => { setEditingDept(d); setFormData({ name: d.name, head: d.head, staffCount: d.staffCount, status: d.status }); setShowModal(true); };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name.trim() || !formData.head.trim()) return;
-    if (editingDept) {
-      setDepartments(prev => prev.map(d => d.id === editingDept.id ? { ...d, ...formData } : d));
-    } else {
-      const newDept: Department = { id: `D-${Date.now()}`, ...formData };
-      setDepartments(prev => [...prev, newDept]);
-    }
-    setShowModal(false);
+    try {
+      if (editingDept) {
+        await updateDepartment(editingDept.id, formData);
+      } else {
+        const newDept: Department = { id: `D-${Date.now()}`, ...formData };
+        await addDepartment(newDept);
+      }
+      setShowModal(false);
+    } catch (e) { console.error(e); }
   };
 
-  const handleDelete = (id: string) => { setDepartments(prev => prev.filter(d => d.id !== id)); setDeleteConfirm(null); };
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteDepartment(id);
+      setDeleteConfirm(null);
+    } catch (e) { console.error(e); }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">

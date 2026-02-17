@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { UserRole } from '../types';
 import { useAuth } from '../src/contexts/AuthContext';
-import { Activity, ShieldCheck, UserCircle, Mail, Lock, ArrowLeft, Sun, Moon } from 'lucide-react';
-import { useTheme } from '../src/contexts/ThemeContext';
+import { Activity, ShieldCheck, UserCircle, Mail, Lock, ArrowLeft, Zap } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 const LoginPage: React.FC = () => {
   const { login, register } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const [view, setView] = useState<'login' | 'register' | 'forgot-password'>('login');
 
   // Form State
@@ -17,13 +16,31 @@ const LoginPage: React.FC = () => {
   const [resetSent, setResetSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // ============================================
+  // DEMO MODE: Quick Demo Access Handler
+  // Allows instant login with any role for demo purposes
+  // ============================================
+  const handleDemoLogin = async (selectedRole: UserRole) => {
+    setIsLoading(true);
+    try {
+      // In demo mode, credentials don't matter - role determines the user
+      await login('demo@nexushealth.com', 'demo123', selectedRole);
+    } catch (error) {
+      console.error(error);
+      alert('Demo login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
       if (view === 'login') {
-        await login(email, password);
+        // Pass the selected role to the login function for demo mode
+        await login(email, password, role);
       } else if (view === 'register') {
         // Default role for now, or allow selection if backend supports it safely
         // Ideally verification step happens before or after this, but sticking to existing flow structure
@@ -69,13 +86,11 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background-primary flex items-center justify-center p-4 font-sans theme-transition relative">
-      <button
-        onClick={toggleTheme}
-        className="absolute top-6 right-6 p-3 rounded-full bg-background-secondary shadow-lg text-foreground-secondary hover:text-accent transition-all z-50 theme-transition"
-        title="Toggle Theme"
-      >
-        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-      </button>
+      <ThemeToggle
+        variant="icon"
+        size="lg"
+        className="absolute top-6 right-6 shadow-lg z-50 bg-background-secondary text-foreground-secondary hover:text-accent"
+      />
       <div className="max-w-4xl w-full bg-background-secondary rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px] theme-transition">
 
         {renderBrand()}
@@ -248,6 +263,34 @@ const LoginPage: React.FC = () => {
                   </button>
                 </p>
               ) : null}
+            </div>
+          )}
+
+          {/* ============================================ */}
+          {/* DEMO MODE: Quick Demo Access Section */}
+          {/* ============================================ */}
+          {view === 'login' && (
+            <div className="mt-6 pt-6 border-t border-border">
+              <div className="flex items-center gap-2 mb-4">
+                <Zap size={16} className="text-accent" />
+                <span className="text-sm font-semibold text-foreground-primary">Quick Demo Access</span>
+              </div>
+              <p className="text-xs text-foreground-muted mb-3">
+                Click any role below to instantly login and explore the dashboard
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.values(UserRole).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => handleDemoLogin(r)}
+                    disabled={isLoading}
+                    className="px-3 py-2 text-xs font-medium bg-background-primary border border-border rounded-lg hover:border-accent hover:text-accent transition-all disabled:opacity-50 text-foreground-secondary"
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>

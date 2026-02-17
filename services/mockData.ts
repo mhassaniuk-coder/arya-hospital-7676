@@ -4,20 +4,135 @@ import {
     QueueItem, BloodUnit, BloodBag, BloodDonor, BloodRequest, User, UserRole, UrgencyLevel
 } from '../types';
 
+// ============================================
+// DEMO MODE MOCK USERS
+// Mock accounts for all 14 roles for demo mode access
+// ============================================
 export const MOCK_USERS: User[] = [
     {
         id: "admin-001",
         name: "Admin User",
+        email: "admin@nexushealth.com",
         role: UserRole.ADMIN,
-        avatar: "https://ui-avatars.com/api/?name=Admin&background=0D9488&color=fff"
+        avatar: "https://ui-avatars.com/api/?name=Admin+User&background=0D9488&color=fff",
+        department: "Administration"
     },
     {
         id: "doc-001",
         name: "Dr. Sarah Chen",
+        email: "sarah.chen@nexushealth.com",
         role: UserRole.DOCTOR,
-        avatar: "https://ui-avatars.com/api/?name=Sarah+Chen&background=0D9488&color=fff"
+        avatar: "https://ui-avatars.com/api/?name=Sarah+Chen&background=0D9488&color=fff",
+        department: "Cardiology",
+        specialization: "Cardiologist"
+    },
+    {
+        id: "nurse-001",
+        name: "Emily Rodriguez",
+        email: "emily.rodriguez@nexushealth.com",
+        role: UserRole.NURSE,
+        avatar: "https://ui-avatars.com/api/?name=Emily+Rodriguez&background=0D9488&color=fff",
+        department: "Emergency",
+        specialization: "Emergency Care"
+    },
+    {
+        id: "pharm-001",
+        name: "David Kim",
+        email: "david.kim@nexushealth.com",
+        role: UserRole.PHARMACIST,
+        avatar: "https://ui-avatars.com/api/?name=David+Kim&background=0D9488&color=fff",
+        department: "Pharmacy",
+        specialization: "Clinical Pharmacy"
+    },
+    {
+        id: "reception-001",
+        name: "Lisa Wang",
+        email: "lisa.wang@nexushealth.com",
+        role: UserRole.RECEPTIONIST,
+        avatar: "https://ui-avatars.com/api/?name=Lisa+Wang&background=0D9488&color=fff",
+        department: "Front Desk"
+    },
+    {
+        id: "lab-001",
+        name: "James Patterson",
+        email: "james.patterson@nexushealth.com",
+        role: UserRole.LAB_TECHNICIAN,
+        avatar: "https://ui-avatars.com/api/?name=James+Patterson&background=0D9488&color=fff",
+        department: "Laboratory",
+        specialization: "Pathology"
+    },
+    {
+        id: "radio-001",
+        name: "Dr. Michael Torres",
+        email: "michael.torres@nexushealth.com",
+        role: UserRole.RADIOLOGIST,
+        avatar: "https://ui-avatars.com/api/?name=Michael+Torres&background=0D9488&color=fff",
+        department: "Radiology",
+        specialization: "Diagnostic Radiology"
+    },
+    {
+        id: "acct-001",
+        name: "Jennifer Adams",
+        email: "jennifer.adams@nexushealth.com",
+        role: UserRole.ACCOUNTANT,
+        avatar: "https://ui-avatars.com/api/?name=Jennifer+Adams&background=0D9488&color=fff",
+        department: "Finance"
+    },
+    {
+        id: "hr-001",
+        name: "Robert Williams",
+        email: "robert.williams@nexushealth.com",
+        role: UserRole.HR_MANAGER,
+        avatar: "https://ui-avatars.com/api/?name=Robert+Williams&background=0D9488&color=fff",
+        department: "Human Resources"
+    },
+    {
+        id: "facility-001",
+        name: "Mark Johnson",
+        email: "mark.johnson@nexushealth.com",
+        role: UserRole.FACILITY_MANAGER,
+        avatar: "https://ui-avatars.com/api/?name=Mark+Johnson&background=0D9488&color=fff",
+        department: "Facilities"
+    },
+    {
+        id: "kitchen-001",
+        name: "Maria Garcia",
+        email: "maria.garcia@nexushealth.com",
+        role: UserRole.KITCHEN_MANAGER,
+        avatar: "https://ui-avatars.com/api/?name=Maria+Garcia&background=0D9488&color=fff",
+        department: "Dietary Services"
+    },
+    {
+        id: "emergency-001",
+        name: "Dr. Eric Foreman",
+        email: "eric.foreman@nexushealth.com",
+        role: UserRole.EMERGENCY_MANAGER,
+        avatar: "https://ui-avatars.com/api/?name=Eric+Foreman&background=0D9488&color=fff",
+        department: "Emergency",
+        specialization: "Emergency Medicine"
+    },
+    {
+        id: "research-001",
+        name: "Dr. Amanda Brooks",
+        email: "amanda.brooks@nexushealth.com",
+        role: UserRole.RESEARCHER,
+        avatar: "https://ui-avatars.com/api/?name=Amanda+Brooks&background=0D9488&color=fff",
+        department: "Research",
+        specialization: "Clinical Trials"
+    },
+    {
+        id: "patient-001",
+        name: "John Smith",
+        email: "john.smith@email.com",
+        role: UserRole.PATIENT,
+        avatar: "https://ui-avatars.com/api/?name=John+Smith&background=0D9488&color=fff"
     }
 ];
+
+// Helper function to find mock user by role (for demo mode login)
+export const getMockUserByRole = (role: UserRole): User | undefined => {
+    return MOCK_USERS.find(user => user.role === role);
+};
 
 export const MOCK_PATIENTS: Patient[] = [
     { id: "P-101", name: "Sarah Johnson", age: 34, gender: "Female", admissionDate: "2023-10-24", condition: "Migraine", roomNumber: "304-A", urgency: UrgencyLevel.MEDIUM, history: "Chronic migraines since 2018." },
@@ -55,12 +170,12 @@ export const MOCK_AMBULANCES: Ambulance[] = [
 ];
 
 export const MOCK_STAFF: Doctor[] = [
-    { id: "1", name: "Dr. Sarah Chen", specialty: "Cardiology", status: "Online", patients: 12, image: "https://picsum.photos/seed/doc1/200" },
-    { id: "2", name: "Dr. Michael Ross", specialty: "Neurology", status: "In Surgery", patients: 8, image: "https://picsum.photos/seed/doc2/200" },
-    { id: "3", name: "Dr. James Wilson", specialty: "Oncology", status: "Offline", patients: 0, image: "https://picsum.photos/seed/doc3/200" },
-    { id: "4", name: "Dr. Emily House", specialty: "General Surgery", status: "On Break", patients: 5, image: "https://picsum.photos/seed/doc4/200" },
-    { id: "5", name: "Dr. Lisa Cuddy", specialty: "Administration", status: "Online", patients: 2, image: "https://picsum.photos/seed/doc5/200" },
-    { id: "6", name: "Dr. Eric Foreman", specialty: "Neurology", status: "Online", patients: 15, image: "https://picsum.photos/seed/doc6/200" },
+    { id: 'ST-001', name: 'Dr. Sarah Chen', role: 'Chief Physician', department: 'Cardiology', email: 'sarah.chen@nexus.com', phone: '+1 (555) 123-4567', status: 'Online', joinDate: '2020-03-15', salary: 250000, image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300&h=300', specialty: 'Cardiology', patients: 12 },
+    { id: 'ST-002', name: 'James Wilson', role: 'Senior Nurse', department: 'Emergency', email: 'james.wilson@nexus.com', phone: '+1 (555) 234-5678', status: 'Active', joinDate: '2021-06-10', salary: 85000, image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=300&h=300', patients: 0 },
+    { id: 'ST-003', name: 'Dr. Michael Ross', role: 'Surgeon', department: 'Surgery', email: 'michael.ross@nexus.com', phone: '+1 (555) 345-6789', status: 'In Surgery', joinDate: '2019-11-20', salary: 300000, image: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=300&h=300', specialty: 'Neuro', patients: 8 },
+    { id: 'ST-004', name: 'Emily Davis', role: 'Lab Technician', department: 'Laboratory', email: 'emily.davis@nexus.com', phone: '+1 (555) 456-7890', status: 'Active', joinDate: '2022-01-05', salary: 65000, image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=300&h=300', patients: 0 },
+    { id: 'ST-005', name: 'David Kim', role: 'Pharmacist', department: 'Pharmacy', email: 'david.kim@nexus.com', phone: '+1 (555) 567-8901', status: 'Active', joinDate: '2021-09-15', salary: 95000, image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300&h=300', patients: 0 },
+    { id: 'ST-006', name: 'Lisa Wang', role: 'Receptionist', department: 'Administration', email: 'lisa.wang@nexus.com', phone: '+1 (555) 678-9012', status: 'Active', joinDate: '2023-02-01', salary: 45000, image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300&h=300', patients: 0 },
 ];
 
 export const MOCK_TASKS: Task[] = [
@@ -148,4 +263,13 @@ export const MOCK_BLOOD_DONORS: BloodDonor[] = [
 export const MOCK_BLOOD_REQUESTS: BloodRequest[] = [
     { id: "BR-001", patientId: "P-102", patientName: "Michael Chen", bloodGroup: "B-", unitsRequired: 2, urgency: "Emergency", department: "ICU", doctor: "Dr. Sarah Chen", status: "Pending", requestDate: "2024-01-20", requiredDate: "2024-01-20" },
     { id: "BR-002", patientId: "P-108", patientName: "Lisa Anderson", bloodGroup: "A+", unitsRequired: 1, urgency: "Routine", department: "Surgery", doctor: "Dr. Michael Ross", status: "Approved", requestDate: "2024-01-19", requiredDate: "2024-01-22" },
+];
+
+export const MOCK_DEPARTMENTS: import('../types').Department[] = [
+    { id: "DEP-001", name: "Cardiology", head: "Dr. Sarah Chen", staffCount: 12, status: "Active" },
+    { id: "DEP-002", name: "Neurology", head: "Dr. Michael Ross", staffCount: 8, status: "Active" },
+    { id: "DEP-003", name: "Oncology", head: "Dr. James Wilson", staffCount: 5, status: "Active" },
+    { id: "DEP-004", name: "Pediatrics", head: "Dr. Lisa Cuddy", staffCount: 10, status: "Active" },
+    { id: "DEP-005", name: "Surgery", head: "Dr. Emily House", staffCount: 15, status: "Active" },
+    { id: "DEP-006", name: "Emergency", head: "Dr. Eric Foreman", staffCount: 20, status: "Active" },
 ];

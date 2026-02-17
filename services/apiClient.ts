@@ -7,10 +7,13 @@
  */
 
 import * as Mocks from './mockData';
+import { UserRole } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 // Force Demo Mode if environment variable is set
-const DEMO_MODE = import.meta.env.VITE_USE_MOCK === 'true';
+// Default to Mock Mode unless explicitly disabled
+// This ensures the app works immediately for demo purposes without backend setup
+const DEMO_MODE = import.meta.env.VITE_USE_MOCK !== 'false';
 
 console.log(`API Client initialized. Mode: ${DEMO_MODE ? 'DEMO (Mock Data)' : 'PRODUCTION (Real API)'}`);
 
@@ -29,6 +32,15 @@ export const setToken = (token: string | null) => {
 export const getToken = () => accessToken;
 
 // ── Core Fetch Wrapper ──
+// Store the selected role for demo mode login
+let selectedDemoRole: UserRole | null = null;
+
+export const setDemoRole = (role: UserRole | null) => {
+    selectedDemoRole = role;
+};
+
+export const getDemoRole = () => selectedDemoRole;
+
 async function request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -39,10 +51,41 @@ async function request<T>(
         console.log(`[Mock API] ${options.method || 'GET'} ${endpoint}`);
         return new Promise((resolve) => {
             setTimeout(() => {
-                // Auth Mocks
-                if (endpoint === '/auth/login') return resolve({ access_token: 'mock-jwt-token', user: Mocks.MOCK_USERS[0] } as any);
-                if (endpoint === '/auth/register') return resolve({ access_token: 'mock-jwt-token', user: Mocks.MOCK_USERS[0] } as any);
-                if (endpoint === '/auth/me') return resolve(Mocks.MOCK_USERS[0] as any);
+                // Auth Mocks - Demo Mode with Role Selection
+                if (endpoint === '/auth/login') {
+                    // Parse the request body to get the role
+                    let user = Mocks.MOCK_USERS[0]; // Default to Admin
+                    try {
+                        const body = options.body ? JSON.parse(options.body as string) : {};
+                        const requestedRole = body.role || selectedDemoRole;
+                        if (requestedRole) {
+                            const foundUser = Mocks.getMockUserByRole(requestedRole as UserRole);
+                            if (foundUser) user = foundUser;
+                        }
+                    } catch (e) {
+                        // Use default user if parsing fails
+                    }
+                    return resolve({ access_token: 'mock-jwt-token', user } as any);
+                }
+                if (endpoint === '/auth/register') {
+                    // For register, use the role from the request body
+                    let user = Mocks.MOCK_USERS[0];
+                    try {
+                        const body = options.body ? JSON.parse(options.body as string) : {};
+                        if (body.role) {
+                            const foundUser = Mocks.getMockUserByRole(body.role as UserRole);
+                            if (foundUser) user = { ...foundUser, name: body.name || foundUser.name };
+                        }
+                    } catch (e) {
+                        // Use default user if parsing fails
+                    }
+                    return resolve({ access_token: 'mock-jwt-token', user } as any);
+                }
+                if (endpoint === '/auth/me') {
+                    // Return user based on stored role or default
+                    const user = selectedDemoRole ? Mocks.getMockUserByRole(selectedDemoRole) || Mocks.MOCK_USERS[0] : Mocks.MOCK_USERS[0];
+                    return resolve(user as any);
+                }
 
                 // Stats
                 if (endpoint === '/stats') return resolve({
@@ -101,7 +144,7 @@ export const authAPI = {
             method: 'POST',
             body: JSON.stringify(data),
         }),
-    login: (data: { email: string; password: string }) =>
+    login: (data: { email: string; password: string; role?: UserRole }) =>
         request<{ access_token: string; user: any }>('/auth/login', {
             method: 'POST',
             body: JSON.stringify(data),
@@ -169,6 +212,7 @@ export const bloodUnitsAPI = createCRUD<any>('/blood-units', Mocks.MOCK_BLOOD_UN
 export const bloodBagsAPI = createCRUD<any>('/blood-bags', Mocks.MOCK_BLOOD_BAGS);
 export const bloodDonorsAPI = createCRUD<any>('/blood-donors', Mocks.MOCK_BLOOD_DONORS);
 export const bloodRequestsAPI = createCRUD<any>('/blood-requests', Mocks.MOCK_BLOOD_REQUESTS);
+export const departmentsAPI = createCRUD<any>('/departments', Mocks.MOCK_DEPARTMENTS);
 
 // ── Stats API ──
 export const statsAPI = {

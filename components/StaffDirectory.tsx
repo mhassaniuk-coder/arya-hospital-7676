@@ -1,23 +1,15 @@
-import React, { useState, useMemo } from 'react';
 import { Staff } from '../types';
+import { useData } from '../src/contexts/DataContext';
 import { Users, Search, Filter, Plus, Mail, Phone, MoreHorizontal, MapPin, Calendar, DollarSign, Briefcase, Star, X, Check, Edit2, Trash2 } from 'lucide-react';
 
-const INITIAL_STAFF: Staff[] = [
-  { id: 'ST-001', name: 'Dr. Sarah Chen', role: 'Chief Physician', department: 'Cardiology', email: 'sarah.chen@nexus.com', phone: '+1 (555) 123-4567', status: 'Active', joinDate: '2020-03-15', salary: 250000, image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300&h=300', specialty: 'Cardiology' },
-  { id: 'ST-002', name: 'James Wilson', role: 'Senior Nurse', department: 'Emergency', email: 'james.wilson@nexus.com', phone: '+1 (555) 234-5678', status: 'Active', joinDate: '2021-06-10', salary: 85000, image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=300&h=300' },
-  { id: 'ST-003', name: 'Dr. Michael Ross', role: 'Surgeon', department: 'Surgery', email: 'michael.ross@nexus.com', phone: '+1 (555) 345-6789', status: 'On Leave', joinDate: '2019-11-20', salary: 300000, image: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=300&h=300', specialty: 'Neuro' },
-  { id: 'ST-004', name: 'Emily Davis', role: 'Lab Technician', department: 'Laboratory', email: 'emily.davis@nexus.com', phone: '+1 (555) 456-7890', status: 'Active', joinDate: '2022-01-05', salary: 65000, image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=300&h=300' },
-  { id: 'ST-005', name: 'David Kim', role: 'Pharmacist', department: 'Pharmacy', email: 'david.kim@nexus.com', phone: '+1 (555) 567-8901', status: 'Active', joinDate: '2021-09-15', salary: 95000, image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300&h=300' },
-  { id: 'ST-006', name: 'Lisa Wang', role: 'Receptionist', department: 'Administration', email: 'lisa.wang@nexus.com', phone: '+1 (555) 678-9012', status: 'Active', joinDate: '2023-02-01', salary: 45000, image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300&h=300' },
-  { id: 'ST-007', name: 'Robert Taylor', role: 'Security Head', department: 'Security', email: 'robert.taylor@nexus.com', phone: '+1 (555) 789-0123', status: 'Terminated', joinDate: '2020-01-10', salary: 55000, image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300&h=300' },
-  { id: 'ST-008', name: 'Dr. Anita Patel', role: 'Pediatrician', department: 'Pediatrics', email: 'anita.patel@nexus.com', phone: '+1 (555) 890-1234', status: 'Active', joinDate: '2021-04-20', salary: 220000, image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300&h=300', specialty: 'Pediatrics' }, // Reused image
-];
+
 
 const DEPARTMENTS = ['Cardiology', 'Emergency', 'Surgery', 'Laboratory', 'Pharmacy', 'Administration', 'Security', 'Pediatrics', 'Nursing', 'Radiology'];
 const ROLES = ['Chief Physician', 'Senior Nurse', 'Surgeon', 'Lab Technician', 'Pharmacist', 'Receptionist', 'Security Head', 'Pediatrician', 'Nurse', 'Doctor', 'Admin'];
 
 const StaffDirectory: React.FC = () => {
-  const [staff, setStaff] = useState<Staff[]>(INITIAL_STAFF);
+  const { staff, addStaff, updateStaff, deleteStaff } = useData();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [deptFilter, setDeptFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -56,24 +48,32 @@ const StaffDirectory: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || !formData.email || !formData.role) return;
 
-    if (editingStaff) {
-      setStaff(prev => prev.map(s => s.id === editingStaff.id ? { ...s, ...formData } as Staff : s));
-    } else {
-      const newStaff: Staff = {
-        id: `ST-${String(staff.length + 1).padStart(3, '0')}`,
-        ...(formData as Staff)
-      };
-      setStaff(prev => [newStaff, ...prev]);
+    try {
+      if (editingStaff) {
+        await updateStaff(editingStaff.id, formData);
+      } else {
+        const newStaff: Staff = {
+          id: `ST-${String(staff.length + 1).padStart(3, '0')}`,
+          ...(formData as Staff)
+        };
+        await addStaff(newStaff);
+      }
+      setShowModal(false);
+    } catch (error) {
+      console.error("Failed to save staff:", error);
     }
-    setShowModal(false);
   };
 
-  const handleDelete = (id: string) => {
-    setStaff(prev => prev.filter(s => s.id !== id));
-    setDeleteConfirm(null);
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteStaff(id);
+      setDeleteConfirm(null);
+    } catch (error) {
+      console.error("Failed to delete", error);
+    }
   };
 
   return (

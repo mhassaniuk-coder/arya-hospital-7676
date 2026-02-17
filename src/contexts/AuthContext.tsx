@@ -14,7 +14,7 @@ interface LoginRecord {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, role?: UserRole) => Promise<void>;
   register: (name: string, email: string, password: string, role: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -61,9 +61,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, role?: UserRole) => {
     try {
-      const { access_token, user } = await authAPI.login({ email, password });
+      const { access_token, user } = await authAPI.login({ email, password, role });
       setToken(access_token);
       setUser(user);
 

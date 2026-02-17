@@ -79,14 +79,22 @@ export interface Appointment {
   isOnline?: boolean;
 }
 
-export interface Doctor {
+export interface Staff {
   id: string;
   name: string;
-  specialty: string;
-  status: 'Online' | 'Offline' | 'In Surgery' | 'On Break';
-  patients: number;
-  image: string;
+  role: string;
+  department: string;
+  email: string;
+  phone: string;
+  status: 'Active' | 'On Leave' | 'Terminated' | 'Online' | 'Offline' | 'In Surgery' | 'On Break';
+  joinDate: string;
+  salary?: number;
+  image?: string;
+  specialty?: string;
+  patients?: number;
 }
+
+export type Doctor = Staff;
 
 export interface Bed {
   id: string;
@@ -793,8 +801,11 @@ export enum UserRole {
 export interface User {
   id: string;
   name: string;
+  email?: string;
   role: UserRole;
   avatar?: string;
+  department?: string;
+  specialization?: string;
 }
 
 // ============================================

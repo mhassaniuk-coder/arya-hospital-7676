@@ -2,13 +2,13 @@ import React, { createContext, useContext, useState, ReactNode, useEffect, useCa
 import {
   Patient, Appointment, Invoice, UrgencyLevel, InventoryItem, Ambulance, Doctor, Task, Bed, Notice,
   LabTestRequest, RadiologyRequest, Referral, MedicalCertificate, ResearchTrial, MaternityPatient,
-  QueueItem, BloodUnit, BloodBag, BloodDonor, BloodRequest
+  QueueItem, BloodUnit, BloodBag, BloodDonor, BloodRequest, Department
 } from '../../types';
 import { useAuth } from './AuthContext';
 import {
   patientsAPI, appointmentsAPI, invoicesAPI, inventoryAPI, ambulancesAPI, staffAPI, tasksAPI, bedsAPI,
   noticesAPI, labRequestsAPI, radiologyAPI, referralsAPI, certificatesAPI, researchTrialsAPI,
-  maternityAPI, opdQueueAPI, bloodUnitsAPI, bloodBagsAPI, bloodDonorsAPI, bloodRequestsAPI, statsAPI
+  maternityAPI, opdQueueAPI, bloodUnitsAPI, bloodBagsAPI, bloodDonorsAPI, bloodRequestsAPI, statsAPI, departmentsAPI
 } from '../../services/apiClient';
 
 interface DataContextType {
@@ -18,6 +18,7 @@ interface DataContextType {
   inventory: InventoryItem[];
   ambulances: Ambulance[];
   staff: Doctor[];
+  departments: Department[]; // Added
   tasks: Task[];
   beds: Bed[];
   notices: Notice[];
@@ -48,7 +49,14 @@ interface DataContextType {
   addInvoice: (invoice: Invoice) => Promise<void>;
   addInventoryItem: (item: InventoryItem) => Promise<void>;
   addAmbulance: (ambulance: Ambulance) => Promise<void>;
+
   addStaff: (doctor: Doctor) => Promise<void>;
+  updateStaff: (id: string, updates: Partial<Doctor>) => Promise<void>; // Added
+  deleteStaff: (id: string) => Promise<void>; // Added
+
+  addDepartment: (dept: Department) => Promise<void>; // Added
+  updateDepartment: (id: string, updates: Partial<Department>) => Promise<void>; // Added
+  deleteDepartment: (id: string) => Promise<void>; // Added
 
   addTask: (task: Task) => Promise<void>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
@@ -103,6 +111,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [ambulances, setAmbulances] = useState<Ambulance[]>([]);
   const [staff, setStaff] = useState<Doctor[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]); // Added
   const [tasks, setTasks] = useState<Task[]>([]);
   const [beds, setBeds] = useState<Bed[]>([]);
   const [notices, setNotices] = useState<Notice[]>([]);
@@ -123,17 +132,17 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     try {
       const [
-        p, a, i, inv, amb, s, t, b, n, l, r, ref, mc, rt, mp, q, bu, bb, bd, br
+        p, a, i, inv, amb, s, dep, t, b, n, l, r, ref, mc, rt, mp, q, bu, bb, bd, br
       ] = await Promise.all([
         patientsAPI.list(), appointmentsAPI.list(), invoicesAPI.list(), inventoryAPI.list(), ambulancesAPI.list(),
-        staffAPI.list(), tasksAPI.list(), bedsAPI.list(), noticesAPI.list(), labRequestsAPI.list(),
+        staffAPI.list(), departmentsAPI.list(), tasksAPI.list(), bedsAPI.list(), noticesAPI.list(), labRequestsAPI.list(),
         radiologyAPI.list(), referralsAPI.list(), certificatesAPI.list(), researchTrialsAPI.list(),
         maternityAPI.list(), opdQueueAPI.list(), bloodUnitsAPI.list(), bloodBagsAPI.list(),
         bloodDonorsAPI.list(), bloodRequestsAPI.list()
       ]);
 
       setPatients(p); setAppointments(a); setInvoices(i); setInventory(inv);
-      setAmbulances(amb); setStaff(s); setTasks(t); setBeds(b); setNotices(n);
+      setAmbulances(amb); setStaff(s); setDepartments(dep); setTasks(t); setBeds(b); setNotices(n);
       setLabRequests(l); setRadiologyRequests(r); setReferrals(ref); setMedicalCertificates(mc);
       setResearchTrials(rt); setMaternityPatients(mp); setOpdQueue(q);
       setBloodUnits(bu); setBloodBags(bb); setBloodDonors(bd); setBloodRequests(br);
@@ -200,7 +209,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const addInvoice = (item: Invoice) => createItem(invoicesAPI, item, setInvoices);
   const addInventoryItem = (item: InventoryItem) => createItem(inventoryAPI, item, setInventory);
   const addAmbulance = (item: Ambulance) => createItem(ambulancesAPI, item, setAmbulances);
+
   const addStaff = (item: Doctor) => createItem(staffAPI, item, setStaff);
+  const updateStaff = (id: string, updates: Partial<Doctor>) => updateItem(staffAPI, id, updates, setStaff);
+  const deleteStaff = (id: string) => deleteItem(staffAPI, id, setStaff);
+
+  const addDepartment = (item: Department) => createItem(departmentsAPI, item, setDepartments);
+  const updateDepartment = (id: string, updates: Partial<Department>) => updateItem(departmentsAPI, id, updates, setDepartments);
+  const deleteDepartment = (id: string) => deleteItem(departmentsAPI, id, setDepartments);
 
   const addTask = (item: Task) => createItem(tasksAPI, item, setTasks);
   const updateTask = (id: string, updates: Partial<Task>) => updateItem<Task>(tasksAPI, id, updates, setTasks);
@@ -245,13 +261,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   return (
     <DataContext.Provider value={{
-      patients, appointments, invoices, inventory, ambulances, staff, tasks, beds, notices,
+      patients, appointments, invoices, inventory, ambulances, staff, departments, tasks, beds, notices,
       labRequests, radiologyRequests, referrals, medicalCertificates, researchTrials,
       maternityPatients, opdQueue, bloodUnits, bloodBags, bloodDonors, bloodRequests,
       isLoading, refreshData,
       addPatient, updatePatient, deletePatient, archivePatient, restorePatient,
       addAppointment, updateAppointment, deleteAppointment,
-      addInvoice, addInventoryItem, addAmbulance, addStaff,
+      addInvoice, addInventoryItem, addAmbulance,
+      addStaff, updateStaff, deleteStaff,
+      addDepartment, updateDepartment, deleteDepartment,
       addTask, updateTask, deleteTask, updateTaskStatus,
       addNotice, updateNotice, deleteNotice,
       updateBedStatus,
