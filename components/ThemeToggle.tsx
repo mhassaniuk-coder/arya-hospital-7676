@@ -83,13 +83,14 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
         if (theme === 'system') {
             return <Monitor className={sizeConfig[size].icon} />;
         }
-        return isDark ? <Sun className={sizeConfig[size].icon} /> : <Moon className={sizeConfig[size].icon} />;
+        // Show the icon representing what's CURRENTLY active, not what will happen next
+        return theme === 'light' ? <Sun className={sizeConfig[size].icon} /> : <Moon className={sizeConfig[size].icon} />;
     };
 
     // Get current theme label
     const getCurrentLabel = () => {
         if (theme === 'system') return 'System';
-        return isDark ? 'Dark' : 'Light';
+        return theme === 'light' ? 'Light' : 'Dark';
     };
 
     // Handle keyboard navigation for dropdown
