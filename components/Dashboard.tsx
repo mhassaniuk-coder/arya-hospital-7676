@@ -711,8 +711,8 @@ const Dashboard: React.FC = () => {
   if (user?.role === UserRole.PATIENT) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-foreground-primary">Patient Portal</h1>
-        <p className="text-foreground-secondary">Welcome back, {user.name}. Track your health journey here.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Patient Portal</h1>
+        <p className="text-slate-600 dark:text-slate-400">Welcome back, {user.name}. Track your health journey here.</p>
         <PatientDashboard />
       </div>
     );
@@ -721,8 +721,8 @@ const Dashboard: React.FC = () => {
   if (user?.role && ![UserRole.ADMIN, UserRole.DOCTOR, UserRole.ACCOUNTANT, UserRole.RECEPTIONIST].includes(user.role)) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-foreground-primary">Staff Dashboard</h1>
-        <p className="text-foreground-secondary">Welcome back, {user.name}. Here are your tasks for today.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Staff Dashboard</h1>
+        <p className="text-slate-600 dark:text-slate-400">Welcome back, {user.name}. Here are your tasks for today.</p>
         <StaffDashboard role={user.role} />
       </div>
     );
@@ -731,8 +731,8 @@ const Dashboard: React.FC = () => {
   if (user?.role === UserRole.ADMIN) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-foreground-primary">System Administration</h1>
-        <p className="text-foreground-secondary">Welcome back, Administrator. Monitoring active sessions and system health.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">System Administration</h1>
+        <p className="text-slate-600 dark:text-slate-400">Welcome back, Administrator. Monitoring active sessions and system health.</p>
         <AdminDashboard />
       </div>
     );
@@ -744,8 +744,8 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground-primary">Hospital Overview</h1>
-          <p className="text-foreground-secondary">Welcome back, {user?.name || 'Dr. Chen'}. Here's what's happening today.</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Hospital Overview</h1>
+          <p className="text-slate-600 dark:text-slate-400">Welcome back, {user?.name || 'Dr. Chen'}. Here's what's happening today.</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <button
@@ -757,7 +757,7 @@ const Dashboard: React.FC = () => {
           </button>
           <button
             onClick={handleDownload}
-            className="px-4 py-2 bg-background-secondary border border-border text-foreground-secondary rounded-lg hover:bg-background-tertiary text-sm font-medium theme-transition"
+            className="px-4 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-sm font-medium transition-colors"
           >
             Download Report
           </button>
@@ -1252,18 +1252,18 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Readmission Risk Predictor Panel */}
-      <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition mt-6">
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 transition-colors mt-6">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
               <HeartPulse className="text-purple-600 dark:text-purple-400" size={20} />
             </div>
             <div>
-              <h3 className="font-bold text-foreground-primary flex items-center gap-2">
+              <h3 className="font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
                 Readmission Risk Predictor
                 <span className="text-xs bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full">AI-Powered</span>
               </h3>
-              <p className="text-xs text-foreground-secondary">30-day readmission risk assessment</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">30-day readmission risk assessment</p>
             </div>
           </div>
           <button
@@ -1293,25 +1293,25 @@ const Dashboard: React.FC = () => {
                   <p className="text-xs text-foreground-muted capitalize mt-1">{readmissionResult.riskLevel.replace('_', ' ')} Risk</p>
                 </div>
               </div>
-              <div className="p-4 bg-background-primary rounded-xl theme-transition">
+              <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl transition-colors">
                 <div className="text-center">
-                  <p className="text-sm text-foreground-secondary mb-1">Readmission Probability</p>
-                  <p className="text-2xl font-bold text-foreground-primary">{(readmissionResult.predictedReadmissionProbability * 100).toFixed(1)}%</p>
-                  <p className="text-xs text-foreground-muted mt-1">30-day predicted</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Readmission Probability</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">{(readmissionResult.predictedReadmissionProbability * 100).toFixed(1)}%</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">30-day predicted</p>
                 </div>
               </div>
-              <div className="p-4 bg-background-primary rounded-xl theme-transition">
+              <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl transition-colors">
                 <div className="text-center">
-                  <p className="text-sm text-foreground-secondary mb-1">Confidence Interval</p>
-                  <p className="text-2xl font-bold text-foreground-primary">{readmissionResult.confidenceInterval.lower}% - {readmissionResult.confidenceInterval.upper}%</p>
-                  <p className="text-xs text-foreground-muted mt-1">95% CI</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Confidence Interval</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">{readmissionResult.confidenceInterval.lower}% - {readmissionResult.confidenceInterval.upper}%</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">95% CI</p>
                 </div>
               </div>
             </div>
 
             {/* Top Risk Factors */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-foreground-primary">Top Risk Factors</h4>
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Top Risk Factors</h4>
               <div className="flex flex-wrap gap-2">
                 {readmissionResult.topRiskFactors.map((factor, idx) => (
                   <span key={idx} className="px-3 py-1 bg-danger-light text-danger-dark rounded-full text-xs font-medium">
@@ -1323,11 +1323,11 @@ const Dashboard: React.FC = () => {
 
             {/* Preventive Interventions */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-foreground-primary">Recommended Interventions</h4>
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Recommended Interventions</h4>
               {readmissionResult.preventiveInterventions.slice(0, 3).map((intervention, idx) => (
                 <div key={idx} className={`p-3 rounded-lg ${intervention.priority === 'critical' ? 'bg-danger-light border border-red-200 dark:border-red-800' :
                   intervention.priority === 'high' ? 'bg-warning-light border border-orange-200 dark:border-orange-800' :
-                    'bg-background-primary theme-transition'
+                    'bg-slate-50 dark:bg-slate-900/50 transition-colors'
                   }`}>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-foreground-primary">{intervention.intervention}</span>

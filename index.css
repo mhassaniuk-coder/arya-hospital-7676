@@ -4,6 +4,11 @@
    NexusHealth HMS - Ultra-Premium Design System
    ============================================ */
 
+/* Ensure body responds to theme */
+body {
+  @apply bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300;
+}
+
 /* Transition Helper */
 @layer utilities {
   .theme-transition {
