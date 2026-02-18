@@ -280,6 +280,8 @@ function DashboardLayout() {
           }
         })()}
       </Suspense>
+        </motion.div>
+      </AnimatePresence>
     );
   };
 
