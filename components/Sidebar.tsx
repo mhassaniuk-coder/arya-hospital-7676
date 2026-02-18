@@ -121,7 +121,7 @@ const MENU_GROUPS = [
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setIsOpen, isMobile = false }) => {
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme, setTheme, isDark } = useTheme();
 
   // Role-based filtering
   const getFilteredMenu = () => {
@@ -344,21 +344,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
             <div className="flex justify-center">
               <button
                 onClick={() => {
-                  const { toggleTheme } = require('../src/contexts/ThemeContext');
-                  // Using ThemeToggle component would be better, but showing direct implementation
-                  const html = document.documentElement;
-                  if (html.classList.contains('dark')) {
-                    html.classList.remove('dark');
-                    localStorage.setItem('nexushealth-theme', 'light');
-                  } else {
-                    html.classList.add('dark');
-                    localStorage.setItem('nexushealth-theme', 'dark');
-                  }
+                  if (theme === 'light') setTheme('dark');
+                  else if (theme === 'dark') setTheme('system');
+                  else setTheme('light');
                 }}
                 className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-teal-500 transition-colors"
-                title="Toggle theme"
+                title={`Theme: ${theme} (click to change)`}
               >
-                {typeof window !== 'undefined' && document.documentElement.classList.contains('dark') ? (
+                {isDark ? (
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 1.78a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm2.828 2.828a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM10 7a3 3 0 100 6 3 3 0 000-6zm-7 3a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm14 0a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-11.22 5.22a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm2.828 2.828a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1z" clipRule="evenodd" />
                   </svg>
@@ -382,19 +375,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
             {/* Theme Toggle Button */}
             <button
               onClick={() => {
-                const html = document.documentElement;
-                if (html.classList.contains('dark')) {
-                  html.classList.remove('dark');
-                  localStorage.setItem('nexushealth-theme', 'light');
-                } else {
-                  html.classList.add('dark');
-                  localStorage.setItem('nexushealth-theme', 'dark');
-                }
+                if (theme === 'light') setTheme('dark');
+                else if (theme === 'dark') setTheme('system');
+                else setTheme('light');
               }}
               className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors text-sm font-medium"
-              title="Toggle theme"
+              title={`Theme: ${theme} (click to change)`}
             >
-              {typeof window !== 'undefined' && document.documentElement.classList.contains('dark') ? (
+              {isDark ? (
                 <>
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 1.78a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm2.828 2.828a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM10 7a3 3 0 100 6 3 3 0 000-6zm-7 3a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm14 0a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-11.22 5.22a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm2.828 2.828a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1z" clipRule="evenodd" />
