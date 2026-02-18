@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User, UserRole } from '../../types';
-import { authAPI, setToken, getToken } from '../../services/apiClient';
+import { authAPI, setToken, getToken, setDemoRole } from '../../services/apiClient';
 
 interface LoginRecord {
   id: string;
@@ -101,6 +101,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = () => {
     setToken(null);
     setUser(null);
+    setDemoRole(null); // Clear demo role on logout
     // Update history
     if (user) {
       const updatedHistory = loginHistory.map((record, index) => {

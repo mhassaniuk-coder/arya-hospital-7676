@@ -32,14 +32,20 @@ export const setToken = (token: string | null) => {
 export const getToken = () => accessToken;
 
 // ── Core Fetch Wrapper ──
-// Store the selected role for demo mode login
-let selectedDemoRole: UserRole | null = null;
+// Store the selected role for demo mode login (persisted to localStorage)
+const DEMO_ROLE_KEY = 'nexus_demo_role';
 
 export const setDemoRole = (role: UserRole | null) => {
-    selectedDemoRole = role;
+    if (role) {
+        localStorage.setItem(DEMO_ROLE_KEY, role);
+    } else {
+        localStorage.removeItem(DEMO_ROLE_KEY);
+    }
 };
 
-export const getDemoRole = () => selectedDemoRole;
+export const getDemoRole = (): UserRole | null => {
+    return localStorage.getItem(DEMO_ROLE_KEY) as UserRole | null;
+};
 
 async function request<T>(
     endpoint: string,
@@ -57,10 +63,14 @@ async function request<T>(
                     let user = Mocks.MOCK_USERS[0]; // Default to Admin
                     try {
                         const body = options.body ? JSON.parse(options.body as string) : {};
-                        const requestedRole = body.role || selectedDemoRole;
+                        const requestedRole = body.role || getDemoRole();
                         if (requestedRole) {
                             const foundUser = Mocks.getMockUserByRole(requestedRole as UserRole);
-                            if (foundUser) user = foundUser;
+                            if (foundUser) {
+                                user = foundUser;
+                                // Persist the role for future requests
+                                setDemoRole(requestedRole as UserRole);
+                            }
                         }
                     } catch (e) {
                         // Use default user if parsing fails
@@ -83,7 +93,8 @@ async function request<T>(
                 }
                 if (endpoint === '/auth/me') {
                     // Return user based on stored role or default
-                    const user = selectedDemoRole ? Mocks.getMockUserByRole(selectedDemoRole) || Mocks.MOCK_USERS[0] : Mocks.MOCK_USERS[0];
+                    const storedRole = getDemoRole();
+                    const user = storedRole ? Mocks.getMockUserByRole(storedRole) || Mocks.MOCK_USERS[0] : Mocks.MOCK_USERS[0];
                     return resolve(user as any);
                 }
 
