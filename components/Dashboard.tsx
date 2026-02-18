@@ -50,6 +50,7 @@ import { useTheme } from '../src/contexts/ThemeContext';
 import { useNav } from '../src/contexts/NavContext';
 import { usePatientFlowAnalytics } from '../hooks/useAI';
 import { detectDiseaseOutbreak, analyzeHealthTrends, predictReadmissionRisk } from '../services/aiService';
+import { motion } from 'framer-motion';
 
 const data: ChartDataPoint[] = [
   { name: 'Mon', patients: 40, appointments: 24 },
@@ -62,22 +63,27 @@ const data: ChartDataPoint[] = [
 ];
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, trend, trendUp, icon, color }) => (
-  <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border hover:shadow-md theme-transition">
-    <div className="flex justify-between items-start mb-4">
-      <div className={`p-3 rounded-xl ${color} bg-opacity-10 dark:bg-opacity-20`}>
-        {/* Fix: Explicitly type the icon as ReactElement with className to satisfy TS */}
+  <motion.div
+    whileHover={{ y: -5 }}
+    className="glass-panel p-6 rounded-2xl relative overflow-hidden group"
+  >
+    {/* Background Glow */}
+    <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full ${color.replace('bg-', 'bg-opacity-10 bg-')} blur-2xl group-hover:scale-150 transition-transform duration-500`}></div>
+
+    <div className="flex justify-between items-start mb-4 relative z-10">
+      <div className={`p-3 rounded-xl ${color} bg-opacity-10 dark:bg-opacity-20 backdrop-blur-sm`}>
         {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: `text-${color.replace('bg-', '')}-600 dark:text-${color.replace('bg-', '')}-400` })}
       </div>
       {trend && (
-        <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${trendUp ? 'bg-success-light text-success-dark' : 'bg-danger-light text-danger-dark'}`}>
+        <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full border ${trendUp ? 'bg-success-light border-success/20 text-success-dark' : 'bg-red-50 border-red-200 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300'}`}>
           {trendUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
           {trend}
         </div>
       )}
     </div>
-    <h3 className="text-foreground-secondary text-sm font-medium mb-1">{title}</h3>
-    <p className="text-2xl font-bold text-foreground-primary">{value}</p>
-  </div>
+    <h3 className="text-foreground-secondary text-sm font-medium mb-1 relative z-10">{title}</h3>
+    <p className="text-2xl font-bold text-foreground-primary relative z-10">{value}</p>
+  </motion.div>
 );
 
 const PatientDashboard: React.FC = () => {
@@ -107,17 +113,20 @@ const PatientDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition">
-          <h2 className="text-lg font-bold text-foreground-primary mb-4">My Appointments</h2>
-          <div className="space-y-4">
+        <div className="glass-panel p-6 rounded-2xl">
+          <h2 className="text-lg font-bold text-foreground-primary mb-4 flex items-center gap-2">
+            <Calendar className="text-accent" size={20} />
+            My Appointments
+          </h2>
+          <div className="space-y-3">
             {appointments.slice(0, 3).map((apt) => (
-              <div key={apt.id} className="flex items-center gap-4 p-3 rounded-xl bg-background-primary border border-border theme-transition">
-                <div className="bg-background-secondary text-accent w-12 h-12 rounded-lg flex flex-col items-center justify-center font-bold text-sm border border-accent/20 shadow-sm">
+              <div key={apt.id} className="flex items-center gap-4 p-4 rounded-xl bg-background-primary/50 border border-border hover:border-accent/50 transition-colors group">
+                <div className="bg-background-secondary text-accent w-12 h-12 rounded-lg flex flex-col items-center justify-center font-bold text-sm border border-border shadow-sm group-hover:scale-105 transition-transform">
                   <span>{apt.time.split(' ')[0]}</span>
-                  <span className="text-xs font-normal">{apt.time.split(' ')[1]}</span>
+                  <span className="text-xs font-normal opacity-70">{apt.time.split(' ')[1]}</span>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-foreground-primary">{apt.type}</h4>
+                  <h4 className="font-semibold text-foreground-primary group-hover:text-accent transition-colors">{apt.type}</h4>
                   <p className="text-xs text-foreground-secondary">Dr. {apt.doctorName}</p>
                 </div>
                 <div className={`px-3 py-1 text-xs font-medium rounded-full ${apt.status === 'Confirmed' ? 'bg-success-light text-success-dark' : 'bg-warning-light text-warning-dark'}`}>
@@ -128,28 +137,35 @@ const PatientDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition">
-          <h2 className="text-lg font-bold text-foreground-primary mb-4">Recent Vitals</h2>
+        <div className="glass-panel p-6 rounded-2xl">
+          <h2 className="text-lg font-bold text-foreground-primary mb-4 flex items-center gap-2">
+            <Activity className="text-red-500" size={20} />
+            Recent Vitals
+          </h2>
           <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 border-b border-border">
+            <div className="flex justify-between items-center p-4 bg-background-primary/30 rounded-xl border border-border">
               <div className="flex items-center gap-3">
-                <Activity size={20} className="text-red-500" />
+                <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400">
+                  <HeartPulse size={20} />
+                </div>
                 <div>
                   <p className="text-sm font-medium text-foreground-primary">Heart Rate</p>
                   <p className="text-xs text-foreground-muted">Today, 9:00 AM</p>
                 </div>
               </div>
-              <span className="text-lg font-bold text-foreground-primary">72 bpm</span>
+              <span className="text-lg font-bold text-foreground-primary">72 <span className="text-xs text-foreground-muted font-normal">bpm</span></span>
             </div>
-            <div className="flex justify-between items-center p-3 border-b border-border">
+            <div className="flex justify-between items-center p-4 bg-background-primary/30 rounded-xl border border-border">
               <div className="flex items-center gap-3">
-                <Activity size={20} className="text-blue-500" />
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                  <Activity size={20} />
+                </div>
                 <div>
                   <p className="text-sm font-medium text-foreground-primary">Blood Pressure</p>
                   <p className="text-xs text-foreground-muted">Today, 9:00 AM</p>
                 </div>
               </div>
-              <span className="text-lg font-bold text-foreground-primary">120/80</span>
+              <span className="text-lg font-bold text-foreground-primary">120/80 <span className="text-xs text-foreground-muted font-normal">mmHg</span></span>
             </div>
           </div>
         </div>
@@ -170,7 +186,9 @@ const StaffDashboard: React.FC<{ role: string }> = ({ role }) => {
         />
         <StatCard
           title="Next Shift"
-          value="Tomorrow"
+          value="08:00"
+          trend="Tomorrow"
+          trendUp={true}
           icon={<Clock size={24} />}
           color="bg-teal-500"
         />
@@ -182,17 +200,19 @@ const StaffDashboard: React.FC<{ role: string }> = ({ role }) => {
         />
       </div>
 
-      <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition">
+      <div className="glass-panel p-6 rounded-2xl">
         <h2 className="text-lg font-bold text-foreground-primary mb-4">My Tasks - {role}</h2>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center gap-3 p-3 hover:bg-background-tertiary rounded-lg theme-transition border border-transparent hover:border-border">
-              <input type="checkbox" className="w-5 h-5 text-accent rounded focus:ring-accent" />
+            <div key={i} className="flex items-center gap-3 p-3 hover:bg-background-tertiary rounded-xl transition-colors border border-transparent hover:border-border cursor-pointer group">
+              <div className={`w-5 h-5 rounded-md border-2 border-foreground-muted flex items-center justify-center group-hover:border-accent`}>
+                <div className="w-2.5 h-2.5 rounded-[2px] bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-foreground-primary">Complete daily report for {role} department</p>
+                <p className="text-sm font-medium text-foreground-primary group-hover:text-accent transition-colors">Complete daily report for {role} department</p>
                 <p className="text-xs text-foreground-secondary">Due: 5:00 PM</p>
               </div>
-              <span className="px-2 py-1 bg-warning-light text-warning-dark text-xs rounded-md">Pending</span>
+              <span className="px-2 py-1 bg-warning-light text-warning-dark text-xs font-medium rounded-lg">Pending</span>
             </div>
           ))}
         </div>

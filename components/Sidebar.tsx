@@ -1,397 +1,366 @@
 import React, { useState } from 'react';
 import {
-  LayoutDashboard,
-  Users,
-  Stethoscope,
-  Calendar,
-  Activity,
-  Brain,
-  BedDouble,
-  Pill,
-  CreditCard,
-  UserCog,
-  LogOut,
-  X,
-  Truck,
-  Droplet,
-  Building2,
-  CheckSquare,
-  FileHeart,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  Scissors,
-  Wrench,
-  Clock,
-  ShieldCheck,
-  UtensilsCrossed,
-  Brush,
-  Ticket,
-  Syringe,
-  MessageSquare,
-  Megaphone,
-  FlaskConical,
-  Scan,
-  ShoppingBag,
-  Video,
-  Coffee,
-  Shirt,
-  Skull,
-  PartyPopper,
-  HelpCircle,
-  Car,
-  Trash2,
-  Accessibility,
-  Flame,
-  LifeBuoy,
-  Baby,
-  FileWarning,
-  Book,
-  Heart,
-  Headphones,
-  Scale,
-  ListOrdered,
-  Share2,
-  FileBadge,
-  ScrollText,
-  Shield,
-  GraduationCap,
-  Hammer,
-  Move,
-  Microscope,
-  Briefcase,
-  UserPlus,
-  Receipt,
-  PiggyBank,
-  DollarSign,
-  Radio
+  LayoutDashboard, Users, Calendar, BarChart2, Settings,
+  FileText, Pill, ClipboardList, Menu, X, ChevronLeft, ChevronRight,
+  Truck, Thermometer, Activity, Shield, Phone, Coffee,
+  Database, Globe, MapPin, Briefcase, DollarSign, PenTool,
+  Clock, Heart, Zap, Lock, Grid, Speaker, Radio,
+  Trash2, AlertTriangle, UserPlus, FileCheck, Stethoscope,
+  Microscope, Building2, Ticket, Car, Baby, Search, Sparkles, Bell, Box, Book,
+  CheckSquare, Megaphone, BedDouble, Scissors, Syringe, FileBadge,
+  Skull, Droplet, UtensilsCrossed, Brush, Shirt, UserCog, CreditCard,
+  ShieldCheck, ShoppingBag, Wrench, PartyPopper, HelpCircle, MessageSquare,
+  LogOut, GraduationCap, Video, FlaskConical, Scan, Share2, Move, Flame,
+  Hammer, Headphones, Receipt, PiggyBank, LifeBuoy, Scale, ScrollText, FileWarning
 } from 'lucide-react';
 import { useAuth } from '../src/contexts/AuthContext';
+import { useTheme } from '../src/contexts/ThemeContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import { UserRole } from '../types';
-import LogoutModal from './LogoutModal';
-import ThemeToggle from './ThemeToggle';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  isMobile?: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setIsOpen }) => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+const MENU_GROUPS = [
+  {
+    title: 'Overview',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { id: 'analytics', label: 'Analytics', icon: BarChart2 },
+      { id: 'schedule', label: 'Schedule', icon: Calendar },
+      { id: 'tasks', label: 'My Tasks', icon: ClipboardList },
+      { id: 'notices', label: 'Notice Board', icon: Bell },
+      { id: 'audit', label: 'Audit Logs', icon: FileCheck },
+      { id: 'security', label: 'Security Monitor', icon: Shield },
+    ]
+  },
+  {
+    title: 'Clinical',
+    items: [
+      { id: 'patients', label: 'Patients', icon: Users },
+      { id: 'clinical-ai', label: 'Clinical AI', icon: Sparkles },
+      { id: 'opd-queue', label: 'OPD Queue', icon: Clock },
+      { id: 'lab', label: 'Laboratory', icon: Microscope },
+      { id: 'radiology', label: 'Radiology', icon: Radio },
+      { id: 'pharmacy', label: 'Pharmacy', icon: Pill },
+      { id: 'blood-bank', label: 'Blood Bank', icon: Heart },
+      { id: 'ot', label: 'OT Management', icon: Activity },
+      { id: 'maternity', label: 'Maternity', icon: Baby },
+      { id: 'physio', label: 'Physiotherapy', icon: Activity },
+      { id: 'telemedicine', label: 'Telemedicine', icon: Phone },
+      { id: 'vaccination', label: 'Vaccination', icon: Stethoscope },
+      { id: 'records', label: 'Vital Records', icon: FileText },
+      { id: 'certificates', label: 'Med. Certificates', icon: FileCheck },
+      { id: 'research', label: 'Clinical Research', icon: Microscope },
+    ]
+  },
+  {
+    title: 'Services',
+    items: [
+      { id: 'ambulance', label: 'Ambulance', icon: Truck },
+      { id: 'mortuary', label: 'Mortuary', icon: AlertTriangle },
+      { id: 'cssd', label: 'CSSD Sterilization', icon: Thermometer },
+      { id: 'waste', label: 'Bio-Medical Waste', icon: Trash2 },
+      { id: 'dietary', label: 'Patient Diet', icon: Coffee },
+      { id: 'canteen', label: 'Canteen', icon: Coffee },
+      { id: 'housekeeping', label: 'Housekeeping', icon: Sparkles },
+      { id: 'facility', label: 'Maintenance', icon: PenTool },
+      { id: 'laundry', label: 'Laundry', icon: Shirt },
+      { id: 'call-center', label: 'Call Center', icon: Phone },
+      { id: 'intercom', label: 'Intercom/Paging', icon: Speaker },
+      { id: 'parking', label: 'Parking', icon: Car },
+      { id: 'transport', label: 'Transport', icon: Truck },
+      { id: 'lost-found', label: 'Lost & Found', icon: Search },
+      { id: 'donations', label: 'Donations', icon: Heart },
+      { id: 'library', label: 'Library', icon: Database },
+      { id: 'events', label: 'Events', icon: Calendar },
+      { id: 'help-desk', label: 'Help Desk', icon: UserPlus },
+    ]
+  },
+  {
+    title: 'Human Resources',
+    items: [
+      { id: 'staff', label: 'Staff Directory', icon: Users },
+      { id: 'roster', label: 'Shift Roster', icon: Calendar },
+      { id: 'leave', label: 'Leave Mgmt', icon: Calendar },
+      { id: 'payroll', label: 'Payroll', icon: DollarSign },
+      { id: 'attendance', label: 'Attendance', icon: Clock },
+      { id: 'recruitment', label: 'Recruitment', icon: Briefcase },
+      { id: 'training', label: 'Staff Training', icon: Book },
+    ]
+  },
+  {
+    title: 'Finance',
+    items: [
+      { id: 'billing', label: 'Billing', icon: DollarSign },
+      { id: 'insurance', label: 'Insurance Claims', icon: Shield },
+      { id: 'expenses', label: 'Expenses', icon: DollarSign },
+      { id: 'revenue', label: 'Revenue', icon: BarChart2 },
+      { id: 'procurement', label: 'Procurement', icon: Truck },
+      { id: 'assets', label: 'Asset Manager', icon: Box },
+    ]
+  },
+  {
+    title: 'Administration',
+    items: [
+      { id: 'departments', label: 'Departments', icon: Building2 },
+      { id: 'beds', label: 'Bed Management', icon: Grid },
+      { id: 'referrals', label: 'Referral System', icon: Users },
+      { id: 'visitors', label: 'Visitor Pass', icon: Ticket },
+      { id: 'legal', label: 'Legal/Compliance', icon: Lock },
+      { id: 'incidents', label: 'Incident Reporting', icon: AlertTriangle },
+      { id: 'settings', label: 'Settings', icon: Settings },
+    ]
+  }
+];
+
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setIsOpen, isMobile = false }) => {
   const { user } = useAuth();
+  const { theme } = useTheme();
 
-  // Grouped Menu Items for better organization
-  const menuGroups = [
-    {
-      title: "Overview",
-      items: [
-        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'analytics', label: 'Analytics', icon: <Activity size={20} /> },
-        { id: 'schedule', label: 'Schedule', icon: <Calendar size={20} /> },
-        { id: 'tasks', label: 'Tasks', icon: <CheckSquare size={20} /> },
-        { id: 'notices', label: 'Notice Board', icon: <Megaphone size={20} /> },
-      ]
-    },
-    {
-      title: "Clinical",
-      items: [
-        { id: 'patients', label: 'Patients', icon: <Users size={20} /> },
-        { id: 'clinical-ai', label: 'Clinical AI', icon: <Stethoscope size={20} /> },
-        { id: 'opd-queue', label: 'OPD Queue', icon: <ListOrdered size={20} /> },
-        { id: 'maternity', label: 'Maternity', icon: <Baby size={20} /> },
-        { id: 'physio', label: 'Physiotherapy', icon: <Accessibility size={20} /> },
-        { id: 'telemedicine', label: 'Telemedicine', icon: <Video size={20} /> },
-        { id: 'lab', label: 'Lab & Pathology', icon: <FlaskConical size={20} /> },
-        { id: 'radiology', label: 'Radiology (PACS)', icon: <Scan size={20} /> },
-        { id: 'beds', label: 'Bed Management', icon: <BedDouble size={20} /> },
-        { id: 'ot', label: 'OT Management', icon: <Scissors size={20} /> },
-        { id: 'vaccination', label: 'Vaccination', icon: <Syringe size={20} /> },
-        { id: 'referrals', label: 'Referrals', icon: <Share2 size={20} /> },
-        { id: 'certificates', label: 'Medical Certs', icon: <FileBadge size={20} /> },
-        { id: 'research', label: 'Clinical Research', icon: <Microscope size={20} /> },
-        { id: 'records', label: 'Vital Records', icon: <FileHeart size={20} /> },
-        { id: 'mortuary', label: 'Mortuary', icon: <Skull size={20} /> },
-      ]
-    },
-    {
-      title: "Services",
-      items: [
-        { id: 'pharmacy', label: 'Pharmacy', icon: <Pill size={20} /> },
-        { id: 'blood-bank', label: 'Blood Bank', icon: <Droplet size={20} /> },
-        { id: 'ambulance', label: 'Ambulance', icon: <Truck size={20} /> },
-        { id: 'transport', label: 'Internal Transport', icon: <Move size={20} /> },
-        { id: 'cssd', label: 'CSSD Sterilization', icon: <Flame size={20} /> },
-        { id: 'waste', label: 'Bio-Medical Waste', icon: <Trash2 size={20} /> },
-        { id: 'dietary', label: 'Patient Diet', icon: <UtensilsCrossed size={20} /> },
-        { id: 'canteen', label: 'Canteen', icon: <Coffee size={20} /> },
-        { id: 'housekeeping', label: 'Housekeeping', icon: <Brush size={20} /> },
-        { id: 'facility', label: 'Maintenance', icon: <Hammer size={20} /> },
-        { id: 'laundry', label: 'Laundry', icon: <Shirt size={20} /> },
-        { id: 'call-center', label: 'Call Center', icon: <Headphones size={20} /> },
-        { id: 'intercom', label: 'Intercom / Paging', icon: <Radio size={20} /> },
-        { id: 'parking', label: 'Parking', icon: <Car size={20} /> },
-      ]
-    },
-    {
-      title: "Human Resources",
-      items: [
-        { id: 'staff', label: 'Staff Directory', icon: <UserCog size={20} /> },
-        { id: 'attendance', label: 'Attendance', icon: <Clock size={20} /> },
-        { id: 'payroll', label: 'Payroll', icon: <DollarSign size={20} /> }, // DollarSign needs import if not present, checking imports... it's not imported in Sidebar yet. Wait, I see CreditCard. Let's use Briefcase or similar if DollarSign is missing. Actually I can import DollarSign.
-        { id: 'leave', label: 'Leave Requests', icon: <Calendar size={20} /> },
-        { id: 'recruitment', label: 'Recruitment', icon: <UserPlus size={20} /> },
-        { id: 'training', label: 'Staff Training', icon: <GraduationCap size={20} /> },
-        { id: 'roster', label: 'Shift Roster', icon: <Clock size={20} /> },
-      ]
-    },
-    {
-      title: "Finance",
-      items: [
-        { id: 'billing', label: 'Billing', icon: <CreditCard size={20} /> },
-        { id: 'insurance', label: 'Insurance Claims', icon: <ShieldCheck size={20} /> },
-        { id: 'expenses', label: 'Expenses', icon: <Receipt size={20} /> },
-        { id: 'revenue', label: 'Revenue', icon: <PiggyBank size={20} /> },
-        { id: 'procurement', label: 'Procurement', icon: <ShoppingBag size={20} /> },
-        { id: 'assets', label: 'Asset Manager', icon: <Wrench size={20} /> },
-      ]
-    },
-    {
-      title: "Administration",
-      items: [
-        { id: 'departments', label: 'Departments', icon: <Building2 size={20} /> },
-        { id: 'help-desk', label: 'Help Desk (IT)', icon: <LifeBuoy size={20} /> },
-        { id: 'legal', label: 'Legal / MLC', icon: <Scale size={20} /> },
-        { id: 'security', label: 'Security Monitor', icon: <Shield size={20} /> },
-        { id: 'audit', label: 'Audit Logs', icon: <ScrollText size={20} /> },
-        { id: 'visitors', label: 'Visitor Pass', icon: <Ticket size={20} /> },
-        { id: 'events', label: 'Events & CME', icon: <PartyPopper size={20} /> },
-        { id: 'incidents', label: 'Incident Reporting', icon: <FileWarning size={20} /> },
-        { id: 'lost-found', label: 'Lost & Found', icon: <HelpCircle size={20} /> },
-        { id: 'library', label: 'Library', icon: <Book size={20} /> },
-        { id: 'donations', label: 'Donations', icon: <Heart size={20} /> },
-        { id: 'feedback', label: 'Feedback', icon: <MessageSquare size={20} /> },
-        { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
-      ]
-    }
-  ];
-
+  // Role-based filtering
   const getFilteredMenu = () => {
-    if (!user) return [];
-
     let allowedIds: string[] | 'all' = [];
 
-    switch (user.role) {
+    // Default assignments for common roles
+    switch (user?.role) {
       case UserRole.ADMIN:
         allowedIds = 'all';
         break;
       case UserRole.DOCTOR:
-        allowedIds = ['dashboard', 'analytics', 'schedule', 'tasks', 'notices', 'patients', 'clinical-ai', 'opd-queue', 'maternity', 'physio', 'telemedicine', 'lab', 'radiology', 'beds', 'ot', 'vaccination', 'referrals', 'certificates', 'research', 'records', 'mortuary', 'settings'];
+        allowedIds = ['dashboard', 'clinical-ai', 'patients', 'schedule', 'tasks', 'notices', 'opd-queue', 'lab', 'radiology', 'pharmacy', 'ot', 'records', 'research', 'telemedicine', 'certificates'];
         break;
       case UserRole.NURSE:
-        allowedIds = ['dashboard', 'schedule', 'tasks', 'notices', 'patients', 'opd-queue', 'maternity', 'vaccination', 'beds', 'records', 'dietary', 'intercom', 'settings'];
+        allowedIds = ['dashboard', 'patients', 'schedule', 'tasks', 'notices', 'beds', 'vitals', 'vaccination', 'dietary', 'maternity', 'housekeeping', 'laundry', 'incidents'];
         break;
       case UserRole.PHARMACIST:
-        allowedIds = ['dashboard', 'tasks', 'notices', 'pharmacy', 'inventory', 'procurement', 'settings'];
-        break;
-      case UserRole.LAB_TECHNICIAN:
-        allowedIds = ['dashboard', 'tasks', 'notices', 'lab', 'blood-bank', 'waste', 'settings'];
-        break;
-      case UserRole.RADIOLOGIST:
-        allowedIds = ['dashboard', 'tasks', 'notices', 'radiology', 'waste', 'settings'];
-        break;
-      case UserRole.ACCOUNTANT:
-        allowedIds = ['dashboard', 'tasks', 'notices', 'billing', 'insurance', 'procurement', 'assets', 'settings'];
+        allowedIds = ['dashboard', 'pharmacy', 'tasks', 'notices', 'procurement', 'billing'];
         break;
       case UserRole.RECEPTIONIST:
-        allowedIds = ['dashboard', 'schedule', 'tasks', 'notices', 'patients', 'opd-queue', 'visitors', 'call-center', 'intercom', 'lost-found', 'feedback', 'settings'];
+        allowedIds = ['dashboard', 'patients', 'schedule', 'tasks', 'notices', 'billing', 'visitors', 'opd-queue', 'referrals', 'call-center', 'help-desk', 'lost-found'];
+        break;
+      case UserRole.LAB_TECHNICIAN:
+        allowedIds = ['dashboard', 'lab', 'tasks', 'notices', 'records'];
+        break;
+      case UserRole.RADIOLOGIST:
+        allowedIds = ['dashboard', 'radiology', 'tasks', 'notices', 'records'];
+        break;
+      case UserRole.ACCOUNTANT:
+        allowedIds = ['dashboard', 'billing', 'insurance', 'expenses', 'revenue', 'payroll', 'assets', 'procurement', 'tasks', 'notices'];
         break;
       case UserRole.HR_MANAGER:
-        allowedIds = ['dashboard', 'tasks', 'notices', 'staff', 'attendance', 'payroll', 'leave', 'recruitment', 'training', 'roster', 'departments', 'events', 'settings'];
+        allowedIds = ['dashboard', 'staff', 'roster', 'leave', 'payroll', 'attendance', 'recruitment', 'training', 'tasks', 'notices', 'incidents', 'legal'];
         break;
       case UserRole.FACILITY_MANAGER:
-        allowedIds = ['dashboard', 'tasks', 'notices', 'ambulance', 'transport', 'cssd', 'waste', 'dietary', 'canteen', 'housekeeping', 'facility', 'laundry', 'parking', 'security', 'incidents', 'settings'];
-        break;
-      case UserRole.KITCHEN_MANAGER:
-        allowedIds = ['dashboard', 'tasks', 'notices', 'dietary', 'canteen', 'settings'];
-        break;
-      case UserRole.EMERGENCY_MANAGER:
-        allowedIds = ['dashboard', 'tasks', 'notices', 'ambulance', 'transport', 'incidents', 'security', 'settings'];
-        break;
-      case UserRole.RESEARCHER:
-        allowedIds = ['dashboard', 'tasks', 'notices', 'research', 'library', 'settings'];
-        break;
-      case UserRole.PATIENT:
-        allowedIds = ['dashboard', 'schedule', 'tasks', 'notices', 'billing', 'feedback', 'telemedicine', 'settings'];
+        allowedIds = ['dashboard', 'facility', 'housekeeping', 'canteen', 'dietary', 'laundry', 'waste', 'security', 'transport', 'parking', 'fire-safety', 'assets', 'tasks', 'notices'];
         break;
       default:
-        allowedIds = [];
+        // Fallback for other roles or unassigned
+        allowedIds = ['dashboard', 'tasks', 'notices'];
     }
 
-    if (allowedIds === 'all') return menuGroups;
-
-    return menuGroups.map(group => ({
+    return MENU_GROUPS.map(group => ({
       ...group,
-      items: group.items.filter(item => allowedIds.includes(item.id))
+      items: group.items.filter(item => allowedIds === 'all' || allowedIds.includes(item.id))
     })).filter(group => group.items.length > 0);
   };
 
-  const filteredMenuGroups = getFilteredMenu();
+  const menu = getFilteredMenu();
 
-  const handleNavClick = (id: string) => {
-    setActiveTab(id);
-    if (window.innerWidth < 768) {
-      setIsOpen(false);
+  // Sidebar Framer Motion Variants
+  const sidebarVariants = {
+    open: {
+      width: "280px",
+      x: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300, damping: 30 }
+    },
+    closed: {
+      width: "80px",
+      x: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300, damping: 30 }
+    },
+    mobileOpen: {
+      width: "280px",
+      x: 0,
+      opacity: 1,
+      position: "fixed",
+      zIndex: 50,
+      transition: { type: "spring", stiffness: 300, damping: 30 }
+    },
+    mobileClosed: {
+      width: "280px",
+      x: "-100%",
+      opacity: 0,
+      position: "fixed",
+      zIndex: 50,
+      transition: { type: "spring", stiffness: 300, damping: 30 }
     }
+  };
+
+  const itemVariants = {
+    open: { opacity: 1, x: 0, display: "block", transition: { delay: 0.1 } },
+    closed: { opacity: 0, x: -10, transitionEnd: { display: "none" } }
   };
 
   return (
     <>
       {/* Mobile Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {isMobile && isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm"
+          />
+        )}
+      </AnimatePresence>
 
       {/* Sidebar Container */}
-      <aside
-        className={`
-          fixed md:relative inset-y-0 left-0 z-50
-          bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300
-          transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] border-r border-slate-200 dark:border-slate-800
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:translate-x-0 flex flex-col h-full
-          ${collapsed ? 'w-20' : 'w-72'}
-          shadow-2xl md:shadow-none
+      <motion.aside
+        initial={false}
+        animate={isMobile ? (isOpen ? "mobileOpen" : "mobileClosed") : (isOpen ? "open" : "closed")}
+        variants={sidebarVariants}
+        className={`flex flex-col border-r border-slate-200 dark:border-slate-800 glass-panel h-screen
+          ${!isMobile ? 'sticky top-0' : 'fixed inset-y-0 left-0'}
         `}
       >
         {/* Header */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shrink-0">
-          <div className={`flex items-center gap-3 transition-all duration-300 ${collapsed ? 'justify-center w-full' : ''}`}>
-            <div className="shrink-0">
-              <img src="/arya-logo.svg" alt="Arya Hospital" className="h-10 w-10 object-contain rounded-lg shadow-sm" />
+        <div className="h-20 flex items-center justify-between px-6 border-b border-slate-200/50 dark:border-slate-800/50">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 bg-teal-500/30 blur-lg rounded-full animate-pulse"></div>
+              <img src="/arya-logo.svg" alt="Logo" className="w-9 h-9 relative z-10" />
             </div>
-            {!collapsed && (
-              <div className="flex flex-col overflow-hidden whitespace-nowrap">
-                <span className="text-lg font-bold text-slate-800 dark:text-white tracking-tight leading-none">Arya Hospital</span>
-                <span className="text-[10px] text-teal-600 dark:text-teal-500 font-bold tracking-[0.2em] uppercase mt-0.5">(HMS)</span>
-              </div>
-            )}
+            <motion.span
+              variants={itemVariants}
+              className="font-bold text-xl bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent whitespace-nowrap"
+            >
+              NexusHealth
+            </motion.span>
           </div>
-          <button onClick={() => setIsOpen(false)} className="md:hidden text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors">
-            <X size={24} />
-          </button>
+
+          {/* Toggle Button (Desktop) */}
+          {!isMobile && (
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-teal-500 transition-colors"
+            >
+              {isOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+            </button>
+          )}
+
+          {/* Close Button (Mobile) */}
+          {isMobile && (
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <X size={20} />
+            </button>
+          )}
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-3 custom-scrollbar space-y-6">
-          {filteredMenuGroups.map((group, groupIdx) => (
-            <div key={groupIdx} className="animate-fade-in" style={{ animationDelay: `${groupIdx * 50}ms` }}>
-              {!collapsed && (
-                <h3 className="px-4 mb-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider transition-opacity duration-300">
-                  {group.title}
-                </h3>
-              )}
-              {collapsed && groupIdx > 0 && <div className="h-px bg-slate-200 dark:bg-slate-800 my-4 mx-2" />}
+        {/* Scrollable Menu */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 space-y-6 custom-scrollbar">
+          {menu.map((group, idx) => (
+            <div key={idx}>
+              <motion.h3
+                variants={itemVariants}
+                className="px-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2"
+              >
+                {group.title}
+              </motion.h3>
 
               <div className="space-y-1">
-                {group.items.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`
-                      w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
-                      ${activeTab === item.id
-                        ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 shadow-sm'
-                        : 'hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}
-                      ${collapsed ? 'justify-center' : ''}
-                    `}
-                  >
-                    {/* Active Indicator */}
-                    {activeTab === item.id && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-teal-500 rounded-r-full shadow-[0_0_8px_rgba(20,184,166,0.5)]"></div>
-                    )}
+                {group.items.map((item) => {
+                  const isActive = activeTab === item.id;
+                  const Icon = item.icon;
 
-                    {/* Icon */}
-                    <div className={`${activeTab === item.id ? 'text-teal-600 dark:text-teal-400 drop-shadow-sm' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-white'} transition-colors duration-200 shrink-0`}>
-                      {item.icon}
-                    </div>
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveTab(item.id);
+                        if (isMobile) setIsOpen(false);
+                      }}
+                      className={`
+                        w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group relative
+                        ${isActive
+                          ? 'text-teal-600 dark:text-teal-400 font-medium'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200'
+                        }
+                      `}
+                    >
+                      {/* Active Indicator Glow */}
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 dark:from-teal-500/20 dark:to-emerald-500/20 rounded-xl border border-teal-100 dark:border-teal-900/30"
+                          initial={false}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        />
+                      )}
 
-                    {/* Label */}
-                    {!collapsed && (
-                      <span className="font-medium text-sm whitespace-nowrap">{item.label}</span>
-                    )}
+                      {/* Icon */}
+                      <span className={`relative z-10 ${isActive ? 'text-teal-500 dark:text-teal-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'}`}>
+                        <Icon size={20} className={isActive ? 'drop-shadow-sm' : ''} />
+                      </span>
 
-                    {/* Tooltip for Collapsed State */}
-                    {collapsed && (
-                      <div className="absolute left-full ml-4 px-2 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-xl border border-slate-700 transition-opacity duration-200 translate-x-1 group-hover:translate-x-0">
+                      {/* Label */}
+                      <motion.span
+                        variants={itemVariants}
+                        className="relative z-10 whitespace-nowrap"
+                      >
                         {item.label}
-                        {/* Tiny Arrow */}
-                        <div className="absolute top-1/2 right-full -translate-y-1/2 -mr-[1px] border-4 border-transparent border-r-slate-800"></div>
-                      </div>
-                    )}
-                  </button>
-                ))}
+                      </motion.span>
+
+                      {/* Tooltip for collapsed state */}
+                      {!isOpen && !isMobile && (
+                        <div className="absolute left-full ml-2 px-2 py-1 bg-slate-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-[60] shadow-lg">
+                          {item.label}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}
-        </nav>
-
-        {/* Footer / Toggle */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/30 shrink-0 relative">
-          {!collapsed ? (
-            <div className="space-y-3">
-              {/* Theme Toggle - Dropdown variant for full control */}
-              <ThemeToggle variant="dropdown" size="sm" showLabel direction="up" className="w-full" />
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors group cursor-pointer">
-                <div className="relative">
-                  <img src={user?.avatar || "https://ui-avatars.com/api/?name=User"} alt="User" className="w-9 h-9 rounded-full border border-teal-500/30" />
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
-                </div>
-                <div className="flex-1 overflow-hidden">
-                  <p className="text-sm font-bold text-slate-700 dark:text-white truncate group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{user?.name || 'User'}</p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user?.role || 'Guest'}</p>
-                </div>
-                <button onClick={() => setIsLogoutModalOpen(true)} className="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-colors" title="Logout">
-                  <LogOut size={16} />
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4">
-              {/* Theme Toggle (Collapsed) - Icon variant */}
-              <ThemeToggle variant="icon" size="sm" />
-
-              <div className="flex justify-center group relative">
-                <div className="relative cursor-pointer" onClick={() => setIsLogoutModalOpen(true)}>
-                  <img src={user?.avatar || "https://ui-avatars.com/api/?name=User"} alt="User" className="w-8 h-8 rounded-full border border-teal-500/30" />
-                  <span className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
-                </div>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap shadow-xl border border-slate-700 transition-opacity">
-                  Logout
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Collapse Toggle for Desktop */}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="hidden md:flex absolute -right-3 top-[-16px] bg-white dark:bg-[#0f172a] text-slate-400 border border-slate-200 dark:border-slate-700 w-6 h-6 rounded-full items-center justify-center hover:text-slate-900 dark:hover:text-white hover:bg-teal-50 dark:hover:bg-teal-600 hover:border-teal-500 transition-all shadow-lg z-50 transform hover:scale-110"
-            title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-          >
-            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-          </button>
         </div>
-      </aside>
 
-      {/* Logout Modal */}
-      {isLogoutModalOpen && <LogoutModal isOpen={isLogoutModalOpen} onClose={() => setIsLogoutModalOpen(false)} />}
+        {/* User Profile Snippet (Collapsed Mode) */}
+        {!isOpen && !isMobile && (
+          <div className="p-4 border-t border-slate-200/50 dark:border-slate-800/50 flex justify-center">
+            <div className="w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 font-bold text-xs ring-2 ring-white dark:ring-slate-900">
+              {user?.name.charAt(0)}
+            </div>
+          </div>
+        )}
+
+        {/* User Profile Snippet (Expanded Mode) */}
+        {(isOpen || isMobile) && (
+          <div className="p-4 border-t border-slate-200/50 dark:border-slate-800/50">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50">
+              <div className="w-9 h-9 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 font-bold ring-2 ring-white dark:ring-slate-900">
+                {user?.name.charAt(0)}
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{user?.name}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.role}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </motion.aside>
     </>
   );
 };

@@ -79,7 +79,7 @@ const AIAppointmentScheduler = lazyWithRetry(() => import('./components/AIAppoin
 const AIDischargeFollowUp = lazyWithRetry(() => import('./components/AIDischargeFollowUp'));
 const AIPatientFeedbackAnalyzer = lazyWithRetry(() => import('./components/AIPatientFeedbackAnalyzer'));
 
-import { Menu, Search, Bell, Plus, Calculator, Siren, LogOut, Loader2 } from 'lucide-react';
+import { Menu, Search, Bell, Plus, Calculator, Siren, LogOut, Loader2, Maximize2 } from 'lucide-react';
 import { useAuth } from './src/contexts/AuthContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { SearchProvider, useSearch } from './src/contexts/SearchContext';
@@ -90,27 +90,76 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 
 function HeaderSearch({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
   const { globalSearchQuery, setGlobalSearchQuery } = useSearch();
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
-    <div className="hidden md:flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full px-4 py-2 w-80 lg:w-96 focus-within:ring-2 focus-within:ring-teal-500 transition-all">
-      <Search size={18} className="text-slate-400" />
-      <input
-        type="text"
-        placeholder="Search patients, staff..."
-        value={globalSearchQuery}
-        onChange={(e) => setGlobalSearchQuery(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && globalSearchQuery.trim()) setActiveTab('patients');
-        }}
-        className="bg-transparent outline-none text-sm w-full text-slate-700 dark:text-slate-200 placeholder:text-slate-400"
-      />
-    </div>
+    <>
+      {/* Mobile Search Trigger */}
+      <button 
+        className="md:hidden btn-icon"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <Search size={20} />
+      </button>
+
+      {/* Desktop Search */}
+      <div className="hidden md:flex items-center gap-2 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-full px-4 py-2 w-64 lg:w-96 focus-within:ring-2 focus-within:ring-teal-500/50 transition-all shadow-sm hover:shadow-md">
+        <Search size={18} className="text-slate-400" />
+        <input
+          type="text"
+          placeholder="Search..."
+          value={globalSearchQuery}
+          onChange={(e) => setGlobalSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && globalSearchQuery.trim()) setActiveTab('patients');
+          }}
+          className="bg-transparent outline-none text-sm w-full text-slate-900 dark:text-white placeholder:text-slate-400"
+        />
+        <div className="flex gap-1">
+          <span className="text-[10px] bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400">⌘K</span>
+        </div>
+      </div>
+
+      {/* Mobile Search Overlay */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute top-16 left-0 right-0 p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xl z-20 md:hidden"
+          >
+            <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3">
+              <Search size={20} className="text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search everything..."
+                autoFocus
+                value={globalSearchQuery}
+                onChange={(e) => setGlobalSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setActiveTab('patients');
+                    setIsExpanded(false);
+                  }
+                }}
+                className="bg-transparent outline-none text-base w-full text-slate-900 dark:text-white"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
 function PageLoader() {
   return (
     <div className="flex h-full items-center justify-center">
-      <Loader2 className="w-10 h-10 text-teal-500 animate-spin" />
+      <div className="relative">
+        <div className="absolute inset-0 bg-accent/20 blur-xl rounded-full animate-pulse"></div>
+        <Loader2 className="w-10 h-10 text-accent animate-spin relative z-10" />
+      </div>
     </div>
   );
 }
@@ -118,17 +167,47 @@ function PageLoader() {
 function DashboardLayout() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isEmergencyActive, setIsEmergencyActive] = useState(false);
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Handle scroll effect for header
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    setScrolled(e.currentTarget.scrollTop > 20);
+  };
+
+  // Handle window resize for responsive sidebar
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) setIsSidebarOpen(false);
+      else setIsSidebarOpen(true);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const renderContent = () => {
     return (
-      <Suspense fallback={<PageLoader />}>
-        {(() => {
-          switch (activeTab) {
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+          className="page-transition-wrapper p-4 md:p-6 lg:p-8"
+        >
+          <Suspense fallback={<PageLoader />}>
+            {(() => {
+              switch (activeTab) {
             case 'dashboard': return <Dashboard />;
             case 'patients': return <PatientManager />;
             case 'clinical-ai': return <AIConsult />;
@@ -207,25 +286,36 @@ function DashboardLayout() {
   return (
     <SearchProvider>
       <NavProvider setActiveTab={setActiveTab}>
-        <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans theme-transition">
+        <div className="flex h-screen bg-background text-foreground-primary overflow-hidden font-sans theme-transition">
           {/* Emergency Overlay */}
-          {isEmergencyActive && (
-            <div className="fixed inset-0 z-[60] bg-red-600/90 animate-pulse flex items-center justify-center pointer-events-auto">
-              <div className="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-lg w-full mx-4 animate-bounce-short">
-                <div className="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Siren size={40} className="text-red-600" />
-                </div>
-                <h1 className="text-4xl font-black text-red-600 mb-2 uppercase tracking-wider">Code Blue</h1>
-                <p className="text-slate-600 mb-8 font-medium text-lg">Emergency Alert Broadcasted to all Departments.</p>
-                <button
-                  onClick={() => setIsEmergencyActive(false)}
-                  className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-800 transition-all"
+          <AnimatePresence>
+            {isEmergencyActive && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[100] bg-red-600/90 backdrop-blur-sm flex items-center justify-center pointer-events-auto"
+              >
+                <motion.div
+                  initial={{ scale: 0.9, y: 20 }}
+                  animate={{ scale: 1, y: 0 }}
+                  className="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-lg w-full mx-4"
                 >
-                  Stand Down Alert
-                </button>
-              </div>
-            </div>
-          )}
+                  <div className="bg-red-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                    <Siren size={48} className="text-red-600" />
+                  </div>
+                  <h1 className="text-4xl font-black text-red-600 mb-2 uppercase tracking-wider">Code Blue</h1>
+                  <p className="text-slate-600 mb-8 font-medium text-lg">Emergency Alert Broadcasted to all Departments.</p>
+                  <button
+                    onClick={() => setIsEmergencyActive(false)}
+                    className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-800 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1"
+                  >
+                    Stand Down Alert
+                  </button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Sidebar Navigation */}
           <Sidebar
@@ -233,33 +323,39 @@ function DashboardLayout() {
             setActiveTab={setActiveTab}
             isOpen={isSidebarOpen}
             setIsOpen={setIsSidebarOpen}
+            isMobile={isMobile}
           />
 
           {/* Main Content Area */}
-          <div className="flex-1 flex flex-col h-full w-full relative">
+          <div className="flex-1 flex flex-col h-full w-full relative overflow-hidden">
 
-            {/* Header */}
-            <header className="bg-background-secondary/80 backdrop-blur-md border-b border-border h-16 flex items-center justify-between px-4 md:px-6 z-30 theme-transition">
+            {/* Floating Glass Header */}
+            <header className={`
+              h-16 flex items-center justify-between px-4 md:px-6 z-30 transition-all duration-300
+              ${scrolled ? 'glass-header shadow-sm' : 'bg-transparent'}
+            `}>
               <div className="flex items-center gap-3">
                 <button
-                  className="md:hidden p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
-                  onClick={() => setIsSidebarOpen(true)}
+                  className="p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 >
                   <Menu size={20} />
                 </button>
-                {/* Global Search */}
-                <HeaderSearch setActiveTab={setActiveTab} />
-                <span className="md:hidden font-bold text-slate-800 dark:text-white">Arya Hospital</span>
+                
+                {/* Global Search - Responsive */}
+                <div className={`${scrolled ? 'opacity-100' : 'opacity-100'} transition-opacity`}>
+                   <HeaderSearch setActiveTab={setActiveTab} />
+                </div>
               </div>
 
-              <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex items-center gap-2 md:gap-4">
                 {/* Theme Toggle */}
                 <ThemeToggle variant="icon" size="md" />
 
                 {/* Tools Menu */}
                 <button
                   onClick={() => setIsCalculatorOpen(true)}
-                  className="hidden md:flex p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" title="Calculators"
+                  className="hidden md:flex btn-icon" title="Calculators"
                 >
                   <Calculator size={20} />
                 </button>
@@ -267,7 +363,7 @@ function DashboardLayout() {
                 {/* Emergency Trigger */}
                 <button
                   onClick={() => setIsEmergencyActive(true)}
-                  className="bg-red-50 text-red-600 p-2 rounded-full hover:bg-red-600 hover:text-white transition-all border border-red-100" title="Emergency Alert"
+                  className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-2 rounded-full hover:bg-red-600 hover:text-white transition-all border border-red-100 dark:border-red-900 shadow-sm animate-pulse" title="Emergency Alert"
                 >
                   <Siren size={20} />
                 </button>
@@ -276,53 +372,75 @@ function DashboardLayout() {
                 <div className="relative">
                   <button
                     onClick={() => setShowNotifications(!showNotifications)}
-                    className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors"
+                    className="relative p-2 text-foreground-secondary hover:bg-background-tertiary rounded-full transition-colors"
                   >
                     <Bell size={20} />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background-primary shadow-sm"></span>
                   </button>
                   {/* Notification Dropdown */}
-                  {showNotifications && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-100 z-50 animate-fade-in overflow-hidden">
-                      <div className="p-3 border-b border-slate-100 font-semibold text-slate-800 text-sm">Notifications</div>
-                      <div className="max-h-64 overflow-y-auto">
-                        <div className="p-3 hover:bg-slate-50 border-b border-slate-50 cursor-pointer">
-                          <p className="text-sm font-medium text-slate-800">Lab Results Ready</p>
-                          <p className="text-xs text-slate-500">Patient: John Doe • 5m ago</p>
+                  <AnimatePresence>
+                    {showNotifications && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="absolute right-0 mt-2 w-80 glass-panel rounded-xl z-50 overflow-hidden"
+                      >
+                        <div className="p-3 border-b border-border font-semibold text-foreground-primary text-sm flex justify-between items-center bg-background-tertiary/30">
+                          <span>Notifications</span>
+                          <span className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded-full">3 New</span>
                         </div>
-                        <div className="p-3 hover:bg-slate-50 border-b border-slate-50 cursor-pointer">
-                          <p className="text-sm font-medium text-slate-800">Low Stock Alert: Insulin</p>
-                          <p className="text-xs text-slate-500">Pharmacy • 10m ago</p>
+                        <div className="max-h-64 overflow-y-auto">
+                          <div className="p-3 hover:bg-background-tertiary border-b border-border/50 cursor-pointer transition-colors group">
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                              <p className="text-sm font-medium text-foreground-primary group-hover:text-accent transition-colors">Lab Results Ready</p>
+                            </div>
+                            <p className="text-xs text-foreground-secondary pl-4">Patient: John Doe • 5m ago</p>
+                          </div>
+                          <div className="p-3 hover:bg-background-tertiary border-b border-border/50 cursor-pointer transition-colors group">
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                              <p className="text-sm font-medium text-foreground-primary group-hover:text-accent transition-colors">Low Stock Alert: Insulin</p>
+                            </div>
+                            <p className="text-xs text-foreground-secondary pl-4">Pharmacy • 10m ago</p>
+                          </div>
                         </div>
-                      </div>
-                      <button className="w-full py-2 text-center text-xs font-medium text-teal-600 bg-slate-50 hover:bg-slate-100">View All</button>
-                    </div>
-                  )}
+                        <button className="w-full py-2 text-center text-xs font-medium text-accent bg-background-tertiary/30 hover:bg-background-tertiary transition-colors">View All</button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
-                <div className="hidden md:flex items-center gap-3 border-l border-slate-200 pl-4">
+                <div className="hidden md:flex items-center gap-3 border-l border-border pl-4">
                   <div className="text-right">
-                    <p className="text-sm font-bold text-slate-800">{user?.name}</p>
-                    <p className="text-xs text-slate-500">{user?.role}</p>
+                    <p className="text-sm font-bold text-foreground-primary">{user?.name}</p>
+                    <p className="text-xs text-foreground-secondary">{user?.role}</p>
                   </div>
-                  <img src={user?.avatar || "https://picsum.photos/40/40"} className="rounded-full border-2 border-white shadow-sm" alt="Profile" />
-                  <button onClick={() => setIsLogoutModalOpen(true)} className="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Logout">
+                  <div className="relative">
+                    <img src={user?.avatar || "https://picsum.photos/40/40"} className="w-10 h-10 rounded-full border-2 border-background-secondary shadow-sm object-cover" alt="Profile" />
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background-primary rounded-full"></span>
+                  </div>
+                  <button onClick={() => setIsLogoutModalOpen(true)} className="p-2 text-foreground-muted hover:text-red-500 transition-colors" title="Logout">
                     <LogOut size={18} />
                   </button>
                 </div>
-                <img src={user?.avatar || "https://picsum.photos/32/32"} className="md:hidden rounded-full border border-slate-200" alt="Profile" />
+                <img src={user?.avatar || "https://picsum.photos/32/32"} className="md:hidden rounded-full border border-border" alt="Profile" />
               </div>
             </header>
 
             {/* Scrollable Content */}
-            <main className="flex-1 overflow-auto p-4 md:p-8 w-full max-w-[1600px] mx-auto relative custom-scrollbar">
+            <main
+              className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 w-full max-w-[1600px] mx-auto relative custom-scrollbar scroll-smooth"
+              onScroll={handleScroll}
+            >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -15, scale: 0.98 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
                   className="h-full"
                 >
                   {renderContent()}
@@ -331,12 +449,14 @@ function DashboardLayout() {
             </main>
 
             {/* Mobile FAB */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => setActiveTab('patients')}
-              className="md:hidden fixed bottom-6 right-6 bg-teal-600 text-white p-4 rounded-full shadow-xl shadow-teal-600/30 z-20 hover:scale-105 transition-transform"
+              className="md:hidden fixed bottom-6 right-6 bg-accent text-white p-4 rounded-full shadow-lg shadow-accent/30 z-20"
             >
               <Plus size={24} />
-            </button>
+            </motion.button>
 
             {/* Chat Widget */}
             <ChatWidget />

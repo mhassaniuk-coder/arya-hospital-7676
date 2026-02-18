@@ -1,8 +1,8 @@
+import React, { useState, useMemo } from 'react';
 import { Staff } from '../types';
 import { useData } from '../src/contexts/DataContext';
 import { Users, Search, Filter, Plus, Mail, Phone, MoreHorizontal, MapPin, Calendar, DollarSign, Briefcase, Star, X, Check, Edit2, Trash2 } from 'lucide-react';
-
-
+import { motion, AnimatePresence } from 'framer-motion';
 
 const DEPARTMENTS = ['Cardiology', 'Emergency', 'Surgery', 'Laboratory', 'Pharmacy', 'Administration', 'Security', 'Pediatrics', 'Nursing', 'Radiology'];
 const ROLES = ['Chief Physician', 'Senior Nurse', 'Surgeon', 'Lab Technician', 'Pharmacist', 'Receptionist', 'Security Head', 'Pediatrician', 'Nurse', 'Doctor', 'Admin'];
@@ -77,247 +77,302 @@ const StaffDirectory: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground-primary">Staff Directory</h1>
-          <p className="text-foreground-muted">Manage doctors, nurses, and support staff.</p>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-blue-600 bg-clip-text text-transparent">Staff Directory</h1>
+          <p className="text-foreground-secondary">Manage and monitor doctors, nurses, and support staff.</p>
         </div>
-        <button onClick={openAdd} className="bg-teal-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-teal-700 shadow-lg shadow-teal-600/20 flex items-center gap-2 theme-transition">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={openAdd}
+          className="bg-accent text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-accent/90 shadow-lg shadow-accent/25 flex items-center gap-2 transition-all"
+        >
           <Plus size={18} /> Add Staff
-        </button>
+        </motion.button>
       </div>
 
-      {/* Stats */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Staff', value: stats.total, icon: <Users size={22} />, color: 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' },
-          { label: 'Active Now', value: stats.active, icon: <Check size={22} />, color: 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400' },
-          { label: 'On Leave', value: stats.onLeave, icon: <Calendar size={22} />, color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' },
-          { label: 'New Joiners', value: stats.newJoiners, icon: <Star size={22} />, color: 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' },
+          { label: 'Total Staff', value: stats.total, icon: <Users size={22} />, color: 'bg-blue-500' },
+          { label: 'Active Now', value: stats.active, icon: <Check size={22} />, color: 'bg-green-500' },
+          { label: 'On Leave', value: stats.onLeave, icon: <Calendar size={22} />, color: 'bg-amber-500' },
+          { label: 'New Joiners', value: stats.newJoiners, icon: <Star size={22} />, color: 'bg-purple-500' },
         ].map((s, i) => (
-          <div key={i} className="bg-background-elevated p-5 rounded-2xl shadow-sm border border-border">
-            <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-xl ${s.color}`}>{s.icon}</div>
-              <div>
-                <p className="text-xs text-foreground-muted font-medium">{s.label}</p>
-                <p className="text-2xl font-bold text-foreground-primary">{s.value}</p>
+          <motion.div
+            key={i}
+            whileHover={{ y: -5 }}
+            className="glass-panel p-5 rounded-2xl relative overflow-hidden group"
+          >
+            <div className={`absolute -right-4 -top-4 w-16 h-16 rounded-full ${s.color} opacity-10 blur-xl group-hover:scale-150 transition-transform duration-500`}></div>
+            <div className="flex justify-between items-start mb-2 relative z-10">
+              <div className={`p-2.5 rounded-xl ${s.color} bg-opacity-10 text-${s.color.replace('bg-', '')}-600 dark:text-${s.color.replace('bg-', '')}-400`}>
+                {s.icon}
               </div>
             </div>
-          </div>
+            <div className="relative z-10">
+              <h3 className="text-foreground-secondary text-xs font-medium uppercase tracking-wider mb-1">{s.label}</h3>
+              <p className="text-2xl font-bold text-foreground-primary">{s.value}</p>
+            </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col lg:flex-row gap-4 bg-background-elevated p-4 rounded-2xl shadow-sm border border-border">
-        <div className="relative flex-1">
+      {/* Filters and Search */}
+      <div className="glass-panel p-4 rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between sticky top-20 z-20 backdrop-blur-xl">
+        <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-muted" size={18} />
-          <input type="text" placeholder="Search by name, role, or email..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-background-secondary border border-border rounded-xl outline-none text-sm text-foreground-primary focus:ring-2 focus:ring-teal-500 placeholder:text-foreground-muted" />
+          <input
+            type="text"
+            placeholder="Search by name, role, or email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-background-primary/50 border border-border focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all placeholder:text-foreground-muted"
+          />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0">
-          <select value={deptFilter} onChange={e => setDeptFilter(e.target.value)}
-            className="px-4 py-2 bg-background-secondary border border-border rounded-xl text-sm text-foreground-primary outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer whitespace-nowrap">
-            <option value="All">All Departments</option>{DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
+
+        <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-background-primary/50 border border-border">
+            <Filter size={16} className="text-foreground-secondary" />
+            <span className="text-xs font-medium text-foreground-secondary whitespace-nowrap">Filter by:</span>
+          </div>
+
+          <select
+            value={deptFilter}
+            onChange={(e) => setDeptFilter(e.target.value)}
+            className="px-3 py-2 rounded-xl bg-background-primary/50 border border-border text-sm text-foreground-primary focus:border-accent outline-none cursor-pointer hover:bg-background-tertiary transition-colors"
+          >
+            <option value="All">All Departments</option>
+            {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
           </select>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-            className="px-4 py-2 bg-background-secondary border border-border rounded-xl text-sm text-foreground-primary outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer whitespace-nowrap">
-            <option value="All">All Status</option><option>Active</option><option>On Leave</option><option>Terminated</option>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 rounded-xl bg-background-primary/50 border border-border text-sm text-foreground-primary focus:border-accent outline-none cursor-pointer hover:bg-background-tertiary transition-colors"
+          >
+            <option value="All">All Status</option>
+            <option value="Active">Active</option>
+            <option value="On Leave">On Leave</option>
+            <option value="Inactive">Inactive</option>
           </select>
         </div>
       </div>
 
       {/* Staff Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filtered.map(person => (
-          <div key={person.id} className="bg-background-elevated rounded-2xl shadow-sm border border-border hover:shadow-lg theme-transition group overflow-hidden">
-            <div className="relative h-24 bg-gradient-to-r from-teal-500 to-emerald-500">
-              <button className="absolute top-3 right-3 p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                <MoreHorizontal size={16} />
-              </button>
-            </div>
-            <div className="px-6 pb-6 -mt-12 relative">
-              <div className="flex justify-between items-end">
-                <div className="w-24 h-24 rounded-2xl border-4 border-background-elevated overflow-hidden shadow-md bg-background-primary">
-                  <img src={person.image} alt={person.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex gap-2 mb-1">
-                  <button onClick={() => openEdit(person)} className="p-2 bg-background-secondary text-foreground-secondary rounded-xl hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:text-teal-600 theme-transition"><Edit2 size={16} /></button>
-                  <button onClick={() => setDeleteConfirm(person.id)} className="p-2 bg-background-secondary text-foreground-secondary rounded-xl hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 theme-transition"><Trash2 size={16} /></button>
-                </div>
-              </div>
-
-              <div className="mt-3">
-                <div className="flex justify-between items-start">
+        <AnimatePresence>
+          {filtered.map((s) => (
+            <motion.div
+              layout
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              key={s.id}
+              className="glass-panel p-5 rounded-2xl group hover:border-accent/40 transition-all duration-300"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <img src={s.image || `https://ui-avatars.com/api/?name=${s.name}`} alt={s.name} className="w-12 h-12 rounded-xl object-cover border border-border shadow-sm group-hover:scale-105 transition-transform" />
+                    <span className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 border-2 border-background-primary rounded-full ${s.status === 'Active' ? 'bg-green-500' : s.status === 'On Leave' ? 'bg-amber-500' : 'bg-red-500'}`}></span>
+                  </div>
                   <div>
-                    <h3 className="font-bold text-foreground-primary text-lg">{person.name}</h3>
-                    <p className="text-teal-600 dark:text-teal-400 font-medium text-sm">{person.role}</p>
-                  </div>
-                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${person.status === 'Active' ? 'bg-success-light text-success-dark border-green-200 dark:border-green-800' :
-                    person.status === 'On Leave' ? 'bg-warning-light text-warning-dark border-amber-200 dark:border-amber-800' :
-                      'bg-danger-light text-danger-dark border-red-200 dark:border-red-800'
-                    }`}>
-                    {person.status}
-                  </span>
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-foreground-secondary">
-                    <Briefcase size={14} className="text-foreground-muted" />
-                    {person.department}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-foreground-secondary truncate" title={person.email}>
-                    <Mail size={14} className="text-foreground-muted" />
-                    {person.email}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-foreground-secondary">
-                    <Phone size={14} className="text-foreground-muted" />
-                    {person.phone}
+                    <h3 className="font-bold text-foreground-primary text-sm line-clamp-1">{s.name}</h3>
+                    <p className="text-xs text-accent font-medium">{s.role}</p>
                   </div>
                 </div>
-
-                {person.role.includes('Doctor') || person.role.includes('Surgeon') || person.role.includes('Pediatrician') ? (
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                    <div className="text-center">
-                      <p className="text-xs text-foreground-muted font-medium uppercase">Patients</p>
-                      <p className="font-bold text-foreground-primary">1.2k</p>
-                    </div>
-                    <div className="w-px h-8 bg-border" />
-                    <div className="text-center">
-                      <p className="text-xs text-foreground-muted font-medium uppercase">Exp.</p>
-                      <p className="font-bold text-foreground-primary">8y</p>
-                    </div>
-                    <div className="w-px h-8 bg-border" />
-                    <div className="text-center">
-                      <p className="text-xs text-foreground-muted font-medium uppercase">Rating</p>
-                      <div className="flex items-center gap-1 font-bold text-foreground-primary">
-                        4.9 <Star size={12} className="fill-amber-400 text-amber-400" />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                    <div className="text-center w-full">
-                      <p className="text-xs text-foreground-muted font-medium uppercase">Joined</p>
-                      <p className="font-bold text-foreground-primary">{new Date(person.joinDate).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                )}
+                <div className="relative">
+                  <button onClick={() => setEditingStaff(s)} className="p-1.5 rounded-lg text-foreground-muted hover:bg-background-tertiary hover:text-accent transition-colors">
+                    <MoreHorizontal size={18} />
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+
+              <div className="space-y-2.5 mb-4">
+                <div className="flex items-center gap-2 text-xs text-foreground-secondary">
+                  <Briefcase size={14} className="text-foreground-muted" />
+                  <span>{s.department}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-foreground-secondary">
+                  <Mail size={14} className="text-foreground-muted" />
+                  <span className="truncate">{s.email}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-foreground-secondary">
+                  <Phone size={14} className="text-foreground-muted" />
+                  <span>{s.phone}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border/50">
+                <button
+                  onClick={() => openEdit(s)}
+                  className="flex-1 py-2 rounded-lg bg-background-tertiary hover:bg-accent/10 hover:text-accent text-xs font-medium text-foreground-secondary transition-colors"
+                >
+                  View Profile
+                </button>
+                <button
+                  onClick={() => setDeleteConfirm(s.id)}
+                  className="p-2 rounded-lg bg-red-50 dark:bg-red-900/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-12 text-foreground-muted">
-          <Users size={48} className="mx-auto mb-3 opacity-30" />
-          <p className="font-medium">No staff members found</p>
-        </div>
-      )}
-
-      {/* Delete Confirmation */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeleteConfirm(null)}>
-          <div className="bg-background-elevated rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-foreground-primary mb-2">Remove Staff?</h3>
-            <p className="text-sm text-foreground-muted mb-6">This action cannot be undone. Their access will be revoked immediately.</p>
-            <div className="flex gap-3">
-              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 border border-border rounded-xl text-foreground-secondary font-medium hover:bg-background-secondary theme-transition">Cancel</button>
-              <button onClick={() => handleDelete(deleteConfirm)} className="flex-1 py-2.5 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 theme-transition">Delete</button>
-            </div>
+        <div className="text-center py-20 glass-panel rounded-2xl">
+          <div className="w-16 h-16 bg-background-tertiary rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users size={32} className="text-foreground-muted" />
           </div>
+          <h3 className="text-lg font-semibold text-foreground-primary">No staff members found</h3>
+          <p className="text-foreground-secondary">Try adjusting your search or filters.</p>
         </div>
       )}
 
-      {/* Add/Edit Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-background-elevated rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border">
-              <h3 className="text-lg font-bold text-foreground-primary">{editingStaff ? 'Edit Staff Profile' : 'Add New Staff'}</h3>
-              <button onClick={() => setShowModal(false)} className="p-2 text-foreground-muted hover:text-foreground-primary rounded-lg hover:bg-background-secondary theme-transition"><X size={18} /></button>
-            </div>
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2 flex justify-center mb-2">
-                  <div className="relative">
-                    <img src={formData.image} alt="Preview" className="w-24 h-24 rounded-full object-cover border-4 border-border" />
-                    <button className="absolute bottom-0 right-0 p-1.5 bg-teal-600 text-white rounded-full hover:bg-teal-700 shadow-md theme-transition"><Edit2 size={12} /></button>
+      {/* Edit/Add Modal - Glassmorphic Overlay */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setShowModal(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-2xl bg-background-primary dark:bg-slate-900 border border-border rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar"
+            >
+              <div className="p-6 border-b border-border bg-background-secondary/50 backdrop-blur-md sticky top-0 z-10 flex justify-between items-center">
+                <h2 className="text-xl font-bold text-foreground-primary">{editingStaff ? 'Edit Profile' : 'Add New Staff'}</h2>
+                <button onClick={() => setShowModal(false)} className="p-2 hover:bg-background-tertiary rounded-full text-foreground-secondary transition-colors"><X size={20} /></button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Avatar Upload Placeholder */}
+                <div className="flex items-center gap-6">
+                  <div className="w-20 h-20 rounded-2xl bg-background-tertiary flex items-center justify-center border-2 border-dashed border-border hover:border-accent cursor-pointer transition-colors group">
+                    <Plus size={24} className="text-foreground-muted group-hover:text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground-primary">Profile Photo</h3>
+                    <p className="text-xs text-foreground-muted">Upload a high-res picture. Max 2MB.</p>
                   </div>
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-foreground-secondary mb-1.5">Full Name *</label>
-                  <input type="text" value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} placeholder="e.g. Dr. Jane Doe"
-                    className="w-full border border-border rounded-xl p-3 text-sm bg-background-secondary text-foreground-primary focus:ring-2 focus:ring-teal-500 outline-none placeholder:text-foreground-muted" />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground-secondary mb-1.5">Role *</label>
-                  <select value={formData.role} onChange={e => setFormData(p => ({ ...p, role: e.target.value }))}
-                    className="w-full border border-border rounded-xl p-3 text-sm bg-background-secondary text-foreground-primary focus:ring-2 focus:ring-teal-500 outline-none">
-                    {ROLES.map(r => <option key={r}>{r}</option>)}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground-secondary mb-1.5">Department *</label>
-                  <select value={formData.department} onChange={e => setFormData(p => ({ ...p, department: e.target.value }))}
-                    className="w-full border border-border rounded-xl p-3 text-sm bg-background-secondary text-foreground-primary focus:ring-2 focus:ring-teal-500 outline-none">
-                    {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground-secondary mb-1.5">Email *</label>
-                  <input type="email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} placeholder="staff@nexus.com"
-                    className="w-full border border-border rounded-xl p-3 text-sm bg-background-secondary text-foreground-primary focus:ring-2 focus:ring-teal-500 outline-none placeholder:text-foreground-muted" />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground-secondary mb-1.5">Phone</label>
-                  <input type="tel" value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))} placeholder="+1 (555) ..."
-                    className="w-full border border-border rounded-xl p-3 text-sm bg-background-secondary text-foreground-primary focus:ring-2 focus:ring-teal-500 outline-none placeholder:text-foreground-muted" />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground-secondary mb-1.5">Join Date</label>
-                  <input type="date" value={formData.joinDate} onChange={e => setFormData(p => ({ ...p, joinDate: e.target.value }))}
-                    className="w-full border border-border rounded-xl p-3 text-sm bg-background-secondary text-foreground-primary focus:ring-2 focus:ring-teal-500 outline-none" />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground-secondary mb-1.5">Salary (Annual)</label>
-                  <div className="relative">
-                    <DollarSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-muted" />
-                    <input type="number" value={formData.salary || ''} onChange={e => setFormData(p => ({ ...p, salary: parseInt(e.target.value) || 0 }))} placeholder="0.00"
-                      className="w-full border border-border rounded-xl pl-10 pr-3 py-3 text-sm bg-background-secondary text-foreground-primary focus:ring-2 focus:ring-teal-500 outline-none placeholder:text-foreground-muted" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground-secondary uppercase tracking-wider">Full Name</label>
+                    <input
+                      type="text"
+                      value={formData.name || ''}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-3 py-2.5 rounded-xl bg-background-tertiary/50 border border-border focus:border-accent outline-none text-foreground-primary"
+                      placeholder="Dr. John Doe"
+                    />
                   </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-foreground-secondary mb-3">Status</label>
-                  <div className="flex gap-4">
-                    {['Active', 'On Leave', 'Terminated'].map(s => (
-                      <label key={s} className="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="status" checked={formData.status === s} onChange={() => setFormData(p => ({ ...p, status: s as any }))} className="accent-teal-600 w-4 h-4" />
-                        <span className="text-sm text-foreground-secondary">{s}</span>
-                      </label>
-                    ))}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground-secondary uppercase tracking-wider">Email</label>
+                    <input
+                      type="email"
+                      value={formData.email || ''}
+                      onChange={e => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-3 py-2.5 rounded-xl bg-background-tertiary/50 border border-border focus:border-accent outline-none text-foreground-primary"
+                      placeholder="john@hospital.com"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground-secondary uppercase tracking-wider">Role</label>
+                    <select
+                      value={formData.role}
+                      onChange={e => setFormData({ ...formData, role: e.target.value })}
+                      className="w-full px-3 py-2.5 rounded-xl bg-background-tertiary/50 border border-border focus:border-accent outline-none text-foreground-primary"
+                    >
+                      {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground-secondary uppercase tracking-wider">Department</label>
+                    <select
+                      value={formData.department}
+                      onChange={e => setFormData({ ...formData, department: e.target.value })}
+                      className="w-full px-3 py-2.5 rounded-xl bg-background-tertiary/50 border border-border focus:border-accent outline-none text-foreground-primary"
+                    >
+                      {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground-secondary uppercase tracking-wider">Status</label>
+                    <select
+                      value={formData.status}
+                      onChange={e => setFormData({ ...formData, status: e.target.value as any })}
+                      className="w-full px-3 py-2.5 rounded-xl bg-background-tertiary/50 border border-border focus:border-accent outline-none text-foreground-primary"
+                    >
+                      <option value="Active">Active</option>
+                      <option value="On Leave">On Leave</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="flex gap-3 p-6 border-t border-border">
-              <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 border border-border rounded-xl text-foreground-secondary font-medium hover:bg-background-secondary theme-transition">Cancel</button>
-              <button onClick={handleSave} className="flex-1 py-2.5 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 shadow-lg shadow-teal-600/20 theme-transition">{editingStaff ? 'Update Profile' : 'Create Staff'}</button>
-            </div>
+
+              <div className="p-6 border-t border-border bg-background-secondary/30 flex justify-end gap-3 sticky bottom-0">
+                <button onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-xl text-foreground-secondary font-medium hover:bg-background-tertiary transition-colors">Cancel</button>
+                <button onClick={handleSave} className="px-5 py-2.5 rounded-xl bg-accent text-white font-bold hover:bg-accent/90 shadow-lg shadow-accent/20 transition-all">
+                  {editingStaff ? 'Save Changes' : 'Create Profile'}
+                </button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteConfirm && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setDeleteConfirm(null)}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-sm bg-background-primary border border-border rounded-2xl p-6 shadow-2xl text-center"
+            >
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 size={32} />
+              </div>
+              <h3 className="text-lg font-bold text-foreground-primary mb-2">Delete Account?</h3>
+              <p className="text-foreground-secondary text-sm mb-6">Are you sure you want to remove this staff member? This action cannot be undone.</p>
+
+              <div className="flex gap-3 justify-center">
+                <button onClick={() => setDeleteConfirm(null)} className="px-5 py-2.5 rounded-xl text-foreground-secondary font-medium hover:bg-background-tertiary transition-colors">Cancel</button>
+                <button onClick={() => handleDelete(deleteConfirm)} className="px-5 py-2.5 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all">Yes, Delete</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 
