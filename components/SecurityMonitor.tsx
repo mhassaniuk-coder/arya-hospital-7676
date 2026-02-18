@@ -21,6 +21,14 @@ const SecurityMonitor: React.FC = () => {
                 </div>
             </div>
 
+            {!isAdmin && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+                    <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                        Some advanced security features are only visible to administrators.
+                    </p>
+                </div>
+            )}
+
             {isAdmin && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Active Sessions Card */}

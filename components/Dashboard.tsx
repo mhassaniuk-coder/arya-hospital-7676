@@ -64,25 +64,26 @@ const data: ChartDataPoint[] = [
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, trend, trendUp, icon, color }) => (
   <motion.div
-    whileHover={{ y: -5 }}
-    className="glass-panel p-6 rounded-2xl relative overflow-hidden group"
+    whileHover={{ y: -5, scale: 1.02 }}
+    className="glass-panel p-6 rounded-2xl relative overflow-hidden group border border-white/20 dark:border-slate-800/60 shadow-xl"
   >
     {/* Background Glow */}
-    <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full ${color.replace('bg-', 'bg-opacity-10 bg-')} blur-2xl group-hover:scale-150 transition-transform duration-500`}></div>
+    <div className={`absolute -right-10 -top-10 w-40 h-40 rounded-full ${color.replace('bg-', 'bg-opacity-10 bg-')} blur-3xl group-hover:scale-150 transition-transform duration-700 opacity-50`}></div>
+    <div className={`absolute -left-10 -bottom-10 w-32 h-32 rounded-full ${color.replace('bg-', 'bg-opacity-5 bg-')} blur-3xl group-hover:scale-150 transition-transform duration-700 opacity-30`}></div>
 
     <div className="flex justify-between items-start mb-4 relative z-10">
-      <div className={`p-3 rounded-xl ${color} bg-opacity-10 dark:bg-opacity-20 backdrop-blur-sm`}>
+      <div className={`p-3.5 rounded-xl ${color} bg-opacity-10 dark:bg-opacity-20 backdrop-blur-md border border-white/10 shadow-inner`}>
         {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: `text-${color.replace('bg-', '')}-600 dark:text-${color.replace('bg-', '')}-400` })}
       </div>
       {trend && (
-        <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full border ${trendUp ? 'bg-success-light border-success/20 text-success-dark' : 'bg-red-50 border-red-200 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300'}`}>
-          {trendUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+        <div className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full border shadow-sm backdrop-blur-sm ${trendUp ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400'}`}>
+          {trendUp ? <ArrowUpRight size={14} strokeWidth={2.5} /> : <ArrowDownRight size={14} strokeWidth={2.5} />}
           {trend}
         </div>
       )}
     </div>
-    <h3 className="text-foreground-secondary text-sm font-medium mb-1 relative z-10">{title}</h3>
-    <p className="text-2xl font-bold text-foreground-primary relative z-10">{value}</p>
+    <h3 className="text-slate-500 dark:text-slate-400 text-sm font-semibold mb-1 relative z-10 tracking-wide">{title}</h3>
+    <p className="text-3xl font-bold text-slate-800 dark:text-slate-100 relative z-10 tracking-tight">{value}</p>
   </motion.div>
 );
 
@@ -90,7 +91,7 @@ const PatientDashboard: React.FC = () => {
   const { appointments } = useData();
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-10">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Upcoming Appointments"
@@ -112,63 +113,102 @@ const PatientDashboard: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-panel p-6 rounded-2xl">
-          <h2 className="text-lg font-bold text-foreground-primary mb-4 flex items-center gap-2">
-            <Calendar className="text-accent" size={20} />
-            My Appointments
-          </h2>
-          <div className="space-y-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="glass-panel p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-lg"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                <Calendar size={22} />
+              </div>
+              My Appointments
+            </h2>
+            <button className="text-sm text-teal-600 dark:text-teal-400 font-medium hover:underline">View All</button>
+          </div>
+          
+          <div className="space-y-4">
             {appointments.slice(0, 3).map((apt) => (
-              <div key={apt.id} className="flex items-center gap-4 p-4 rounded-xl bg-background-primary/50 border border-border hover:border-accent/50 transition-colors group">
-                <div className="bg-background-secondary text-accent w-12 h-12 rounded-lg flex flex-col items-center justify-center font-bold text-sm border border-border shadow-sm group-hover:scale-105 transition-transform">
-                  <span>{apt.time.split(' ')[0]}</span>
-                  <span className="text-xs font-normal opacity-70">{apt.time.split(' ')[1]}</span>
+              <motion.div 
+                whileHover={{ scale: 1.01 }}
+                key={apt.id} 
+                className="flex items-center gap-4 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 hover:border-teal-500/30 hover:shadow-md transition-all group"
+              >
+                <div className="bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 text-teal-600 dark:text-teal-400 w-14 h-14 rounded-xl flex flex-col items-center justify-center font-bold text-sm border border-teal-200/50 dark:border-teal-700/30 shadow-sm group-hover:scale-105 transition-transform">
+                  <span className="text-lg">{apt.time.split(' ')[0]}</span>
+                  <span className="text-[10px] uppercase tracking-wider opacity-80">{apt.time.split(' ')[1]}</span>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-foreground-primary group-hover:text-accent transition-colors">{apt.type}</h4>
-                  <p className="text-xs text-foreground-secondary">Dr. {apt.doctorName}</p>
+                  <h4 className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{apt.type}</h4>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <UserCheck size={14} /> Dr. {apt.doctorName}
+                  </p>
                 </div>
-                <div className={`px-3 py-1 text-xs font-medium rounded-full ${apt.status === 'Confirmed' ? 'bg-success-light text-success-dark' : 'bg-warning-light text-warning-dark'}`}>
+                <div className={`px-3 py-1.5 text-xs font-bold rounded-full border shadow-sm ${apt.status === 'Confirmed' ? 'bg-emerald-100/50 border-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400' : 'bg-amber-100/50 border-amber-200 text-amber-700 dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-400'}`}>
                   {apt.status}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="glass-panel p-6 rounded-2xl">
-          <h2 className="text-lg font-bold text-foreground-primary mb-4 flex items-center gap-2">
-            <Activity className="text-red-500" size={20} />
-            Recent Vitals
-          </h2>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="glass-panel p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-lg"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                <Activity size={22} />
+              </div>
+              Recent Vitals
+            </h2>
+            <button className="text-sm text-rose-600 dark:text-rose-400 font-medium hover:underline">History</button>
+          </div>
+
           <div className="space-y-4">
-            <div className="flex justify-between items-center p-4 bg-background-primary/30 rounded-xl border border-border">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400">
-                  <HeartPulse size={20} />
+            <div className="flex justify-between items-center p-5 bg-gradient-to-r from-rose-50 to-white dark:from-rose-900/10 dark:to-slate-800/50 rounded-2xl border border-rose-100 dark:border-rose-900/30 relative overflow-hidden">
+              <div className="absolute right-0 top-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl"></div>
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-rose-500 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30">
+                  <HeartPulse size={24} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground-primary">Heart Rate</p>
-                  <p className="text-xs text-foreground-muted">Today, 9:00 AM</p>
+                  <p className="text-base font-semibold text-slate-800 dark:text-slate-100">Heart Rate</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <Clock size={12} /> Today, 9:00 AM
+                  </p>
                 </div>
               </div>
-              <span className="text-lg font-bold text-foreground-primary">72 <span className="text-xs text-foreground-muted font-normal">bpm</span></span>
+              <span className="text-2xl font-black text-slate-800 dark:text-slate-100 relative z-10">
+                72 <span className="text-sm text-slate-400 font-medium">bpm</span>
+              </span>
             </div>
-            <div className="flex justify-between items-center p-4 bg-background-primary/30 rounded-xl border border-border">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
-                  <Activity size={20} />
+
+            <div className="flex justify-between items-center p-5 bg-gradient-to-r from-blue-50 to-white dark:from-blue-900/10 dark:to-slate-800/50 rounded-2xl border border-blue-100 dark:border-blue-900/30 relative overflow-hidden">
+              <div className="absolute right-0 top-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl"></div>
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-blue-500 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30">
+                  <Activity size={24} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground-primary">Blood Pressure</p>
-                  <p className="text-xs text-foreground-muted">Today, 9:00 AM</p>
+                  <p className="text-base font-semibold text-slate-800 dark:text-slate-100">Blood Pressure</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <Clock size={12} /> Today, 9:00 AM
+                  </p>
                 </div>
               </div>
-              <span className="text-lg font-bold text-foreground-primary">120/80 <span className="text-xs text-foreground-muted font-normal">mmHg</span></span>
+              <span className="text-2xl font-black text-slate-800 dark:text-slate-100 relative z-10">
+                120/80 <span className="text-sm text-slate-400 font-medium">mmHg</span>
+              </span>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
@@ -176,7 +216,7 @@ const PatientDashboard: React.FC = () => {
 
 const StaffDashboard: React.FC<{ role: string }> = ({ role }) => {
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-10">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Assigned Tasks"
@@ -200,23 +240,46 @@ const StaffDashboard: React.FC<{ role: string }> = ({ role }) => {
         />
       </div>
 
-      <div className="glass-panel p-6 rounded-2xl">
-        <h2 className="text-lg font-bold text-foreground-primary mb-4">My Tasks - {role}</h2>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="glass-panel p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-lg"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+              <ClipboardList size={22} />
+            </div>
+            My Tasks - <span className="text-indigo-600 dark:text-indigo-400">{role}</span>
+          </h2>
+          <div className="flex gap-2">
+             <button className="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">All</button>
+             <button className="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-500 text-white shadow-sm shadow-indigo-500/20">Pending</button>
+          </div>
+        </div>
+        
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center gap-3 p-3 hover:bg-background-tertiary rounded-xl transition-colors border border-transparent hover:border-border cursor-pointer group">
-              <div className={`w-5 h-5 rounded-md border-2 border-foreground-muted flex items-center justify-center group-hover:border-accent`}>
-                <div className="w-2.5 h-2.5 rounded-[2px] bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <motion.div 
+              whileHover={{ x: 5 }}
+              key={i} 
+              className="flex items-center gap-4 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 hover:border-indigo-500/30 hover:shadow-sm cursor-pointer group transition-all"
+            >
+              <div className={`w-6 h-6 rounded-lg border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center group-hover:border-indigo-500 transition-colors bg-white dark:bg-slate-900`}>
+                <div className="w-3 h-3 rounded-[2px] bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity scale-0 group-hover:scale-100 transform duration-200" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-foreground-primary group-hover:text-accent transition-colors">Complete daily report for {role} department</p>
-                <p className="text-xs text-foreground-secondary">Due: 5:00 PM</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Complete daily report for {role} department</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                  <Clock size={12} /> Due: 5:00 PM
+                </p>
               </div>
-              <span className="px-2 py-1 bg-warning-light text-warning-dark text-xs font-medium rounded-lg">Pending</span>
-            </div>
+              <span className="px-2.5 py-1 bg-amber-100/50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold rounded-lg border border-amber-200 dark:border-amber-800">Pending</span>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
@@ -237,13 +300,13 @@ const AdminDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-10">
       <div className="flex justify-end">
         <button
           onClick={() => setActiveTab('ai-hub')}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium shadow-lg shadow-purple-600/20 transition-colors flex items-center gap-2"
+          className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/30 text-sm font-semibold transition-all flex items-center gap-2 group transform hover:-translate-y-0.5"
         >
-          <Sparkles size={16} />
+          <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
           AI Features Hub
         </button>
       </div>
@@ -255,7 +318,7 @@ const AdminDashboard: React.FC = () => {
           trend="Live"
           trendUp={true}
           icon={<Users size={24} />}
-          color="bg-green-500"
+          color="bg-emerald-500"
         />
         <StatCard
           title="Total System Users"
@@ -283,41 +346,61 @@ const AdminDashboard: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         {/* Active Sessions List */}
-        <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition">
-          <h2 className="text-lg font-bold text-foreground-primary mb-4 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="glass-panel p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-lg"
+        >
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 flex items-center gap-3">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
             Active Sessions
           </h2>
           <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
             {activeUsers.length === 0 ? (
-              <p className="text-foreground-secondary text-sm">No active users detected.</p>
+              <p className="text-slate-500 dark:text-slate-400 text-sm text-center py-10">No active users detected.</p>
             ) : (
               activeUsers.map((session, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-background-primary rounded-xl border border-border theme-transition">
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  key={idx} 
+                  className="flex items-center justify-between p-3 bg-white/50 dark:bg-slate-800/50 rounded-xl border border-slate-200/50 dark:border-slate-700/50 hover:border-emerald-500/30 transition-colors"
+                >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">
+                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-900/30">
                       {session.userName.charAt(0)}
                     </div>
                     <div>
-                      <p className="font-semibold text-foreground-primary text-sm">{session.userName}</p>
-                      <p className="text-xs text-foreground-secondary">{session.userRole} • {session.ip}</p>
+                      <p className="font-semibold text-slate-800 dark:text-slate-200 text-sm">{session.userName}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{session.userRole} • <span className="font-mono text-[10px] opacity-70">{session.ip}</span></p>
                     </div>
                   </div>
-                  <span className="text-xs font-medium text-success-dark bg-success-light px-2 py-1 rounded-full">
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100/50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-full flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     Online
                   </span>
-                </div>
+                </motion.div>
               ))
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* User Distribution Chart */}
-        <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition">
-          <h2 className="text-lg font-bold text-foreground-primary mb-4">User Distribution</h2>
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="glass-panel p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-lg"
+        >
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">User Distribution</h2>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -325,10 +408,11 @@ const AdminDashboard: React.FC = () => {
                   data={userRoleData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
+                  innerRadius={80}
+                  outerRadius={110}
                   paddingAngle={5}
                   dataKey="value"
+                  stroke="none"
                 >
                   {userRoleData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -339,44 +423,62 @@ const AdminDashboard: React.FC = () => {
                     backgroundColor: isDark ? '#1e293b' : '#fff',
                     borderRadius: '12px',
                     border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
-                    color: isDark ? '#fff' : '#0f172a'
+                    color: isDark ? '#fff' : '#0f172a',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
                   }}
-                  itemStyle={{ color: isDark ? '#fff' : '#0f172a' }}
+                  itemStyle={{ color: isDark ? '#fff' : '#0f172a', fontWeight: 600 }}
                 />
-                <Legend verticalAlign="bottom" height={36} />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36} 
+                  iconType="circle"
+                  formatter={(value) => <span className="text-slate-600 dark:text-slate-400 font-medium ml-1">{value}</span>}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
       </div>
 
       {/* Recent Access Logs */}
-      <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="glass-panel p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-lg"
+      >
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-bold text-foreground-primary">System Access Logs</h2>
-          <button className="text-sm text-accent font-medium hover:underline">View All Logs</button>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <Shield size={20} className="text-indigo-500" />
+            System Access Logs
+          </h2>
+          <button className="text-sm text-indigo-600 dark:text-indigo-400 font-medium hover:underline">View All Logs</button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border text-foreground-secondary text-sm">
-                <th className="py-3 font-medium">User</th>
-                <th className="py-3 font-medium">Role</th>
-                <th className="py-3 font-medium">Time</th>
-                <th className="py-3 font-medium">IP Address</th>
-                <th className="py-3 font-medium">Status</th>
+              <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                <th className="py-4 px-4 font-semibold">User</th>
+                <th className="py-4 px-4 font-semibold">Role</th>
+                <th className="py-4 px-4 font-semibold">Time</th>
+                <th className="py-4 px-4 font-semibold">IP Address</th>
+                <th className="py-4 px-4 font-semibold">Status</th>
               </tr>
             </thead>
             <tbody className="text-sm">
               {loginHistory.slice(0, 8).map((log, idx) => (
-                <tr key={idx} className="border-b border-border hover:bg-background-tertiary theme-transition">
-                  <td className="py-3 font-medium text-foreground-primary">{log.userName}</td>
-                  <td className="py-3 text-foreground-secondary">{log.userRole}</td>
-                  <td className="py-3 text-foreground-secondary">{log.loginTime}</td>
-                  <td className="py-3 text-foreground-muted font-mono text-xs">{log.ip}</td>
-                  <td className="py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${log.status === 'Active' ? 'bg-success-light text-success-dark' : 'bg-background-tertiary text-foreground-secondary'}`}>
+                <tr key={idx} className="border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">{log.userName}</td>
+                  <td className="py-3 px-4">
+                    <span className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-medium border border-slate-200 dark:border-slate-700">
+                      {log.userRole}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-slate-500 dark:text-slate-400">{log.loginTime}</td>
+                  <td className="py-3 px-4 text-slate-400 font-mono text-xs">{log.ip}</td>
+                  <td className="py-3 px-4">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${log.status === 'Active' ? 'bg-emerald-100/50 border-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400' : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'}`}>
                       {log.status}
                     </span>
                   </td>
@@ -385,7 +487,7 @@ const AdminDashboard: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
@@ -603,7 +705,7 @@ const Dashboard: React.FC = () => {
     }
   }, [flowResult]);
 
-  const showFinancials = [UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.DOCTOR].includes(user?.role as UserRole);
+  const showFinancials = [UserRole.ADMIN, UserRole.ACCOUNTANT].includes(user?.role as UserRole);
 
   // Render different dashboards based on role
   if (user?.role === UserRole.PATIENT) {
@@ -721,40 +823,55 @@ const Dashboard: React.FC = () => {
 
       {/* AI Patient Flow Analytics Panel */}
       {showAIPanel && aiFlowResult && (
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl border border-purple-200 dark:border-purple-800 shadow-lg p-6 animate-scale-up">
-          <div className="flex justify-between items-start mb-4">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
-                <Brain className="text-purple-600 dark:text-purple-400" size={20} />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          className="glass-panel p-6 rounded-2xl border border-purple-200/50 dark:border-purple-800/50 relative overflow-hidden"
+        >
+          {/* Decorative Background Elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+
+          <div className="flex justify-between items-start mb-6 relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-lg shadow-purple-500/20 text-white">
+                <Brain size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-purple-900 dark:text-purple-200">AI Patient Flow Analysis</h3>
-                <p className="text-xs text-purple-600 dark:text-purple-400">Real-time predictions and recommendations</p>
+                <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">AI Patient Flow Analysis</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Real-time predictions and resource optimization</p>
               </div>
             </div>
-            <button onClick={() => setShowAIPanel(false)} className="text-purple-400 hover:text-purple-600 dark:hover:text-purple-300" title="Close">
+            <button
+              onClick={() => setShowAIPanel(false)}
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              title="Close"
+            >
               <X size={20} />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2 relative z-10">
             {/* Volume Predictions */}
-            <div className="bg-background-secondary rounded-xl p-4 border border-purple-100 dark:border-purple-800 theme-transition">
-              <h4 className="font-semibold text-foreground-primary mb-3 flex items-center gap-2">
-                <TrendingUp size={16} className="text-blue-500" />
+            <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 border border-slate-200/60 dark:border-slate-700/60 hover:border-purple-500/30 transition-all duration-300 group">
+              <h4 className="font-semibold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <TrendingUp size={16} />
+                </div>
                 Volume Predictions
               </h4>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {aiFlowResult.volumePredictions.map((pred, idx) => (
-                  <div key={idx} className="bg-background-primary rounded-lg p-2 theme-transition">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-foreground-primary">{pred.timeframe}</span>
-                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{pred.predictedPatients} pts</span>
+                  <div key={idx} className="bg-white dark:bg-slate-900/50 rounded-lg p-3 border border-slate-100 dark:border-slate-800/50 shadow-sm group-hover:shadow-md transition-all">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{pred.timeframe}</span>
+                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-800">{pred.predictedPatients} pts</span>
                     </div>
-                    <div className="flex items-center gap-1 mt-1">
-                      <span className="text-xs text-foreground-secondary">Peak:</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs text-slate-400">Peak:</span>
                       {pred.peakHours.slice(0, 2).map((hour, i) => (
-                        <span key={i} className="text-xs bg-warning-light text-warning-dark px-1 rounded">{hour}</span>
+                        <span key={i} className="text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded border border-amber-100 dark:border-amber-800/50">{hour}</span>
                       ))}
                     </div>
                   </div>
@@ -763,48 +880,58 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Bottleneck Analysis */}
-            <div className="bg-background-secondary rounded-xl p-4 border border-purple-100 dark:border-purple-800 theme-transition">
-              <h4 className="font-semibold text-foreground-primary mb-3 flex items-center gap-2">
-                <AlertCircle size={16} className="text-red-500" />
+            <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 border border-slate-200/60 dark:border-slate-700/60 hover:border-red-500/30 transition-all duration-300 group">
+              <h4 className="font-semibold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400">
+                  <AlertCircle size={16} />
+                </div>
                 Bottlenecks
               </h4>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {aiFlowResult.bottleneckAnalysis.map((bottleneck, idx) => (
-                  <div key={idx} className={`p-2 rounded-lg ${bottleneck.severity === 'Critical' ? 'bg-danger-light border border-red-200 dark:border-red-800' :
-                    bottleneck.severity === 'High' ? 'bg-warning-light border border-orange-200 dark:border-orange-800' :
-                      'bg-background-primary theme-transition'
-                    }`}>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-foreground-primary">{bottleneck.location}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${bottleneck.severity === 'Critical' ? 'bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200' :
-                        bottleneck.severity === 'High' ? 'bg-orange-200 text-orange-800 dark:bg-orange-800 dark:text-orange-200' :
-                          'bg-background-tertiary text-foreground-secondary'
-                        }`}>{bottleneck.severity}</span>
+                  <div key={idx} className={`p-3 rounded-lg border shadow-sm group-hover:shadow-md transition-all ${
+                    bottleneck.severity === 'Critical'
+                      ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30'
+                      : bottleneck.severity === 'High'
+                      ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-900/30'
+                      : 'bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800/50'
+                  }`}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{bottleneck.location}</span>
+                      <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${
+                        bottleneck.severity === 'Critical'
+                          ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                          : bottleneck.severity === 'High'
+                          ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
+                          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                      }`}>{bottleneck.severity}</span>
                     </div>
-                    <p className="text-xs text-foreground-secondary mt-1">{bottleneck.cause}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{bottleneck.cause}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Staffing Recommendations */}
-            <div className="bg-background-secondary rounded-xl p-4 border border-purple-100 dark:border-purple-800 theme-transition">
-              <h4 className="font-semibold text-foreground-primary mb-3 flex items-center gap-2">
-                <UserCheck size={16} className="text-green-500" />
+            <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 border border-slate-200/60 dark:border-slate-700/60 hover:border-emerald-500/30 transition-all duration-300 group">
+              <h4 className="font-semibold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <UserCheck size={16} />
+                </div>
                 Staffing Needs
               </h4>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {aiFlowResult.staffingRecommendations.map((rec, idx) => (
-                  <div key={idx} className="bg-background-primary rounded-lg p-2 theme-transition">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-foreground-primary">{rec.department}</span>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-foreground-secondary">{rec.currentStaff}</span>
-                        <span className="text-xs text-foreground-muted">→</span>
-                        <span className="text-xs font-bold text-success-dark">{rec.recommendedStaff}</span>
+                  <div key={idx} className="bg-white dark:bg-slate-900/50 rounded-lg p-3 border border-slate-100 dark:border-slate-800/50 shadow-sm group-hover:shadow-md transition-all">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{rec.department}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">{rec.currentStaff}</span>
+                        <ArrowRight size={12} className="text-slate-400" />
+                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800">{rec.recommendedStaff}</span>
                       </div>
                     </div>
-                    <p className="text-xs text-foreground-secondary mt-1">{rec.reasoning}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{rec.reasoning}</p>
                   </div>
                 ))}
               </div>
@@ -812,40 +939,43 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Flow Efficiency Score */}
-          <div className="bg-background-secondary rounded-xl p-4 border border-purple-100 dark:border-purple-800 theme-transition">
-            <div className="flex items-center justify-between">
+          <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 border border-slate-200/60 dark:border-slate-700/60 relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl -z-10 pointer-events-none"></div>
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <h4 className="font-semibold text-foreground-primary">Overall Flow Efficiency</h4>
-                <p className="text-xs text-foreground-secondary">Based on current metrics and AI predictions</p>
+                <h4 className="font-semibold text-slate-700 dark:text-slate-200">Overall Flow Efficiency</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Based on current metrics and AI predictions</p>
               </div>
               <div className="text-right">
-                <span className="text-3xl font-bold text-accent">{aiFlowResult.flowEfficiency.overallScore}%</span>
+                <span className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">{aiFlowResult.flowEfficiency.overallScore}%</span>
               </div>
             </div>
-            <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-4">
               {aiFlowResult.flowEfficiency.departmentScores.map((dept, idx) => (
-                <div key={idx} className="bg-background-primary rounded-lg p-2 text-center theme-transition">
-                  <p className="text-xs text-foreground-secondary">{dept.department}</p>
-                  <p className="text-lg font-bold text-foreground-primary">{dept.score}%</p>
-                  <p className={`text-xs ${dept.trend === 'improving' ? 'text-green-500' : dept.trend === 'declining' ? 'text-red-500' : 'text-foreground-muted'}`}>
+                <div key={idx} className="bg-white dark:bg-slate-900/50 rounded-lg p-3 text-center border border-slate-100 dark:border-slate-800/50">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{dept.department}</p>
+                  <p className="text-xl font-bold text-slate-800 dark:text-slate-100">{dept.score}%</p>
+                  <p className={`text-[10px] uppercase font-bold tracking-wider mt-1 ${
+                    dept.trend === 'improving' ? 'text-emerald-500' : dept.trend === 'declining' ? 'text-rose-500' : 'text-slate-400'
+                  }`}>
                     {dept.trend}
                   </p>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition">
+        <div className="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-bold text-foreground-primary">Patient Flow Analytics</h2>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Patient Flow Analytics</h2>
             <div className="flex items-center gap-2">
               <button
                 onClick={runPatientFlowAnalysis}
                 disabled={flowLoading}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-50 flex items-center gap-1"
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 flex items-center gap-2 transform hover:-translate-y-0.5"
               >
                 {flowLoading ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -854,7 +984,7 @@ const Dashboard: React.FC = () => {
                 )}
                 AI Analyze
               </button>
-              <select className="bg-background-primary border border-border rounded-lg px-3 py-1 text-sm text-foreground-secondary outline-none focus:ring-2 focus:ring-accent theme-transition" title="Time period">
+              <select className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all" title="Time period">
                 <option>This Week</option>
                 <option>Last Week</option>
               </select>
@@ -887,23 +1017,28 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition">
-          <h2 className="text-lg font-bold text-foreground-primary mb-4">Upcoming Schedule</h2>
+        <div className="glass-panel p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60">
+          <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 flex items-center justify-between">
+            Upcoming Schedule
+            <button className="text-xs text-purple-600 dark:text-purple-400 font-medium hover:underline">View All</button>
+          </h2>
           <div className="space-y-4">
             {appointments.slice(0, 4).map((apt) => (
-              <div key={apt.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-background-tertiary theme-transition cursor-pointer group">
-                <div className="bg-background-tertiary text-foreground-secondary w-12 h-12 rounded-lg flex flex-col items-center justify-center font-bold text-sm group-hover:bg-accent/20 group-hover:text-accent transition-colors">
+              <div key={apt.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all cursor-pointer group border border-transparent hover:border-slate-100 dark:hover:border-slate-800">
+                <div className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 w-12 h-12 rounded-xl flex flex-col items-center justify-center font-bold text-sm group-hover:bg-purple-500/10 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                   <span>{apt.time.split(' ')[0]}</span>
-                  <span className="text-xs font-normal">{apt.time.split(' ')[1]}</span>
+                  <span className="text-[10px] font-normal opacity-70">{apt.time.split(' ')[1]}</span>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-foreground-primary">{apt.patientName}</h4>
-                  <p className="text-xs text-foreground-secondary">{apt.type} • {apt.doctorName}</p>
+                  <h4 className="font-semibold text-slate-700 dark:text-slate-200 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{apt.patientName}</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{apt.type} • {apt.doctorName}</p>
                 </div>
-                <div className={`w-2 h-2 rounded-full ${apt.status === 'Confirmed' ? 'bg-accent' : 'bg-orange-500'}`}></div>
+                <div className={`w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-slate-900 ${apt.status === 'Confirmed' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
               </div>
             ))}
-            <button className="w-full mt-2 py-2 text-center text-sm text-accent font-medium hover:text-accent/80">View Full Schedule</button>
+            <button className="w-full mt-2 py-2.5 text-center text-sm text-slate-500 dark:text-slate-400 font-medium hover:text-purple-600 dark:hover:text-purple-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-800">
+              View Full Schedule
+            </button>
           </div>
         </div>
       </div>
@@ -911,24 +1046,24 @@ const Dashboard: React.FC = () => {
       {/* AI Predictive Analytics Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Disease Outbreak Detection Panel */}
-        <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg">
-                <Bug className="text-red-600 dark:text-red-400" size={20} />
+        <div className="glass-panel p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-rose-500/10 rounded-xl text-rose-600 dark:text-rose-400">
+                <Bug size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-foreground-primary flex items-center gap-2">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                   Outbreak Detection
-                  <span className="text-xs bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-0.5 rounded-full">AI-Powered</span>
+                  <span className="text-[10px] uppercase font-bold bg-gradient-to-r from-rose-500 to-orange-500 text-white px-2 py-0.5 rounded-full shadow-lg shadow-rose-500/20">AI</span>
                 </h3>
-                <p className="text-xs text-foreground-secondary">Real-time disease surveillance</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Real-time disease surveillance</p>
               </div>
             </div>
             <button
               onClick={runOutbreakAnalysis}
               disabled={outbreakLoading}
-              className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1 rounded-lg text-sm font-medium hover:from-red-600 hover:to-orange-600 transition-all disabled:opacity-50 flex items-center gap-1"
+              className="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:border-rose-500 hover:text-rose-600 dark:hover:text-rose-400 transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm"
             >
               {outbreakLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
               Analyze
@@ -938,17 +1073,17 @@ const Dashboard: React.FC = () => {
           {outbreakResult ? (
             <div className="space-y-4">
               {/* Risk Level Indicator */}
-              <div className={`p-4 rounded-xl ${outbreakResult.overallRiskLevel === 'critical' ? 'bg-danger-light border border-red-200 dark:border-red-800' :
-                outbreakResult.overallRiskLevel === 'high' ? 'bg-warning-light border border-orange-200 dark:border-orange-800' :
-                  outbreakResult.overallRiskLevel === 'elevated' ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800' :
-                    'bg-success-light border border-green-200 dark:border-green-800'
+              <div className={`p-4 rounded-xl border relative overflow-hidden ${outbreakResult.overallRiskLevel === 'critical' ? 'bg-rose-50 dark:bg-rose-900/10 border-rose-200 dark:border-rose-800' :
+                outbreakResult.overallRiskLevel === 'high' ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-800' :
+                  outbreakResult.overallRiskLevel === 'elevated' ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800' :
+                    'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800'
                 }`}>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground-primary">Overall Risk Level</span>
-                  <span className={`text-lg font-bold capitalize ${outbreakResult.overallRiskLevel === 'critical' ? 'text-red-600' :
-                    outbreakResult.overallRiskLevel === 'high' ? 'text-orange-600' :
-                      outbreakResult.overallRiskLevel === 'elevated' ? 'text-yellow-600' :
-                        'text-green-600'
+                <div className="flex items-center justify-between relative z-10">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Overall Risk Level</span>
+                  <span className={`text-lg font-bold capitalize px-3 py-1 rounded-lg bg-white/50 dark:bg-black/20 ${outbreakResult.overallRiskLevel === 'critical' ? 'text-rose-600 dark:text-rose-400' :
+                    outbreakResult.overallRiskLevel === 'high' ? 'text-orange-600 dark:text-orange-400' :
+                      outbreakResult.overallRiskLevel === 'elevated' ? 'text-amber-600 dark:text-amber-400' :
+                        'text-emerald-600 dark:text-emerald-400'
                     }`}>{outbreakResult.overallRiskLevel}</span>
                 </div>
               </div>
@@ -956,25 +1091,25 @@ const Dashboard: React.FC = () => {
               {/* Active Alerts */}
               {outbreakResult.activeAlerts.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-foreground-primary">Active Alerts</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Active Alerts</h4>
                   {outbreakResult.activeAlerts.slice(0, 2).map((alert, idx) => (
-                    <div key={idx} className={`p-3 rounded-lg ${alert.severity === 'emergency' ? 'bg-red-100 dark:bg-red-900/30' :
-                      alert.severity === 'alert' ? 'bg-orange-100 dark:bg-orange-900/30' :
-                        'bg-yellow-100 dark:bg-yellow-900/30'
+                    <div key={idx} className={`p-3 rounded-xl border ${alert.severity === 'emergency' ? 'bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-800' :
+                      alert.severity === 'alert' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-800' :
+                        'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800'
                       }`}>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 mb-1">
                         <AlertTriangle size={14} className={
-                          alert.severity === 'emergency' ? 'text-red-600' :
+                          alert.severity === 'emergency' ? 'text-rose-600' :
                             alert.severity === 'alert' ? 'text-orange-600' :
-                              'text-yellow-600'
+                              'text-amber-600'
                         } />
-                        <span className="text-sm font-medium text-foreground-primary">{alert.condition}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${alert.severity === 'emergency' ? 'bg-red-200 text-red-800' :
-                          alert.severity === 'alert' ? 'bg-orange-200 text-orange-800' :
-                            'bg-yellow-200 text-yellow-800'
+                        <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{alert.condition}</span>
+                        <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${alert.severity === 'emergency' ? 'bg-rose-200 dark:bg-rose-900/50 text-rose-800 dark:text-rose-200' :
+                          alert.severity === 'alert' ? 'bg-orange-200 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200' :
+                            'bg-amber-200 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200'
                           }`}>{alert.severity}</span>
                       </div>
-                      <p className="text-xs text-foreground-secondary mt-1">{alert.description}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 pl-6">{alert.description}</p>
                     </div>
                   ))}
                 </div>
@@ -982,25 +1117,27 @@ const Dashboard: React.FC = () => {
 
               {/* Condition Analysis */}
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-foreground-primary">Condition Trends</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Condition Trends</h4>
                 {outbreakResult.conditionAnalysis.slice(0, 3).map((condition, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 bg-background-primary rounded-lg theme-transition">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-foreground-primary">{condition.condition}</span>
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${condition.trend === 'increasing' ? 'bg-danger-light text-danger-dark' :
-                        condition.trend === 'decreasing' ? 'bg-success-light text-success-dark' :
-                          'bg-background-tertiary text-foreground-secondary'
+                  <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{condition.condition}</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${condition.trend === 'increasing' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400' :
+                        condition.trend === 'decreasing' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
+                          'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
                         }`}>{condition.trend}</span>
                     </div>
-                    <span className="text-sm font-medium text-foreground-primary">{condition.currentCases} cases</span>
+                    <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{condition.currentCases} <span className="text-xs font-normal text-slate-500">cases</span></span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-foreground-secondary">
-              <Bug size={32} className="mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Click "Analyze" to run outbreak detection</p>
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Bug size={32} className="text-slate-400 dark:text-slate-500" />
+              </div>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Click "Analyze" to run outbreak detection</p>
             </div>
           )}
         </div>

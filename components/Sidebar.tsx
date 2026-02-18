@@ -339,8 +339,38 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
 
         {/* User Profile Snippet (Collapsed Mode) */}
         {!isOpen && !isMobile && (
-          <div className="p-4 border-t border-slate-200/50 dark:border-slate-800/50 flex justify-center">
-            <div className="w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 font-bold text-xs ring-2 ring-white dark:ring-slate-900">
+          <div className="p-4 border-t border-slate-200/50 dark:border-slate-800/50 space-y-3">
+            {/* Theme Toggle */}
+            <div className="flex justify-center">
+              <button
+                onClick={() => {
+                  const { toggleTheme } = require('../src/contexts/ThemeContext');
+                  // Using ThemeToggle component would be better, but showing direct implementation
+                  const html = document.documentElement;
+                  if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    localStorage.setItem('nexushealth-theme', 'light');
+                  } else {
+                    html.classList.add('dark');
+                    localStorage.setItem('nexushealth-theme', 'dark');
+                  }
+                }}
+                className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-teal-500 transition-colors"
+                title="Toggle theme"
+              >
+                {typeof window !== 'undefined' && document.documentElement.classList.contains('dark') ? (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 1.78a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm2.828 2.828a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM10 7a3 3 0 100 6 3 3 0 000-6zm-7 3a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm14 0a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-11.22 5.22a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm2.828 2.828a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+            {/* User Avatar */}
+            <div className="w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 font-bold text-xs ring-2 ring-white dark:ring-slate-900 mx-auto">
               {user?.name.charAt(0)}
             </div>
           </div>
@@ -348,7 +378,39 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
 
         {/* User Profile Snippet (Expanded Mode) */}
         {(isOpen || isMobile) && (
-          <div className="p-4 border-t border-slate-200/50 dark:border-slate-800/50">
+          <div className="p-4 border-t border-slate-200/50 dark:border-slate-800/50 space-y-3">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={() => {
+                const html = document.documentElement;
+                if (html.classList.contains('dark')) {
+                  html.classList.remove('dark');
+                  localStorage.setItem('nexushealth-theme', 'light');
+                } else {
+                  html.classList.add('dark');
+                  localStorage.setItem('nexushealth-theme', 'dark');
+                }
+              }}
+              className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors text-sm font-medium"
+              title="Toggle theme"
+            >
+              {typeof window !== 'undefined' && document.documentElement.classList.contains('dark') ? (
+                <>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 1.78a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm2.828 2.828a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM10 7a3 3 0 100 6 3 3 0 000-6zm-7 3a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm14 0a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-11.22 5.22a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm2.828 2.828a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>Light Mode</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                  </svg>
+                  <span>Dark Mode</span>
+                </>
+              )}
+            </button>
+            {/* User Profile */}
             <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50">
               <div className="w-9 h-9 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 font-bold ring-2 ring-white dark:ring-slate-900">
                 {user?.name.charAt(0)}
