@@ -100,12 +100,12 @@ const LoginPage: React.FC = () => {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="max-w-5xl w-full bg-background-secondary/80 backdrop-blur-2xl border border-white/20 dark:border-white/5 rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[650px] theme-transition relative z-10"
+        className="max-w-5xl w-full bg-white dark:bg-slate-900/80 backdrop-blur-2xl border border-slate-200 dark:border-white/5 rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[650px] relative z-10"
       >
         {renderBrand()}
 
         {/* Right Side - Forms */}
-        <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative bg-background-primary/30">
+        <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative bg-slate-50 dark:bg-slate-800/50">
           <AnimatePresence mode="wait">
             <motion.div
               key={view}

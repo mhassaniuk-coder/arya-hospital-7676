@@ -101,7 +101,7 @@ const LandingPage = () => {
                                     Launch Platform
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </button>
-                                <button className="w-full sm:w-auto px-10 py-5 text-lg font-bold text-slate-700 dark:text-white bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-white/20 dark:border-slate-700/50 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 hover:bg-white/80 dark:hover:bg-slate-800/80">
+                                <button className="w-full sm:w-auto px-10 py-5 text-lg font-bold text-slate-700 dark:text-white bg-white/90 dark:bg-slate-800/50 backdrop-blur-md border border-slate-300 dark:border-slate-700/50 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 hover:bg-white dark:hover:bg-slate-800/80">
                                     Watch Demo
                                 </button>
                             </div>

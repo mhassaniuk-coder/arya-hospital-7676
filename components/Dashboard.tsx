@@ -65,14 +65,14 @@ const data: ChartDataPoint[] = [
 const StatCard: React.FC<StatCardProps> = ({ title, value, trend, trendUp, icon, color }) => (
   <motion.div
     whileHover={{ y: -5, scale: 1.02 }}
-    className="glass-panel p-6 rounded-2xl relative overflow-hidden group border border-white/20 dark:border-slate-800/60 shadow-xl"
+    className="glass-panel p-6 rounded-2xl relative overflow-hidden group shadow-xl"
   >
     {/* Background Glow */}
     <div className={`absolute -right-10 -top-10 w-40 h-40 rounded-full ${color.replace('bg-', 'bg-opacity-10 bg-')} blur-3xl group-hover:scale-150 transition-transform duration-700 opacity-50`}></div>
     <div className={`absolute -left-10 -bottom-10 w-32 h-32 rounded-full ${color.replace('bg-', 'bg-opacity-5 bg-')} blur-3xl group-hover:scale-150 transition-transform duration-700 opacity-30`}></div>
 
     <div className="flex justify-between items-start mb-4 relative z-10">
-      <div className={`p-3.5 rounded-xl ${color} bg-opacity-10 dark:bg-opacity-20 backdrop-blur-md border border-white/10 shadow-inner`}>
+      <div className={`p-3.5 rounded-xl ${color} bg-opacity-10 dark:bg-opacity-20 backdrop-blur-md border border-slate-200/60 dark:border-white/10 shadow-inner`}>
         {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: `text-${color.replace('bg-', '')}-600 dark:text-${color.replace('bg-', '')}-400` })}
       </div>
       {trend && (
