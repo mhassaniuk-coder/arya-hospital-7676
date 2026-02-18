@@ -288,7 +288,7 @@ function DashboardLayout() {
   return (
     <SearchProvider>
       <NavProvider setActiveTab={setActiveTab}>
-        <div className="flex h-screen bg-background text-foreground-primary overflow-hidden font-sans theme-transition">
+        <div className="flex h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 overflow-hidden font-sans transition-colors duration-300">
           {/* Emergency Overlay */}
           <AnimatePresence>
             {isEmergencyActive && (
@@ -334,7 +334,7 @@ function DashboardLayout() {
             {/* Floating Glass Header */}
             <header className={`
               h-16 flex items-center justify-between px-4 md:px-6 z-30 transition-all duration-300
-              ${scrolled ? 'glass-header shadow-sm' : 'bg-transparent'}
+              ${scrolled ? 'bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm' : 'bg-transparent'}
             `}>
               <div className="flex items-center gap-3">
                 <button
@@ -377,7 +377,7 @@ function DashboardLayout() {
                     className="relative p-2 text-foreground-secondary hover:bg-background-tertiary rounded-full transition-colors"
                   >
                     <Bell size={20} />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background-primary shadow-sm"></span>
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-950 shadow-sm"></span>
                   </button>
                   {/* Notification Dropdown */}
                   <AnimatePresence>
@@ -386,54 +386,54 @@ function DashboardLayout() {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="absolute right-0 mt-2 w-80 glass-panel rounded-xl z-50 overflow-hidden"
+                        className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl z-50 overflow-hidden border border-slate-200 dark:border-slate-700 shadow-xl"
                       >
-                        <div className="p-3 border-b border-border font-semibold text-foreground-primary text-sm flex justify-between items-center bg-background-tertiary/30">
+                        <div className="p-3 border-b border-slate-200 dark:border-slate-700 font-semibold text-slate-900 dark:text-slate-50 text-sm flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
                           <span>Notifications</span>
-                          <span className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded-full">3 New</span>
+                          <span className="text-[10px] bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 px-1.5 py-0.5 rounded-full">3 New</span>
                         </div>
                         <div className="max-h-64 overflow-y-auto">
-                          <div className="p-3 hover:bg-background-tertiary border-b border-border/50 cursor-pointer transition-colors group">
+                          <div className="p-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50 cursor-pointer transition-colors group">
                             <div className="flex items-center gap-2 mb-1">
                               <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                              <p className="text-sm font-medium text-foreground-primary group-hover:text-accent transition-colors">Lab Results Ready</p>
+                              <p className="text-sm font-medium text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">Lab Results Ready</p>
                             </div>
-                            <p className="text-xs text-foreground-secondary pl-4">Patient: John Doe • 5m ago</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 pl-4">Patient: John Doe • 5m ago</p>
                           </div>
-                          <div className="p-3 hover:bg-background-tertiary border-b border-border/50 cursor-pointer transition-colors group">
+                          <div className="p-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50 cursor-pointer transition-colors group">
                             <div className="flex items-center gap-2 mb-1">
                               <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                              <p className="text-sm font-medium text-foreground-primary group-hover:text-accent transition-colors">Low Stock Alert: Insulin</p>
+                              <p className="text-sm font-medium text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">Low Stock Alert: Insulin</p>
                             </div>
-                            <p className="text-xs text-foreground-secondary pl-4">Pharmacy • 10m ago</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 pl-4">Pharmacy • 10m ago</p>
                           </div>
                         </div>
-                        <button className="w-full py-2 text-center text-xs font-medium text-accent bg-background-tertiary/30 hover:bg-background-tertiary transition-colors">View All</button>
+                        <button className="w-full py-2 text-center text-xs font-medium text-teal-600 dark:text-teal-400 bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">View All</button>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
 
-                <div className="hidden md:flex items-center gap-3 border-l border-border pl-4">
+                <div className="hidden md:flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-4">
                   <div className="text-right">
-                    <p className="text-sm font-bold text-foreground-primary">{user?.name}</p>
-                    <p className="text-xs text-foreground-secondary">{user?.role}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-slate-50">{user?.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{user?.role}</p>
                   </div>
                   <div className="relative">
-                    <img src={user?.avatar || "https://picsum.photos/40/40"} className="w-10 h-10 rounded-full border-2 border-background-secondary shadow-sm object-cover" alt="Profile" />
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background-primary rounded-full"></span>
+                    <img src={user?.avatar || "https://picsum.photos/40/40"} className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-700 shadow-sm object-cover" alt="Profile" />
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-950 rounded-full"></span>
                   </div>
-                  <button onClick={() => setIsLogoutModalOpen(true)} className="p-2 text-foreground-muted hover:text-red-500 transition-colors" title="Logout">
+                  <button onClick={() => setIsLogoutModalOpen(true)} className="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Logout">
                     <LogOut size={18} />
                   </button>
                 </div>
-                <img src={user?.avatar || "https://picsum.photos/32/32"} className="md:hidden rounded-full border border-border" alt="Profile" />
+                <img src={user?.avatar || "https://picsum.photos/32/32"} className="md:hidden rounded-full border border-slate-200 dark:border-slate-700" alt="Profile" />
               </div>
             </header>
 
             {/* Scrollable Content */}
             <main
-              className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 w-full max-w-[1600px] mx-auto relative custom-scrollbar scroll-smooth"
+              className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 w-full max-w-[1600px] mx-auto relative custom-scrollbar scroll-smooth bg-white dark:bg-slate-950 transition-colors duration-300"
               onScroll={handleScroll}
             >
               <AnimatePresence mode="wait">
@@ -455,7 +455,7 @@ function DashboardLayout() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setActiveTab('patients')}
-              className="md:hidden fixed bottom-6 right-6 bg-accent text-white p-4 rounded-full shadow-lg shadow-accent/30 z-20"
+              className="md:hidden fixed bottom-6 right-6 bg-teal-600 hover:bg-teal-500 text-white p-4 rounded-full shadow-lg shadow-teal-500/30 z-20 transition-all"
             >
               <Plus size={24} />
             </motion.button>

@@ -1143,24 +1143,24 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Health Trend Analysis Panel */}
-        <div className="bg-background-secondary p-6 rounded-2xl shadow-sm border border-border theme-transition">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                <LineChart className="text-blue-600 dark:text-blue-400" size={20} />
+        <div className="glass-panel p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-cyan-500/10 rounded-xl text-cyan-600 dark:text-cyan-400">
+                <LineChart size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-foreground-primary flex items-center gap-2">
-                  Health Trend Analysis
-                  <span className="text-xs bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 rounded-full">AI-Powered</span>
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                  Health Trends
+                  <span className="text-[10px] uppercase font-bold bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-2 py-0.5 rounded-full shadow-lg shadow-cyan-500/20">AI</span>
                 </h3>
-                <p className="text-xs text-foreground-secondary">Predictive analytics & forecasting</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Predictive analytics & forecasting</p>
               </div>
             </div>
             <button
               onClick={runHealthTrendsAnalysis}
               disabled={trendsLoading}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-cyan-600 transition-all disabled:opacity-50 flex items-center gap-1"
+              className="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm"
             >
               {trendsLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
               Analyze
@@ -1168,60 +1168,84 @@ const Dashboard: React.FC = () => {
           </div>
 
           {trendsResult ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* Executive Summary */}
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-                <p className="text-sm text-blue-800 dark:text-blue-200">{trendsResult.executiveSummary}</p>
+              <div className="p-4 bg-cyan-50 dark:bg-cyan-900/10 rounded-xl border border-cyan-100 dark:border-cyan-800/50 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl -z-10 pointer-events-none"></div>
+                <h4 className="text-xs font-bold uppercase text-cyan-800 dark:text-cyan-300 mb-2 flex items-center gap-2">
+                  <Activity size={14} />
+                  AI Summary
+                </h4>
+                <p className="text-sm text-cyan-900 dark:text-cyan-100 leading-relaxed">{trendsResult.executiveSummary}</p>
               </div>
 
               {/* Overall Trends */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-foreground-primary">Key Predictions</h4>
-                {trendsResult.overallTrends.slice(0, 3).map((trend, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 bg-background-primary rounded-lg theme-transition">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp size={14} className={
-                        trend.trend === 'increasing' ? 'text-orange-500' :
-                          trend.trend === 'decreasing' ? 'text-green-500' :
-                            'text-foreground-muted'
-                      } />
-                      <span className="text-sm text-foreground-primary">{trend.metric}</span>
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 ml-1">Key Predictions</h4>
+                <div className="space-y-3">
+                  {trendsResult.overallTrends.slice(0, 3).map((trend, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all group">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-1.5 rounded-lg ${
+                          trend.trend === 'increasing' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400' :
+                          trend.trend === 'decreasing' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' :
+                          'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                        }`}>
+                          <TrendingUp size={14} className={trend.trend === 'decreasing' ? 'rotate-180' : ''} />
+                        </div>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">{trend.metric}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{trend.predictedValue}</span>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${
+                          trend.changePercentage > 0 ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-800' :
+                          trend.changePercentage < 0 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800' :
+                          'bg-slate-50 text-slate-500 border-slate-100'
+                        }`}>
+                          {trend.changePercentage > 0 ? '+' : ''}{trend.changePercentage}%
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-foreground-primary">{trend.predictedValue}</span>
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${trend.changePercentage > 0 ? 'bg-warning-light text-warning-dark' :
-                        trend.changePercentage < 0 ? 'bg-success-light text-success-dark' :
-                          'bg-background-tertiary text-foreground-secondary'
-                        }`}>{trend.changePercentage > 0 ? '+' : ''}{trend.changePercentage}%</span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
               {/* Resource Demand */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-foreground-primary">Resource Demand Forecast</h4>
-                {trendsResult.resourceDemandForecasts.slice(0, 2).map((resource, idx) => (
-                  <div key={idx} className="p-2 bg-background-primary rounded-lg theme-transition">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-foreground-primary">{resource.resource}</span>
-                      {resource.shortageRisk && (
-                        <span className="text-xs bg-danger-light text-danger-dark px-1.5 py-0.5 rounded">Shortage Risk</span>
-                      )}
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 ml-1">Resource Forecast</h4>
+                <div className="grid grid-cols-1 gap-3">
+                  {trendsResult.resourceDemandForecasts.slice(0, 2).map((resource, idx) => (
+                    <div key={idx} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{resource.resource}</span>
+                        {resource.shortageRisk && (
+                          <span className="text-[10px] font-bold bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-full border border-rose-100 dark:border-rose-800 animate-pulse">
+                            Risk
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex flex-col">
+                          <span className="text-slate-400 mb-0.5">Current</span>
+                          <span className="font-medium text-slate-600 dark:text-slate-300">{resource.currentDemand}</span>
+                        </div>
+                        <ArrowRight size={12} className="text-slate-300 dark:text-slate-600" />
+                        <div className="flex flex-col items-end">
+                          <span className="text-slate-400 mb-0.5">Predicted</span>
+                          <span className="font-bold text-slate-800 dark:text-slate-100">{resource.predictedDemand}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-foreground-secondary">
-                      <span>Current: {resource.currentDemand}</span>
-                      <span>→</span>
-                      <span className="font-medium text-foreground-primary">Predicted: {resource.predictedDemand}</span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-foreground-secondary">
-              <LineChart size={32} className="mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Click "Analyze" to run trend analysis</p>
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <LineChart size={32} className="text-slate-400 dark:text-slate-500" />
+              </div>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Click "Analyze" to run trend analysis</p>
             </div>
           )}
         </div>
